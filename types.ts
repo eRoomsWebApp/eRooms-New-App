@@ -23,22 +23,71 @@ export enum UserRole {
   Student = 'student'
 }
 
+export enum UserStatus {
+  Active = 'Active',
+  Suspended = 'Suspended',
+  Flagged = 'Flagged'
+}
+
+export interface AppConfig {
+  siteName: string;
+  tagline: string;
+  heroDescription: string;
+  footerText: string;
+  maintenanceMode: boolean;
+  allowNewRegistrations: boolean;
+  supportWhatsApp: string;
+  supportPhone: string;
+  supportEmail: string;
+  socialLinks: {
+    instagram: string;
+    twitter: string;
+    linkedin: string;
+  };
+  areas: string[];
+  institutes: string[];
+  facilities: string[];
+  lastUpdated: string;
+}
+
 export interface DistanceMatrixItem {
   name: string;
   distance: number; // in kilometers
 }
 
+export interface ActivityLog {
+  id: string;
+  action: string;
+  target?: string;
+  timestamp: string;
+  metadata?: Record<string, any>;
+  importance: 'low' | 'medium' | 'high';
+}
+
 export interface User {
   id: string;
   username: string;
-  // Added email to support registration and identification in the UI and Auth logic
   email: string;
+  phone?: string;
   role: UserRole;
+  status?: UserStatus;
+  joinedAt?: string;
+  address?: string;
+  avatar?: string;
+  behavioralMetrics?: {
+    avgSessionTime: number; 
+    totalSessions: number;
+    pricePreference: { min: number; max: number };
+    topAreas: string[];
+    topFacilities: string[];
+    searchDepth: number; 
+  };
+  activityLog?: ActivityLog[];
 }
 
 export interface Property {
-  id: string; // Internal unique ID
-  ownerId: string; // ID of the user who owns this listing
+  id: string; 
+  ownerId: string; 
   ListingName: string;
   ListingType: ListingType;
   Gender: Gender;
@@ -54,9 +103,9 @@ export interface Property {
   RentSingle: number;
   RentDouble: number;
   SecurityTerms: string;
-  ElectricityCharges: number; // Per unit
-  Maintenance: number; // One-time
-  ParentsStayCharge: number; // Per day
+  ElectricityCharges: number; 
+  Maintenance: number; 
+  ParentsStayCharge: number; 
   Facilities: string[];
   PhotoMain: string;
   PhotoRoom: string;

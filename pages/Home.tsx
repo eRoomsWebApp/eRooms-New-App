@@ -1,16 +1,25 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useProperties } from '../context/PropertyContext';
 import PropertyCard from '../components/PropertyCard';
 import SearchBar from '../components/SearchBar';
 import FilterBar from '../components/FilterBar';
 import { ApprovalStatus } from '../types';
+import { getAppConfig, CONFIG_UPDATED_EVENT } from '../db';
 
 const Home: React.FC = () => {
-  const { filteredProperties, properties, loading, isFiltering, filters, setFilters } = useProperties();
+  const { filteredProperties, properties, loading, isFiltering, setFilters } = useProperties();
+  const [config, setConfig] = useState(getAppConfig());
 
-  // Recommendations logic: Show top-rated or first 3 approved properties when no matches found
+  useEffect(() => {
+    const handleSync = (e: any) => {
+      setConfig(e.detail);
+    };
+    window.addEventListener(CONFIG_UPDATED_EVENT, handleSync);
+    return () => window.removeEventListener(CONFIG_UPDATED_EVENT, handleSync);
+  }, []);
+
   const recommendations = useMemo(() => {
     return properties
       .filter(p => p.ApprovalStatus === ApprovalStatus.Approved)
@@ -40,8 +49,8 @@ const Home: React.FC = () => {
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">500+ Properties Live in Kota</span>
           </motion.div>
-          <h1 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 tracking-tighter">Stay Close to Your Future</h1>
-          <p className="text-slate-400 font-bold text-lg mb-12 max-w-xl mx-auto leading-relaxed">Discover elite hostels and PGs curated for the modern scholar. Search by your coaching or desired locality.</p>
+          <h1 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 tracking-tighter">{config.tagline}</h1>
+          <p className="text-slate-400 font-bold text-lg mb-12 max-w-xl mx-auto leading-relaxed">{config.heroDescription}</p>
           
           <SearchBar />
         </div>
@@ -117,7 +126,6 @@ const Home: React.FC = () => {
   );
 };
 
-// Internal minimal link for fallback
 const Link: React.FC<{ to: string, children: React.ReactNode, className?: string }> = ({ to, children, className }) => (
   <a href={`#${to}`} className={className}>{children}</a>
 );

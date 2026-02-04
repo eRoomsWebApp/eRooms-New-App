@@ -1,11 +1,12 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, UserRole } from '../types';
+import { User, UserRole, UserStatus } from '../types';
+import { MOCK_USERS } from '../db';
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, pass: string, role: UserRole) => Promise<boolean>;
-  signup: (userData: Omit<User, 'id'> & { password: string }) => Promise<boolean>;
+  signup: (userData: any) => Promise<boolean>;
   logout: () => void;
   switchRole: (role: UserRole | 'guest') => void;
   isAuthenticated: boolean;
@@ -22,6 +23,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
+    // Seed mock users if none exist
+    const storedUsers = localStorage.getItem(REGISTERED_USERS_KEY);
+    if (!storedUsers) {
+      localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(MOCK_USERS));
+    }
+
     const storedUser = localStorage.getItem('erooms_auth_user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -35,23 +42,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signup = async (userData: any): Promise<boolean> => {
     const users = getRegisteredUsers();
-    if (users.find(u => u.email === userData.email)) return false; // User exists
+    if (users.find(u => u.email === userData.email)) return false; 
 
-    const newUser = {
+    const newUser: User = {
       ...userData,
       id: Math.random().toString(36).substr(2, 9),
+      status: UserStatus.Active,
+      joinedAt: new Date().toISOString(),
+      phone: userData.phone || '',
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.username}`
     };
 
     users.push(newUser);
     localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(users));
     
-    // Auto-login after signup - Ensure email is included in the session user
-    const sessionUser: User = { 
-      id: newUser.id, 
-      username: newUser.username, 
-      email: newUser.email,
-      role: newUser.role 
-    };
+    const sessionUser: User = { ...newUser };
     setUser(sessionUser);
     localStorage.setItem('erooms_auth_user', JSON.stringify(sessionUser));
     
@@ -59,31 +64,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const login = async (email: string, pass: string, role: UserRole): Promise<boolean> => {
-    // 1. Check Hardcoded Super Admin - Ensure email is included
     if (role === UserRole.Admin && email === 'admin' && pass === '123') {
       const userData: User = { 
         id: 'admin-1', 
         username: 'Super Admin', 
-        email: 'admin',
-        role: UserRole.Admin 
+        email: 'admin@erooms.in',
+        role: UserRole.Admin,
+        status: UserStatus.Active,
+        joinedAt: '2023-01-01T00:00:00.000Z'
       };
       setUser(userData);
       localStorage.setItem('erooms_auth_user', JSON.stringify(userData));
       return true;
     }
 
-    // 2. Check Registered Users (Owners/Students)
     const users = getRegisteredUsers();
     const foundUser = users.find(u => u.email === email && u.password === pass && u.role === role);
 
     if (foundUser) {
-      // Ensure email is included from found user data
-      const userData: User = { 
-        id: foundUser.id, 
-        username: foundUser.username, 
-        email: foundUser.email,
-        role: foundUser.role 
-      };
+      const userData: User = { ...foundUser };
       setUser(userData);
       localStorage.setItem('erooms_auth_user', JSON.stringify(userData));
       return true;
@@ -98,11 +97,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
 
-    // Emulator roles: Ensure email is populated for type compliance
     const mockData: Record<UserRole, User> = {
-      [UserRole.Admin]: { id: 'admin', username: 'Emulator Admin', email: 'admin@erooms.in', role: UserRole.Admin },
-      [UserRole.Owner]: { id: 'owner', username: 'Emulator Owner', email: 'owner@erooms.in', role: UserRole.Owner },
-      [UserRole.Student]: { id: 'student', username: 'Emulator Student', email: 'student@erooms.in', role: UserRole.Student },
+      [UserRole.Admin]: { id: 'admin', username: 'Emulator Admin', email: 'admin@erooms.in', role: UserRole.Admin, status: UserStatus.Active },
+      [UserRole.Owner]: { id: 'owner', username: 'Emulator Owner', email: 'owner@erooms.in', role: UserRole.Owner, status: UserStatus.Active },
+      [UserRole.Student]: { id: 'student', username: 'Emulator Student', email: 'student@erooms.in', role: UserRole.Student, status: UserStatus.Active },
     };
 
     const userData = mockData[role];

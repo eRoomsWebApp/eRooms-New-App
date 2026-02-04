@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { PropertyProvider } from './context/PropertyContext';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
@@ -12,8 +12,9 @@ import AdminDashboard from './pages/AdminDashboard';
 import OwnerDashboard from './pages/OwnerDashboard';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
-import RoleSwitcher from './components/RoleSwitcher';
 import { UserRole } from './types';
+import { getAppConfig, CONFIG_UPDATED_EVENT } from './db';
+import { Instagram, Twitter, Linkedin } from 'lucide-react';
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -51,6 +52,16 @@ const AnimatedRoutes = () => {
 };
 
 const App: React.FC = () => {
+  const [config, setConfig] = useState(getAppConfig());
+
+  useEffect(() => {
+    const handleSync = (e: any) => {
+      setConfig(e.detail);
+    };
+    window.addEventListener(CONFIG_UPDATED_EVENT, handleSync);
+    return () => window.removeEventListener(CONFIG_UPDATED_EVENT, handleSync);
+  }, []);
+
   return (
     <AuthProvider>
       <PropertyProvider>
@@ -66,9 +77,9 @@ const App: React.FC = () => {
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
               <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
                 <div>
-                  <p className="font-black text-slate-900 text-3xl mb-4 tracking-tighter">erooms.in</p>
+                  <p className="font-black text-slate-900 text-3xl mb-4 tracking-tighter">{config.siteName}</p>
                   <p className="text-slate-400 text-sm font-bold leading-relaxed max-w-xs mx-auto md:mx-0">
-                    Kota's high-fidelity discovery engine for the modern student athlete and scholar.
+                    {config.footerText}
                   </p>
                 </div>
                 <div className="flex flex-col gap-3">
@@ -79,23 +90,20 @@ const App: React.FC = () => {
                 </div>
                 <div className="flex flex-col gap-3">
                   <p className="text-[10px] font-black uppercase text-slate-900 tracking-widest mb-4">Support</p>
-                  <a href="#" className="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Host Support</a>
+                  <a href={`mailto:${config.supportEmail}`} className="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Official Email</a>
                   <a href="#" className="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Student Help</a>
                   <a href="#" className="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Cloud Policy</a>
                 </div>
               </div>
               <div className="max-w-7xl mx-auto px-4 mt-16 pt-8 border-t border-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p className="text-[10px] font-black text-slate-400 tracking-widest uppercase">© 2025 eRooms Kota. All Rights Reserved.</p>
+                <p className="text-[10px] font-black text-slate-400 tracking-widest uppercase">© 2025 {config.siteName} Kota. All Rights Reserved.</p>
                 <div className="flex gap-6">
-                   <div className="text-xl grayscale hover:grayscale-0 cursor-pointer transition-all opacity-40 hover:opacity-100">📸</div>
-                   <div className="text-xl grayscale hover:grayscale-0 cursor-pointer transition-all opacity-40 hover:opacity-100">🐦</div>
-                   <div className="text-xl grayscale hover:grayscale-0 cursor-pointer transition-all opacity-40 hover:opacity-100">💼</div>
+                   <a href={config.socialLinks.instagram} target="_blank" className="text-slate-400 hover:text-pink-600 transition-all"><Instagram size={20} /></a>
+                   <a href={config.socialLinks.twitter} target="_blank" className="text-slate-400 hover:text-blue-400 transition-all"><Twitter size={20} /></a>
+                   <a href={config.socialLinks.linkedin} target="_blank" className="text-slate-400 hover:text-blue-700 transition-all"><Linkedin size={20} /></a>
                 </div>
               </div>
             </footer>
-            
-            {/* Real-time Role Emulator Switcher */}
-            <RoleSwitcher />
           </div>
         </Router>
       </PropertyProvider>

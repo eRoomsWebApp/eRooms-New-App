@@ -1,14 +1,23 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
+import { getAppConfig, CONFIG_UPDATED_EVENT } from '../db';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout, isAuthenticated } = useAuth();
+  const [siteName, setSiteName] = useState(getAppConfig().siteName);
+
+  useEffect(() => {
+    const handleSync = (e: any) => {
+      setSiteName(e.detail.siteName);
+    };
+    window.addEventListener(CONFIG_UPDATED_EVENT, handleSync);
+    return () => window.removeEventListener(CONFIG_UPDATED_EVENT, handleSync);
+  }, []);
 
   const navItems = [
     { label: 'Home', path: '/' },
@@ -30,8 +39,8 @@ const Navbar: React.FC = () => {
     <nav className="bg-white border-b border-slate-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
         <Link to="/" className="flex items-center gap-2.5">
-          <div className="bg-slate-900 text-white w-10 h-10 rounded-xl flex items-center justify-center font-black text-2xl shadow-xl">e</div>
-          <span className="font-extrabold text-2xl tracking-tighter text-slate-900">erooms.in</span>
+          <div className="bg-slate-900 text-white w-10 h-10 rounded-xl flex items-center justify-center font-black text-2xl shadow-xl">{siteName[0]}</div>
+          <span className="font-extrabold text-2xl tracking-tighter text-slate-900">{siteName}</span>
         </Link>
         
         <div className="hidden lg:flex items-center gap-10">
