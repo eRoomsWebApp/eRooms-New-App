@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,7 +10,7 @@ import {
   ChevronRight, Calendar, Sparkles, Map as MapIcon,
   Heart, Share2, Navigation, Coffee, Stethoscope, Bus,
   CheckCircle2, AlertTriangle, ArrowLeft, MoreHorizontal,
-  LayoutGrid
+  LayoutGrid, Shield as Safety, Monitor, Coffee as Cup
 } from 'lucide-react';
 import { useProperties } from '../context/PropertyContext';
 import { Gender } from '../types';
@@ -25,7 +26,8 @@ const facilityIconMap: Record<string, React.ElementType> = {
   'Attached Washroom': Bath,
   'Study Table': BookOpen,
   'Wardrobe': Shirt,
-  'Balcony': Sun
+  'Balcony': Sun,
+  'Biometric Entry': Safety
 };
 
 const PropertyProfile: React.FC = () => {
@@ -39,12 +41,21 @@ const PropertyProfile: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Student Survival Insights (Mock data derived from property location)
   const survivalMatrix = useMemo(() => [
-    { label: 'Caffeine Node', value: '0.2km', icon: Coffee, desc: 'Brew & Bites' },
+    { label: 'Caffeine Node', value: '0.2km', icon: Cup, desc: 'Brew & Bites' },
     { label: 'Medical Pulse', value: '1.4km', icon: Stethoscope, desc: 'City Hospital' },
     { label: 'Transit Link', value: '0.5km', icon: Bus, desc: 'Sector 5 Bus Stop' },
   ], []);
+
+  // Facility Categorization Logic
+  const categorizedFacilities = useMemo(() => {
+    if (!property) return { essential: [], comfort: [], safety: [] };
+    return {
+      essential: property.Facilities.filter(f => ['RO Water', 'Mess Facility', 'Study Table', 'Wardrobe'].includes(f)),
+      comfort: property.Facilities.filter(f => ['AC', 'WiFi', 'Laundry', 'Geyser', 'Balcony', 'Attached Washroom'].includes(f)),
+      safety: property.Facilities.filter(f => ['CCTV', 'Biometric Entry'].includes(f))
+    };
+  }, [property]);
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-white">
@@ -122,49 +133,94 @@ const PropertyProfile: React.FC = () => {
           {/* Main Info Stream */}
           <div className="lg:col-span-8 space-y-24">
              
-             {/* 2. Elite Amenities Grid */}
-             <section className="space-y-10">
+             {/* 2. Elite Amenities Grid - Redesigned to fix overlap */}
+             <section className="space-y-12">
                 <div className="flex items-center gap-6">
-                   <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">Elite Amenities</h2>
+                   <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">Asset Infrastructure</h2>
                    <div className="h-px flex-grow bg-slate-100"></div>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                   {property.Facilities.map(f => {
-                     const Icon = facilityIconMap[f] || Star;
-                     return (
-                       <div key={f} className="bg-slate-50 border border-slate-100 p-6 rounded-[32px] flex flex-col items-center text-center group hover:bg-slate-900 transition-all duration-500">
-                          <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-indigo-600 mb-4 group-hover:scale-110 transition-transform">
-                             <Icon size={24} />
-                          </div>
-                          <span className="text-[11px] font-black uppercase text-slate-500 group-hover:text-white tracking-widest">{f}</span>
-                       </div>
-                     );
-                   })}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   {/* Comfort & Tech */}
+                   <div className="bg-slate-50 border border-slate-100 p-8 rounded-[48px] space-y-8">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-indigo-600 shadow-sm"><Sparkles size={20} /></div>
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400">Premium Comfort</h3>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                         {categorizedFacilities.comfort.map(f => {
+                           const Icon = facilityIconMap[f] || Star;
+                           return (
+                             <div key={f} className="flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 group hover:border-indigo-600 transition-colors">
+                                <Icon size={18} className="text-indigo-600 flex-shrink-0" />
+                                <span className="text-[11px] font-black text-slate-900 uppercase truncate">{f}</span>
+                             </div>
+                           )
+                         })}
+                      </div>
+                   </div>
+
+                   {/* Essential Utility */}
+                   <div className="bg-slate-50 border border-slate-100 p-8 rounded-[48px] space-y-8">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-indigo-600 shadow-sm"><Zap size={20} /></div>
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400">Academic Utility</h3>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                         {categorizedFacilities.essential.map(f => {
+                           const Icon = facilityIconMap[f] || Star;
+                           return (
+                             <div key={f} className="flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 group hover:border-indigo-600 transition-colors">
+                                <Icon size={18} className="text-indigo-600 flex-shrink-0" />
+                                <span className="text-[11px] font-black text-slate-900 uppercase truncate">{f}</span>
+                             </div>
+                           )
+                         })}
+                      </div>
+                   </div>
+                </div>
+
+                {/* Security Protocol Row */}
+                <div className="bg-slate-900 text-white p-8 rounded-[40px] flex flex-col md:flex-row items-center justify-between gap-8">
+                   <div className="flex items-center gap-6">
+                      <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-indigo-400"><Safety size={28} /></div>
+                      <div>
+                         <p className="text-2xl font-black tracking-tighter uppercase">Security Protocol</p>
+                         <p className="text-[10px] font-black uppercase text-white/30 tracking-widest">Scholar Guard v2.0</p>
+                      </div>
+                   </div>
+                   <div className="flex flex-wrap gap-4 justify-center">
+                      {categorizedFacilities.safety.map(f => (
+                        <div key={f} className="px-6 py-3 bg-white/5 rounded-2xl border border-white/10 flex items-center gap-3">
+                           <CheckCircle2 size={16} className="text-indigo-400" />
+                           <span className="text-[11px] font-black uppercase tracking-widest">{f}</span>
+                        </div>
+                      ))}
+                   </div>
                 </div>
              </section>
 
              {/* 3. Budget Matrix & Transparency */}
-             <section className="bg-slate-900 text-white rounded-[56px] p-10 lg:p-16 shadow-2xl relative overflow-hidden">
-                <Sparkles className="absolute -top-10 -right-10 w-64 h-64 text-white/5 rotate-12" />
+             <section className="bg-white border border-slate-200 rounded-[56px] p-10 lg:p-16 shadow-sm relative overflow-hidden">
                 <div className="relative z-10">
                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16">
                       <div>
-                        <h2 className="text-4xl lg:text-5xl font-black tracking-tighter uppercase mb-2">Budget Protocol</h2>
-                        <p className="text-white/40 font-bold">Full financial transparency for the scholar session.</p>
+                        <h2 className="text-4xl lg:text-5xl font-black tracking-tighter uppercase mb-2 text-slate-900">Budget Protocol</h2>
+                        <p className="text-slate-400 font-bold">Full financial transparency for the scholar session.</p>
                       </div>
-                      <div className="flex p-1.5 bg-white/10 rounded-2xl border border-white/5">
-                        <button onClick={() => setActiveRentType('Single')} className={`px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeRentType === 'Single' ? 'bg-white text-slate-900 shadow-xl' : 'text-white/40 hover:text-white'}`}>Single</button>
-                        <button onClick={() => setActiveRentType('Double')} className={`px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeRentType === 'Double' ? 'bg-white text-slate-900 shadow-xl' : 'text-white/40 hover:text-white'}`}>Double</button>
+                      <div className="flex p-1.5 bg-slate-50 rounded-2xl border border-slate-100">
+                        <button onClick={() => setActiveRentType('Single')} className={`px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeRentType === 'Single' ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'}`}>Single</button>
+                        <button onClick={() => setActiveRentType('Double')} className={`px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeRentType === 'Double' ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'}`}>Double</button>
                       </div>
                    </div>
 
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-end">
                       <div className="space-y-2">
-                         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400">Net Monthly Rental</p>
+                         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-600">Net Monthly Rental</p>
                          <div className="flex items-baseline gap-2">
-                            <span className="text-2xl font-black text-white/20">₹</span>
-                            <span className="text-8xl lg:text-9xl font-black tracking-tighter">{activeRentType === 'Single' ? property.RentSingle.toLocaleString() : property.RentDouble.toLocaleString()}</span>
-                            <span className="text-xl font-bold text-white/20">/mo</span>
+                            <span className="text-2xl font-black text-slate-200">₹</span>
+                            <span className="text-8xl lg:text-9xl font-black tracking-tighter text-slate-900">{activeRentType === 'Single' ? property.RentSingle.toLocaleString() : property.RentDouble.toLocaleString()}</span>
+                            <span className="text-xl font-bold text-slate-300">/mo</span>
                          </div>
                       </div>
                       <div className="grid grid-cols-2 gap-6">
@@ -174,9 +230,9 @@ const PropertyProfile: React.FC = () => {
                            { label: 'Security', val: '1 Month', unit: 'Refundable' },
                            { label: 'Maintenance', val: `₹${property.Maintenance}`, unit: 'Annual' },
                          ].map((fee, i) => (
-                           <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-[32px] group hover:bg-white/10 transition-colors">
-                              <p className="text-[9px] font-black uppercase text-white/30 tracking-widest mb-1">{fee.label}</p>
-                              <p className="text-xl font-black">{fee.val}<span className="text-[10px] ml-1 opacity-20 font-bold">{fee.unit}</span></p>
+                           <div key={i} className="bg-slate-50 border border-slate-100 p-6 rounded-[32px] group hover:border-indigo-600 transition-colors">
+                              <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">{fee.label}</p>
+                              <p className="text-xl font-black text-slate-900">{fee.val}<span className="text-[10px] ml-1 opacity-20 font-bold">{fee.unit}</span></p>
                            </div>
                          ))}
                       </div>
@@ -189,7 +245,7 @@ const PropertyProfile: React.FC = () => {
                 <section className="space-y-8">
                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter flex items-center gap-3"><Navigation size={20} className="text-indigo-600" /> Coaching Proximity</h3>
                    <div className="bg-white border border-slate-100 rounded-[40px] overflow-hidden shadow-sm">
-                      {sortedMatrix.map((item, i) => (
+                      {sortedMatrix.slice(0, 5).map((item, i) => (
                         <div key={i} className="p-6 border-b border-slate-50 flex items-center justify-between hover:bg-slate-50 transition-colors group">
                            <div className="flex items-center gap-4">
                               <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-black text-[10px] text-slate-400 group-hover:bg-slate-900 group-hover:text-white transition-all">{i+1}</div>
