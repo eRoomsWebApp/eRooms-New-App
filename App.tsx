@@ -10,6 +10,7 @@ import Home from './pages/Home';
 import PropertyProfile from './pages/PropertyProfile';
 import AdminDashboard from './pages/AdminDashboard';
 import OwnerDashboard from './pages/OwnerDashboard';
+import StudentDashboard from './pages/StudentDashboard';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import { UserRole } from './types';
@@ -26,24 +27,13 @@ const AnimatedRoutes = () => {
         <Route path="/login" element={<Login />} />
         
         {/* Protected Admin Routes */}
-        <Route 
-          path="/admin/dashboard" 
-          element={
-            <ProtectedRoute requiredRole={UserRole.Admin}>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } 
-        />
+        <Route path="/admin/dashboard" element={<ProtectedRoute requiredRole={UserRole.Admin}><AdminDashboard /></ProtectedRoute>} />
 
         {/* Protected Owner Routes */}
-        <Route 
-          path="/owner/dashboard" 
-          element={
-            <ProtectedRoute requiredRole={UserRole.Owner}>
-              <OwnerDashboard />
-            </ProtectedRoute>
-          } 
-        />
+        <Route path="/owner/dashboard" element={<ProtectedRoute requiredRole={UserRole.Owner}><OwnerDashboard /></ProtectedRoute>} />
+
+        {/* Protected Student Routes */}
+        <Route path="/student/dashboard" element={<ProtectedRoute requiredRole={UserRole.Student}><StudentDashboard /></ProtectedRoute>} />
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
@@ -74,33 +64,23 @@ const App: React.FC = () => {
             </main>
             
             <footer className="bg-white border-t border-slate-100 py-20 mt-20 relative overflow-hidden">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
               <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
                 <div>
                   <p className="font-black text-slate-900 text-3xl mb-4 tracking-tighter">{config.siteName}</p>
-                  <p className="text-slate-400 text-sm font-bold leading-relaxed max-w-xs mx-auto md:mx-0">
-                    {config.footerText}
-                  </p>
-                </div>
-                <div className="flex flex-col gap-3">
-                  <p className="text-[10px] font-black uppercase text-slate-900 tracking-widest mb-4">Company</p>
-                  <a href="#" className="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Our Story</a>
-                  <a href="#" className="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Safety Standards</a>
-                  <a href="#" className="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Local Areas</a>
+                  <p className="text-slate-400 text-sm font-bold leading-relaxed max-w-xs mx-auto md:mx-0">{config.footerText}</p>
                 </div>
                 <div className="flex flex-col gap-3">
                   <p className="text-[10px] font-black uppercase text-slate-900 tracking-widest mb-4">Support</p>
                   <a href={`mailto:${config.supportEmail}`} className="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Official Email</a>
-                  <a href="#" className="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Student Help</a>
-                  <a href="#" className="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Cloud Policy</a>
+                  <a href="#" className="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Help Center</a>
                 </div>
-              </div>
-              <div className="max-w-7xl mx-auto px-4 mt-16 pt-8 border-t border-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p className="text-[10px] font-black text-slate-400 tracking-widest uppercase">© 2025 {config.siteName} Kota. All Rights Reserved.</p>
-                <div className="flex gap-6">
-                   <a href={config.socialLinks.instagram} target="_blank" className="text-slate-400 hover:text-pink-600 transition-all"><Instagram size={20} /></a>
-                   <a href={config.socialLinks.twitter} target="_blank" className="text-slate-400 hover:text-blue-400 transition-all"><Twitter size={20} /></a>
-                   <a href={config.socialLinks.linkedin} target="_blank" className="text-slate-400 hover:text-blue-700 transition-all"><Linkedin size={20} /></a>
+                <div className="flex flex-col gap-3">
+                  <p className="text-[10px] font-black uppercase text-slate-900 tracking-widest mb-4">Connect</p>
+                  <div className="flex gap-4 justify-center md:justify-start">
+                    <a href={config.socialLinks.instagram} target="_blank" className="text-slate-400 hover:text-pink-600 transition-all"><Instagram size={20} /></a>
+                    <a href={config.socialLinks.twitter} target="_blank" className="text-slate-400 hover:text-blue-400 transition-all"><Twitter size={20} /></a>
+                    <a href={config.socialLinks.linkedin} target="_blank" className="text-slate-400 hover:text-blue-700 transition-all"><Linkedin size={20} /></a>
+                  </div>
                 </div>
               </div>
             </footer>

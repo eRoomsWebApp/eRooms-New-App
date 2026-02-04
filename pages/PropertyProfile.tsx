@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -7,7 +6,10 @@ import {
   Zap, Bath, BookOpen, Shirt, Sun, Star, MapPin, 
   Phone, Mail, ShieldCheck, Video, Info, CreditCard, 
   User, ShieldAlert, MessageCircle, ExternalLink,
-  ChevronRight, Calendar, Sparkles, Map as MapIcon
+  ChevronRight, Calendar, Sparkles, Map as MapIcon,
+  Heart, Share2, Navigation, Coffee, Stethoscope, Bus,
+  CheckCircle2, AlertTriangle, ArrowLeft, MoreHorizontal,
+  LayoutGrid
 } from 'lucide-react';
 import { useProperties } from '../context/PropertyContext';
 import { Gender } from '../types';
@@ -31,347 +33,265 @@ const PropertyProfile: React.FC = () => {
   const { properties, loading } = useProperties();
   const property = properties.find(p => p.id === id);
   const [activeRentType, setActiveRentType] = useState<'Single' | 'Double'>('Double');
+  const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
+  // Student Survival Insights (Mock data derived from property location)
+  const survivalMatrix = useMemo(() => [
+    { label: 'Caffeine Node', value: '0.2km', icon: Coffee, desc: 'Brew & Bites' },
+    { label: 'Medical Pulse', value: '1.4km', icon: Stethoscope, desc: 'City Hospital' },
+    { label: 'Transit Link', value: '0.5km', icon: Bus, desc: 'Sector 5 Bus Stop' },
+  ], []);
+
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-50">
-      <motion.div 
-        animate={{ scale: [1, 1.1, 1], opacity: [0.5, 1, 0.5] }}
-        transition={{ duration: 1.5, repeat: Infinity }}
-        className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full"
-      />
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} className="w-12 h-12 border-4 border-slate-900 border-t-transparent rounded-full" />
     </div>
   );
 
   if (!property) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 px-4">
-      <div className="bg-white p-12 rounded-[32px] border border-slate-200 text-center shadow-xl">
-        <h1 className="text-3xl font-black text-slate-900 mb-4">Listing Not Located</h1>
-        <p className="text-slate-500 mb-8 font-medium">The requested property profile is unavailable or may have been re-indexed.</p>
-        <Link to="/" className="inline-flex items-center gap-2 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black transition-all hover:bg-indigo-600">
-          Return to Hub
-        </Link>
-      </div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
+      <h1 className="text-4xl font-black text-slate-900 mb-4 uppercase tracking-tighter">Asset Not Located</h1>
+      <Link to="/" className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black">Return to Hub</Link>
     </div>
   );
 
-  // Safe data extraction to prevent runtime crashes
   const sortedMatrix = [...(property.InstituteDistanceMatrix || [])].sort((a, b) => a.distance - b.distance);
-  const facilityList = property.Facilities || [];
-  const mainImage = property.PhotoMain || 'https://images.unsplash.com/photo-1555854817-5b2260d07c47?q=80&w=2070&auto=format&fit=crop';
-  const roomImage = property.PhotoRoom || 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2071&auto=format&fit=crop';
-  const washroomImage = property.PhotoWashroom || 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=2070&auto=format&fit=crop';
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
 
   return (
-    <div className="bg-neutral-50 min-h-screen selection:bg-indigo-100 selection:text-indigo-900">
-      <div className="max-w-7xl mx-auto px-4 py-12 lg:py-20">
-        
-        {/* Elite Breadcrumb */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-10 flex items-center gap-3 text-slate-400 font-bold text-[10px] uppercase tracking-[0.3em]">
-          <Link to="/" className="hover:text-slate-900 transition-colors">Kota</Link>
-          <ChevronRight size={12} className="opacity-40" />
-          <span className="hover:text-slate-900 cursor-pointer">{property.Area?.split(' (')[0] || 'Unassigned Cluster'}</span>
-          <ChevronRight size={12} className="opacity-40" />
-          <span className="text-slate-900">{property.ListingName}</span>
-        </motion.div>
+    <div className="bg-white min-h-screen pb-32">
+      
+      {/* 1. Immersive Hero Gallery */}
+      <section className="relative h-[60vh] lg:h-[85vh] overflow-hidden">
+        <div className="absolute inset-0 grid grid-cols-1 lg:grid-cols-12 gap-1 lg:gap-2">
+           <div className="lg:col-span-8 h-full relative group">
+              <img src={property.PhotoMain} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Main" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent"></div>
+           </div>
+           <div className="hidden lg:grid lg:col-span-4 grid-rows-2 gap-2 h-full">
+              <div className="relative overflow-hidden group">
+                 <img src={property.PhotoRoom} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Room" />
+              </div>
+              <div className="relative overflow-hidden group">
+                 <img src={property.PhotoWashroom} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Washroom" />
+                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    <span className="text-white font-black uppercase text-xs tracking-widest">+12 More Photos</span>
+                 </div>
+              </div>
+           </div>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        {/* Hero Overlay Controls */}
+        <div className="absolute top-8 left-8 right-8 flex justify-between items-start pointer-events-none">
+           <Link to="/" className="pointer-events-auto bg-white/20 backdrop-blur-xl p-4 rounded-2xl border border-white/20 text-white hover:bg-white hover:text-slate-900 transition-all shadow-2xl">
+              <ArrowLeft size={20} />
+           </Link>
+           <div className="flex gap-3 pointer-events-auto">
+              <button onClick={() => setIsSaved(!isSaved)} className={`p-4 rounded-2xl border backdrop-blur-xl transition-all shadow-2xl ${isSaved ? 'bg-rose-500 border-rose-500 text-white' : 'bg-white/20 border-white/20 text-white hover:bg-white hover:text-slate-900'}`}>
+                 <Heart size={20} fill={isSaved ? "currentColor" : "none"} />
+              </button>
+              <button className="bg-white/20 backdrop-blur-xl p-4 rounded-2xl border border-white/20 text-white hover:bg-white hover:text-slate-900 transition-all shadow-2xl">
+                 <Share2 size={20} />
+              </button>
+           </div>
+        </div>
+
+        <div className="absolute bottom-12 left-12 right-12 text-white pointer-events-none">
+           <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-end gap-10">
+              <div className="space-y-4">
+                 <div className="flex items-center gap-3">
+                    <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg ${property.Gender === Gender.Boys ? 'bg-blue-600' : 'bg-pink-600'}`}>{property.Gender} ONLY</span>
+                    <span className="bg-green-500 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg flex items-center gap-2"><CheckCircle2 size={12} /> VERIFIED ASSET</span>
+                 </div>
+                 <h1 className="text-5xl lg:text-8xl font-black tracking-tighter leading-none">{property.ListingName}</h1>
+                 <div className="flex items-center gap-3 text-white/80 font-bold">
+                    <MapPin size={20} className="text-indigo-400" />
+                    <span className="text-lg lg:text-xl">{property.FullAddress}</span>
+                 </div>
+              </div>
+           </div>
+        </div>
+      </section>
+
+      <div className="max-w-7xl mx-auto px-4 lg:px-12 mt-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
           
-          {/* Main Content Column */}
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="lg:col-span-8 space-y-20"
-          >
-            
-            {/* Elite Identity Hub */}
-            <div className="space-y-6">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.25em] shadow-sm ${
-                  property.Gender === Gender.Boys ? 'bg-indigo-600 text-white' : property.Gender === Gender.Girls ? 'bg-pink-600 text-white' : 'bg-slate-900 text-white'
-                }`}>
-                  {property.Gender} Target
-                </span>
-                <div className="bg-white border border-slate-100 text-slate-400 font-black text-[10px] uppercase tracking-widest px-5 py-2 rounded-full flex items-center gap-2">
-                  <ShieldCheck size={14} className="text-green-500" />
-                  Audit: Verified Property
+          {/* Main Info Stream */}
+          <div className="lg:col-span-8 space-y-24">
+             
+             {/* 2. Elite Amenities Grid */}
+             <section className="space-y-10">
+                <div className="flex items-center gap-6">
+                   <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">Elite Amenities</h2>
+                   <div className="h-px flex-grow bg-slate-100"></div>
                 </div>
-                {property.ListingType && (
-                  <span className="text-slate-400 font-black text-[10px] uppercase tracking-widest bg-slate-100 px-4 py-2 rounded-full">
-                    Category: {property.ListingType}
-                  </span>
-                )}
-              </div>
-              <h1 className="text-6xl lg:text-8xl font-black text-slate-900 tracking-tighter leading-[0.85]">{property.ListingName}</h1>
-              <p className="text-xl text-slate-500 font-bold flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-indigo-600">
-                  <MapPin size={20} />
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                   {property.Facilities.map(f => {
+                     const Icon = facilityIconMap[f] || Star;
+                     return (
+                       <div key={f} className="bg-slate-50 border border-slate-100 p-6 rounded-[32px] flex flex-col items-center text-center group hover:bg-slate-900 transition-all duration-500">
+                          <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-indigo-600 mb-4 group-hover:scale-110 transition-transform">
+                             <Icon size={24} />
+                          </div>
+                          <span className="text-[11px] font-black uppercase text-slate-500 group-hover:text-white tracking-widest">{f}</span>
+                       </div>
+                     );
+                   })}
                 </div>
-                {property.FullAddress || 'Exact coordinates pending sync...'}
-              </p>
-            </div>
+             </section>
 
-            {/* Asymmetric Master Gallery */}
-            <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-12 gap-5 h-[650px] group">
-              <div className="md:col-span-8 rounded-[40px] overflow-hidden relative border border-white shadow-2xl bg-slate-100">
-                <img src={mainImage} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Property Profile" />
-                <div className="absolute top-8 left-8">
-                   <div className="glass-card px-5 py-3 rounded-2xl flex items-center gap-3 border-white/40 shadow-xl">
-                      <Sparkles size={20} className="text-amber-400" />
-                      <span className="text-slate-900 text-[11px] font-black uppercase tracking-widest">Premium Listing Narrative</span>
-                   </div>
-                </div>
-                <div className="absolute bottom-8 right-8">
-                   <button className="bg-white/95 backdrop-blur-md text-slate-900 px-8 py-4 rounded-[24px] font-black text-xs uppercase tracking-widest flex items-center gap-3 border border-white hover:bg-slate-900 hover:text-white transition-all shadow-2xl active:scale-95">
-                      <Video size={18} />
-                      Stream 4K VR Tour
-                   </button>
-                </div>
-              </div>
-              <div className="md:col-span-4 flex flex-col gap-5">
-                <div className="flex-1 rounded-[40px] overflow-hidden border border-white shadow-lg relative group/item bg-slate-100">
-                  <img src={roomImage} className="w-full h-full object-cover transition-transform duration-1000 group-hover/item:scale-110" alt="Room Aesthetics" />
-                  <div className="absolute bottom-6 left-6 text-white text-[9px] font-black uppercase tracking-widest bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full">Private Space</div>
-                </div>
-                <div className="flex-1 rounded-[40px] overflow-hidden border border-white shadow-lg relative group/item bg-slate-100">
-                  <img src={washroomImage} className="w-full h-full object-cover transition-transform duration-1000 group-hover/item:scale-110" alt="Hygiene Hub" />
-                  <div className="absolute bottom-6 left-6 text-white text-[9px] font-black uppercase tracking-widest bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full">Hygiene Narrative</div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Proximity Grid */}
-            <motion.section variants={itemVariants} className="space-y-10">
-              <div className="flex items-center justify-between">
-                <h2 className="text-4xl font-black text-slate-900 tracking-tight flex items-center gap-4">
-                   Proximity Hub
-                   <div className="h-px w-24 bg-slate-200"></div>
-                </h2>
-                <div className="bg-indigo-50 text-indigo-700 px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-indigo-100 flex items-center gap-2">
-                   <MapIcon size={14} />
-                   Synced from G-Maps
-                </div>
-              </div>
-              {sortedMatrix.length > 0 ? (
-                <div className="flex gap-5 overflow-x-auto no-scrollbar pb-6 -mx-4 px-4 scroll-smooth">
-                  {sortedMatrix.map((item, idx) => (
-                    <motion.div 
-                      key={idx} 
-                      whileHover={{ y: -8, backgroundColor: "#0f172a", color: "#ffffff" }}
-                      className="min-w-[300px] bg-white border border-slate-100 rounded-[32px] p-8 shadow-sm transition-all group cursor-default"
-                    >
-                      <div className="flex items-center gap-5 mb-6">
-                        <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
-                          <MapPin size={28} />
-                        </div>
-                        <div>
-                          <p className="font-black text-inherit leading-tight text-lg">{item.name}</p>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-white/40">Coaching Entity</p>
-                        </div>
-                      </div>
-                      <div className="flex items-end justify-between border-t border-slate-50 group-hover:border-white/10 pt-6">
-                        <div>
-                          <p className="text-4xl font-black text-inherit tracking-tighter">{item.distance}<span className="text-sm ml-1 opacity-40 font-bold">KM</span></p>
-                          <p className="text-[11px] font-black text-indigo-600 uppercase group-hover:text-indigo-400">Proximity</p>
-                        </div>
-                        <div className="text-right">
-                           <p className="text-xl font-black text-green-500 group-hover:text-green-400">🚶 {Math.ceil(item.distance * 12)}</p>
-                           <p className="text-[10px] font-black text-slate-300 uppercase group-hover:text-white/20">Mins Walk</p>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-16 bg-slate-100 rounded-[40px] text-center border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-lg text-slate-300">
-                    <MapIcon size={24} />
-                  </div>
-                  <p className="text-slate-400 font-black uppercase tracking-widest text-[11px]">Proximity Matrix Pending Sync...</p>
-                </div>
-              )}
-            </motion.section>
-
-            {/* Financial Card Overhaul */}
-            <motion.section variants={itemVariants}>
-              <div className="bg-indigo-50 border border-indigo-100 rounded-[48px] p-10 lg:p-16 shadow-2xl relative overflow-hidden">
-                <div className="absolute -top-10 -right-10 p-10 opacity-[0.03] pointer-events-none rotate-12">
-                  <CreditCard size={350} />
-                </div>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-16 relative z-10">
-                  <div>
-                    <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-6">Financial Matrix</h2>
-                    <p className="text-slate-500 font-bold text-lg leading-relaxed mb-10">Calculated based on <span className="text-indigo-600">Premium Tiers</span> and area-specific demand metrics. Full transparency guaranteed.</p>
-                    <div className="flex p-1.5 bg-white rounded-3xl border border-slate-100 shadow-sm max-w-sm">
-                       <button 
-                         onClick={() => setActiveRentType('Single')}
-                         className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                           activeRentType === 'Single' ? 'bg-indigo-600 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'
-                         }`}
-                       >
-                         Single Occupancy
-                       </button>
-                       <button 
-                         onClick={() => setActiveRentType('Double')}
-                         className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                           activeRentType === 'Double' ? 'bg-indigo-600 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'
-                         }`}
-                       >
-                         Double Shared
-                       </button>
-                    </div>
-                  </div>
-                  <div className="text-center lg:text-right">
-                    <p className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-4">Baseline Commitment</p>
-                    <motion.div 
-                      key={activeRentType}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="text-8xl lg:text-[140px] font-black text-slate-900 tracking-tighter leading-[0.8]"
-                    >
-                      <span className="text-4xl lg:text-5xl align-top mr-2 text-indigo-200">₹</span>
-                      {(activeRentType === 'Single' ? property.RentSingle : property.RentDouble)?.toLocaleString() || '0'}
-                    </motion.div>
-                    <p className="text-lg font-black text-slate-400 mt-6 tracking-tight uppercase opacity-60">Per Calendar Month • Standard T&C</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
-                   {[
-                     { label: 'Energy Unit Charge', val: `₹${property.ElectricityCharges || 0}`, sub: 'Metered Consumption', icon: Zap },
-                     { label: 'One-Time Maintenance', val: `₹${(property.Maintenance || 0).toLocaleString()}`, sub: 'Facility Sustain Fee', icon: Info },
-                     { label: 'Parent Guest Rate', val: `₹${property.ParentsStayCharge || 0}`, sub: 'Nightly Stay Allocation', icon: User }
-                   ].map((item, i) => (
-                     <div key={i} className="bg-white/90 backdrop-blur-xl rounded-[32px] p-8 border border-white shadow-lg flex flex-col items-center text-center gap-4 group hover:bg-white transition-all">
-                        <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                          <item.icon size={28} strokeWidth={2} />
-                        </div>
-                        <div>
-                           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">{item.label}</p>
-                           <p className="text-3xl font-black text-slate-900 tracking-tight mb-1">{item.val}</p>
-                           <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{item.sub}</p>
-                        </div>
-                     </div>
-                   ))}
-                </div>
-              </div>
-            </motion.section>
-
-            {/* Amenity Narrative */}
-            <motion.section variants={itemVariants} className="space-y-12">
-               <h2 className="text-4xl font-black text-slate-900 tracking-tight flex items-center gap-6">
-                 Property DNA
-                 <div className="h-px flex-grow bg-slate-100"></div>
-               </h2>
-               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                  {facilityList.length > 0 ? facilityList.map(f => {
-                    const Icon = facilityIconMap[f] || Star;
-                    return (
-                      <div key={f} className="flex flex-col items-center justify-center gap-4 bg-white border border-slate-100 p-8 rounded-[32px] hover:bg-slate-900 hover:text-white group transition-all duration-500 cursor-default shadow-sm hover:shadow-2xl">
-                         <Icon size={32} className="text-indigo-600 group-hover:text-white transition-colors" strokeWidth={1.5} />
-                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-center leading-tight opacity-60 group-hover:opacity-100">{f}</span>
-                      </div>
-                    );
-                  }) : (
-                    <div className="col-span-full py-20 text-center bg-slate-100 rounded-[40px] border-2 border-dashed border-slate-200">
-                      <p className="text-slate-300 font-black uppercase tracking-widest text-[11px]">Amenity check in progress...</p>
-                    </div>
-                  )}
-               </div>
-            </motion.section>
-
-          </motion.div>
-
-          {/* Sticky Sidebar Management Column */}
-          <div className="lg:col-span-4 space-y-8">
-            <div className="sticky top-28 space-y-8">
-              
-              {/* Primary Call to Action */}
-              <div className="bg-white rounded-[40px] p-10 shadow-2xl border border-slate-50 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-6 text-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity">
-                   <Calendar size={80} />
-                </div>
-                <div className="mb-10 relative z-10">
-                  <p className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-3">Priority Access</p>
-                  <h3 className="text-4xl font-black text-slate-900 tracking-tighter leading-tight">Secure Your Viewing Session</h3>
-                </div>
-                <button className="w-full bg-slate-900 text-white py-7 rounded-[32px] font-black text-xl hover:bg-indigo-600 transition-all active:scale-95 shadow-2xl shadow-slate-200 relative z-10">
-                  Initiate Booking
-                </button>
-                <p className="text-[10px] text-center font-bold text-slate-300 uppercase tracking-widest mt-6">Zero Commission • Real-Time Availability</p>
-              </div>
-
-              {/* Safety/Warden Narrative */}
-              <div className="bg-slate-900 text-white p-10 rounded-[40px] shadow-2xl relative overflow-hidden group">
-                   <div className="absolute -top-10 -right-10 w-48 h-48 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-colors"></div>
-                   <div className="flex items-center gap-5 mb-10">
-                      <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center text-4xl shadow-inner">👮</div>
+             {/* 3. Budget Matrix & Transparency */}
+             <section className="bg-slate-900 text-white rounded-[56px] p-10 lg:p-16 shadow-2xl relative overflow-hidden">
+                <Sparkles className="absolute -top-10 -right-10 w-64 h-64 text-white/5 rotate-12" />
+                <div className="relative z-10">
+                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-1">Elite Management</p>
-                        <p className="text-2xl font-black tracking-tight">{property.WardenName || 'Allocated Personnel'}</p>
+                        <h2 className="text-4xl lg:text-5xl font-black tracking-tighter uppercase mb-2">Budget Protocol</h2>
+                        <p className="text-white/40 font-bold">Full financial transparency for the scholar session.</p>
+                      </div>
+                      <div className="flex p-1.5 bg-white/10 rounded-2xl border border-white/5">
+                        <button onClick={() => setActiveRentType('Single')} className={`px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeRentType === 'Single' ? 'bg-white text-slate-900 shadow-xl' : 'text-white/40 hover:text-white'}`}>Single</button>
+                        <button onClick={() => setActiveRentType('Double')} className={`px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeRentType === 'Double' ? 'bg-white text-slate-900 shadow-xl' : 'text-white/40 hover:text-white'}`}>Double</button>
                       </div>
                    </div>
-                   <div className="bg-red-500/10 border border-red-500/20 p-7 rounded-[32px] group-hover:bg-red-500/20 transition-all">
-                      <p className="text-[11px] font-black uppercase text-red-400 tracking-[0.2em] mb-2 flex items-center gap-3">
-                        <ShieldAlert size={16} /> Immediate Assistance
-                      </p>
-                      <p className="text-3xl font-black font-mono tracking-widest text-red-50">{property.EmergencyContact || 'Audit Pending'}</p>
-                   </div>
-                   <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mt-6 text-center italic">Safety Protocols Engaged 24/7</p>
-              </div>
 
-              {/* Ownership Matrix */}
-              <div className="bg-white border border-slate-100 p-10 rounded-[40px] shadow-xl group">
-                   <div className="flex items-center gap-5 mb-10">
-                      <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center text-3xl font-black text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
-                         {property.OwnerName?.[0] || 'E'}
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-end">
+                      <div className="space-y-2">
+                         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400">Net Monthly Rental</p>
+                         <div className="flex items-baseline gap-2">
+                            <span className="text-2xl font-black text-white/20">₹</span>
+                            <span className="text-8xl lg:text-9xl font-black tracking-tighter">{activeRentType === 'Single' ? property.RentSingle.toLocaleString() : property.RentDouble.toLocaleString()}</span>
+                            <span className="text-xl font-bold text-white/20">/mo</span>
+                         </div>
                       </div>
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-1">Direct Operator</p>
-                        <p className="text-2xl font-black text-slate-900 tracking-tight">{property.OwnerName}</p>
-                      </div>
-                   </div>
-                   <a 
-                      href={`https://wa.me/${property.OwnerWhatsApp}`}
-                      target="_blank" rel="noopener noreferrer"
-                      className="w-full flex items-center justify-center gap-4 py-5 bg-[#2563eb] text-white rounded-[28px] font-black uppercase tracking-widest text-xs hover:bg-[#0f172a] transition-all shadow-xl shadow-blue-100 group-hover:translate-y-[-2px]"
-                   >
-                      <MessageCircle size={20} /> Establish Connect
-                   </a>
-                   <div className="mt-8 pt-8 border-t border-slate-50 flex items-center justify-center gap-6 opacity-40">
-                      <div className="flex flex-col items-center">
-                         <Mail size={16} />
-                         <span className="text-[8px] font-black uppercase mt-1">E-Mail</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                         <Phone size={16} />
-                         <span className="text-[8px] font-black uppercase mt-1">Direct</span>
+                      <div className="grid grid-cols-2 gap-6">
+                         {[
+                           { label: 'Electricity', val: `₹${property.ElectricityCharges}`, unit: '/Unit' },
+                           { label: 'Parent Stay', val: `₹${property.ParentsStayCharge}`, unit: '/Day' },
+                           { label: 'Security', val: '1 Month', unit: 'Refundable' },
+                           { label: 'Maintenance', val: `₹${property.Maintenance}`, unit: 'Annual' },
+                         ].map((fee, i) => (
+                           <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-[32px] group hover:bg-white/10 transition-colors">
+                              <p className="text-[9px] font-black uppercase text-white/30 tracking-widest mb-1">{fee.label}</p>
+                              <p className="text-xl font-black">{fee.val}<span className="text-[10px] ml-1 opacity-20 font-bold">{fee.unit}</span></p>
+                           </div>
+                         ))}
                       </div>
                    </div>
-              </div>
+                </div>
+             </section>
 
-            </div>
+             {/* 4. Proximity & Survival Guide */}
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <section className="space-y-8">
+                   <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter flex items-center gap-3"><Navigation size={20} className="text-indigo-600" /> Coaching Proximity</h3>
+                   <div className="bg-white border border-slate-100 rounded-[40px] overflow-hidden shadow-sm">
+                      {sortedMatrix.map((item, i) => (
+                        <div key={i} className="p-6 border-b border-slate-50 flex items-center justify-between hover:bg-slate-50 transition-colors group">
+                           <div className="flex items-center gap-4">
+                              <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-black text-[10px] text-slate-400 group-hover:bg-slate-900 group-hover:text-white transition-all">{i+1}</div>
+                              <p className="font-black text-slate-900 text-sm">{item.name}</p>
+                           </div>
+                           <div className="text-right">
+                              <p className="font-black text-slate-900">{item.distance} KM</p>
+                              <p className="text-[10px] font-black text-green-500 uppercase">~{Math.ceil(item.distance * 12)}m walk</p>
+                           </div>
+                        </div>
+                      ))}
+                   </div>
+                </section>
+
+                <section className="space-y-8">
+                   <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter flex items-center gap-3"><MapIcon size={20} className="text-indigo-600" /> Survival Hub</h3>
+                   <div className="grid grid-cols-1 gap-4">
+                      {survivalMatrix.map((node, i) => (
+                        <div key={i} className="p-6 bg-slate-50 border border-slate-100 rounded-[32px] flex items-center gap-6 group hover:border-indigo-200 transition-all">
+                           <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-600 group-hover:rotate-6 transition-transform">
+                              <node.icon size={24} />
+                           </div>
+                           <div>
+                              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{node.label}</p>
+                              <p className="font-black text-slate-900">{node.desc} <span className="text-indigo-600 ml-1">({node.value})</span></p>
+                           </div>
+                        </div>
+                      ))}
+                   </div>
+                </section>
+             </div>
           </div>
+
+          {/* Sticky Sidebar Node */}
+          <aside className="lg:col-span-4">
+             <div className="lg:sticky lg:top-28 space-y-8">
+                
+                {/* 5. Booking Card */}
+                <div className="bg-white border border-slate-100 rounded-[48px] p-8 lg:p-10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] relative overflow-hidden">
+                   <div className="absolute top-0 right-0 p-8 opacity-5"><LayoutGrid size={120} /></div>
+                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-300 mb-8">Management Hub</p>
+                   
+                   <div className="flex items-center gap-5 mb-12">
+                      <div className="w-16 h-16 rounded-[24px] bg-slate-900 text-white flex items-center justify-center text-2xl font-black shadow-xl">{property.OwnerName[0]}</div>
+                      <div>
+                         <p className="text-xl font-black text-slate-900">{property.OwnerName}</p>
+                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Verified Host Node</p>
+                      </div>
+                   </div>
+
+                   <div className="space-y-4">
+                      <a href={`https://wa.me/${property.OwnerWhatsApp}`} className="w-full h-20 bg-green-500 text-white rounded-[24px] flex items-center justify-center gap-4 font-black uppercase tracking-widest text-xs shadow-xl shadow-green-100 hover:scale-[1.02] transition-transform">
+                         <MessageCircle size={22} /> Transmit Message
+                      </a>
+                      <a href={`tel:${property.OwnerWhatsApp}`} className="w-full h-20 bg-slate-900 text-white rounded-[24px] flex items-center justify-center gap-4 font-black uppercase tracking-widest text-xs shadow-xl shadow-slate-200 hover:scale-[1.02] transition-transform">
+                         <Phone size={22} /> Direct Contact
+                      </a>
+                   </div>
+
+                   <div className="mt-10 pt-10 border-t border-slate-50 text-center">
+                      <div className="flex items-center justify-center gap-2 text-indigo-600 mb-2">
+                         <ShieldCheck size={16} />
+                         <span className="text-[10px] font-black uppercase tracking-widest">Trust Protocol Active</span>
+                      </div>
+                      <p className="text-[10px] font-bold text-slate-400 leading-relaxed px-6">Direct communication ensures the best price and zero management commission.</p>
+                   </div>
+                </div>
+
+                {/* 6. Safety Protocol */}
+                <div className="bg-indigo-600 text-white rounded-[48px] p-10 shadow-xl relative overflow-hidden">
+                   <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
+                   <div className="flex items-center gap-5 mb-8">
+                      <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-3xl">👮</div>
+                      <div>
+                         <p className="text-[10px] font-black uppercase text-white/40 tracking-[0.3em]">Guardian Node</p>
+                         <p className="text-2xl font-black leading-none">{property.WardenName}</p>
+                      </div>
+                   </div>
+                   <div className="bg-white/10 border border-white/10 p-6 rounded-[32px] text-center">
+                      <p className="text-[10px] font-black uppercase text-indigo-200 mb-2 flex items-center justify-center gap-2"><ShieldAlert size={14} /> Emergency Vector</p>
+                      <p className="text-2xl font-black font-mono tracking-widest">{property.EmergencyContact}</p>
+                   </div>
+                </div>
+
+             </div>
+          </aside>
+
         </div>
       </div>
+
+      {/* Mobile Floating Action Bar */}
+      <div className="fixed bottom-6 left-6 right-6 lg:hidden z-50">
+         <div className="bg-slate-900/90 backdrop-blur-2xl rounded-[32px] p-2 flex items-center gap-2 border border-white/10 shadow-2xl">
+            <a href={`https://wa.me/${property.OwnerWhatsApp}`} className="flex-grow h-16 bg-green-500 text-white rounded-[28px] flex items-center justify-center gap-3 font-black uppercase tracking-widest text-[10px]">
+               <MessageCircle size={18} /> Chat with Host
+            </a>
+            <a href={`tel:${property.OwnerWhatsApp}`} className="w-16 h-16 bg-white text-slate-900 rounded-[28px] flex items-center justify-center">
+               <Phone size={20} />
+            </a>
+         </div>
+      </div>
+
     </div>
   );
 };

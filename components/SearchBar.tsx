@@ -12,13 +12,13 @@ const SearchBar: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-white p-2 rounded-[28px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-slate-100 flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-100 relative z-20">
+    <div className="max-w-4xl mx-auto bg-white p-2 rounded-[28px] md:rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-slate-100 flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-100 relative z-20">
       {/* Coaching Segment */}
-      <div className="flex-1 p-4 md:p-6 group">
-        <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1.5 transition-colors group-hover:text-indigo-500">Target Coaching</label>
+      <div className="flex-1 p-5 md:p-6 group">
+        <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1.5 transition-colors group-hover:text-indigo-500 text-left">Target Coaching</label>
         <div className="relative">
           <select 
-            className="w-full bg-transparent focus:outline-none font-bold text-slate-900 cursor-pointer appearance-none pr-6"
+            className="w-full bg-transparent focus:outline-none font-black text-slate-900 cursor-pointer appearance-none pr-6 text-sm md:text-base"
             value={filters.coaching}
             onChange={(e) => handleUpdate('coaching', e.target.value)}
           >
@@ -32,11 +32,11 @@ const SearchBar: React.FC = () => {
       </div>
 
       {/* Gender Segment */}
-      <div className="flex-1 p-4 md:p-6 group">
-        <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1.5 transition-colors group-hover:text-indigo-500">Gender Preference</label>
+      <div className="flex-1 p-5 md:p-6 group">
+        <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1.5 transition-colors group-hover:text-indigo-500 text-left">Gender Preference</label>
         <div className="relative">
           <select 
-            className="w-full bg-transparent focus:outline-none font-bold text-slate-900 cursor-pointer appearance-none pr-6"
+            className="w-full bg-transparent focus:outline-none font-black text-slate-900 cursor-pointer appearance-none pr-6 text-sm md:text-base"
             value={filters.gender}
             onChange={(e) => handleUpdate('gender', e.target.value)}
           >
@@ -52,11 +52,11 @@ const SearchBar: React.FC = () => {
       </div>
 
       {/* Area Segment */}
-      <div className="flex-1 p-4 md:p-6 group">
-        <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1.5 transition-colors group-hover:text-indigo-500">Specific Area</label>
+      <div className="flex-1 p-5 md:p-6 group">
+        <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1.5 transition-colors group-hover:text-indigo-500 text-left">Specific Area</label>
         <div className="relative">
           <select 
-            className="w-full bg-transparent focus:outline-none font-bold text-slate-900 cursor-pointer appearance-none pr-6"
+            className="w-full bg-transparent focus:outline-none font-black text-slate-900 cursor-pointer appearance-none pr-6 text-sm md:text-base"
             value={filters.area}
             onChange={(e) => handleUpdate('area', e.target.value)}
           >
@@ -69,7 +69,7 @@ const SearchBar: React.FC = () => {
         </div>
       </div>
 
-      <button className="bg-slate-900 hover:bg-slate-800 text-white px-10 py-4 md:py-0 rounded-[22px] font-black uppercase tracking-widest text-[11px] shadow-lg shadow-slate-200 transition-all m-2 active:scale-95">
+      <button className="bg-slate-900 hover:bg-slate-800 text-white px-10 py-5 md:py-0 rounded-[22px] md:rounded-[24px] font-black uppercase tracking-widest text-[11px] shadow-lg shadow-slate-200 transition-all m-2 active:scale-95">
         Refine Results
       </button>
     </div>
