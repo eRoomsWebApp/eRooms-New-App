@@ -64,6 +64,18 @@ export interface ActivityLog {
   importance: 'low' | 'medium' | 'high';
 }
 
+export interface SavedSearch {
+  id: string;
+  name: string;
+  filters: {
+    coaching: string;
+    gender: string;
+    area: string;
+    activePills: string[];
+  };
+  timestamp: string;
+}
+
 export interface User {
   id: string;
   username: string;
@@ -83,6 +95,7 @@ export interface User {
     searchDepth: number; 
   };
   activityLog?: ActivityLog[];
+  savedSearches?: SavedSearch[];
 }
 
 export interface Property {

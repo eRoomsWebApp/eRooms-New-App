@@ -241,3 +241,4 @@ const PropertyDetail: React.FC = () => {
 };
 
 export default PropertyDetail;
+

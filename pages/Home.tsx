@@ -1,5 +1,6 @@
 
 import React, { useMemo, useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useProperties } from '../context/PropertyContext';
 import PropertyCard from '../components/PropertyCard';
@@ -125,9 +126,5 @@ const Home: React.FC = () => {
     </div>
   );
 };
-
-const Link: React.FC<{ to: string, children: React.ReactNode, className?: string }> = ({ to, children, className }) => (
-  <a href={`#${to}`} className={className}>{children}</a>
-);
 
 export default Home;

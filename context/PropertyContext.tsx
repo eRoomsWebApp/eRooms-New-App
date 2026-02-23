@@ -1,9 +1,10 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 import { Property, ApprovalStatus, Gender, ListingType } from '../types';
-import { getProperties, saveProperties } from '../db';
+import { fetchProperties, syncProperties } from '../db';
+import { INSTITUTES } from '../constants';
 
-interface Filters {
+export interface Filters {
   coaching: string;
   gender: string;
   area: string;
@@ -36,22 +37,23 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }
   });
 
   useEffect(() => {
-    const data = getProperties();
-    setProperties(data);
-    setLoading(false);
+    const loadData = async () => {
+      const data = await fetchProperties();
+      setProperties(data);
+      setLoading(false);
+    };
+    loadData();
   }, []);
 
   const filteredProperties = useMemo(() => {
     return properties
       .filter(p => p.ApprovalStatus === ApprovalStatus.Approved)
       .filter(p => {
-        // 1. Smart Search Bar Logic
         const matchesCoaching = filters.coaching === 'All' || 
           p.InstituteDistanceMatrix?.some(i => i.name === filters.coaching);
         const matchesGender = filters.gender === 'All' || p.Gender === filters.gender;
         const matchesArea = filters.area === 'All' || p.Area === filters.area;
 
-        // 2. Quick Filter Pills Logic
         let matchesPills = true;
         if (filters.activePills.length > 0) {
           matchesPills = filters.activePills.every(pill => {
@@ -75,34 +77,30 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const isFiltering = filters.coaching !== 'All' || filters.gender !== 'All' || filters.area !== 'All' || filters.activePills.length > 0;
 
+  const normalize = (p: Property): Property => ({
+    ...p,
+    InstituteDistanceMatrix: Array.isArray(p.InstituteDistanceMatrix) ? p.InstituteDistanceMatrix : INSTITUTES.map(name => ({ name, distance: 1.0 })),
+    Facilities: Array.isArray(p.Facilities) ? p.Facilities : []
+  });
+
   const addProperty = (property: Property) => {
-    // Defensive normalization
-    const normalized = {
-      ...property,
-      InstituteDistanceMatrix: property.InstituteDistanceMatrix || [],
-      Facilities: property.Facilities || []
-    };
+    const normalized = normalize(property);
     const newList = [...properties, normalized];
     setProperties(newList);
-    saveProperties(newList);
+    syncProperties(newList);
   };
 
   const updateProperty = (id: string, updated: Property) => {
-    // Defensive normalization
-    const normalized = {
-      ...updated,
-      InstituteDistanceMatrix: updated.InstituteDistanceMatrix || [],
-      Facilities: updated.Facilities || []
-    };
+    const normalized = normalize(updated);
     const newList = properties.map(p => p.id === id ? normalized : p);
     setProperties(newList);
-    saveProperties(newList);
+    syncProperties(newList);
   };
 
   const deleteProperty = (id: string) => {
     const newList = properties.filter(p => p.id !== id);
     setProperties(newList);
-    saveProperties(newList);
+    syncProperties(newList);
   };
 
   const approveProperty = (id: string) => {
@@ -110,7 +108,7 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }
       p.id === id ? { ...p, ApprovalStatus: ApprovalStatus.Approved } : p
     );
     setProperties(newList);
-    saveProperties(newList);
+    syncProperties(newList);
   };
 
   return (
