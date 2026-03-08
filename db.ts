@@ -1,10 +1,11 @@
 
-import { Property, ListingType, Gender, ApprovalStatus, User, UserRole, UserStatus, AppConfig } from './types';
+import { Property, ListingType, Gender, ApprovalStatus, User, AppConfig, Lead } from './types';
 import { KOTA_AREAS, INSTITUTES, FACILITY_OPTIONS } from './constants';
 
 const STORAGE_KEY = 'erooms_atlas_v3_cluster';
 const USERS_STORAGE_KEY = 'erooms_atlas_users';
 const CONFIG_STORAGE_KEY = 'erooms_atlas_config';
+const LEADS_STORAGE_KEY = 'erooms_atlas_leads';
 
 export const CONFIG_UPDATED_EVENT = 'erooms_config_sync';
 
@@ -29,33 +30,70 @@ export const DEFAULT_CONFIG: AppConfig = {
   lastUpdated: new Date().toISOString()
 };
 
+// --- LEADS MANAGEMENT ---
+export const fetchLeads = (): Lead[] => {
+  const stored = localStorage.getItem(LEADS_STORAGE_KEY);
+  return stored ? JSON.parse(stored) : [];
+};
+
+export const saveLead = (lead: Omit<Lead, 'id' | 'timestamp' | 'status'>) => {
+  const leads = fetchLeads();
+  const newLead: Lead = {
+    ...lead,
+    id: `lead-${Date.now()}`,
+    timestamp: new Date().toISOString(),
+    status: 'New'
+  };
+  leads.push(newLead);
+  localStorage.setItem(LEADS_STORAGE_KEY, JSON.stringify(leads));
+  
+  // Update property lead count
+  const properties: Property[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  const propIndex = properties.findIndex((p: Property) => p.id === lead.propertyId);
+  if (propIndex !== -1) {
+    properties[propIndex].leadsCount = (properties[propIndex].leadsCount || 0) + 1;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(properties));
+  }
+  
+  return newLead;
+};
+
+export const recordPropertyView = (propertyId: string) => {
+  const properties: Property[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  const propIndex = properties.findIndex((p: Property) => p.id === propertyId);
+  if (propIndex !== -1) {
+    properties[propIndex].views = (properties[propIndex].views || 0) + 1;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(properties));
+  }
+};
+
 // --- DATA INTEGRITY SHIELD ---
-const normalizeProperty = (p: any): Property => ({
-  id: p.id || `node-${Math.random().toString(36).substr(2, 5)}`,
-  ownerId: p.ownerId || 'system-auto',
-  ListingName: p.ListingName || 'Unlabeled Asset',
-  ListingType: p.ListingType || ListingType.Hostel,
-  Gender: p.Gender || Gender.Boys,
-  OwnerName: p.OwnerName || 'Unknown Host',
-  OwnerWhatsApp: p.OwnerWhatsApp || '0000000000',
-  WardenName: p.WardenName || 'On-Call Security',
-  EmergencyContact: p.EmergencyContact || '911',
-  OwnerEmail: p.OwnerEmail || 'contact@erooms.in',
-  Area: p.Area || KOTA_AREAS[0],
-  FullAddress: p.FullAddress || 'Address Pending',
-  GoogleMapsPlusCode: p.GoogleMapsPlusCode || 'N/A',
-  InstituteDistanceMatrix: Array.isArray(p.InstituteDistanceMatrix) ? p.InstituteDistanceMatrix : INSTITUTES.map(name => ({ name, distance: 0.5 + Math.random() })),
+const normalizeProperty = (p: Record<string, unknown>): Property => ({
+  id: (p.id as string) || `node-${Math.random().toString(36).substr(2, 5)}`,
+  ownerId: (p.ownerId as string) || 'system-auto',
+  ListingName: (p.ListingName as string) || 'Unlabeled Asset',
+  ListingType: (p.ListingType as ListingType) || ListingType.Hostel,
+  Gender: (p.Gender as Gender) || Gender.Boys,
+  OwnerName: (p.OwnerName as string) || 'Unknown Host',
+  OwnerWhatsApp: (p.OwnerWhatsApp as string) || '0000000000',
+  WardenName: (p.WardenName as string) || 'On-Call Security',
+  EmergencyContact: (p.EmergencyContact as string) || '911',
+  OwnerEmail: (p.OwnerEmail as string) || 'contact@erooms.in',
+  Area: (p.Area as string) || KOTA_AREAS[0],
+  FullAddress: (p.FullAddress as string) || 'Address Pending',
+  GoogleMapsPlusCode: (p.GoogleMapsPlusCode as string) || 'N/A',
+  InstituteDistanceMatrix: Array.isArray(p.InstituteDistanceMatrix) ? (p.InstituteDistanceMatrix as { name: string; distance: number }[]) : INSTITUTES.map(name => ({ name, distance: 0.5 + Math.random() })),
   RentSingle: Number(p.RentSingle) || 12000,
   RentDouble: Number(p.RentDouble) || 10500,
-  SecurityTerms: p.SecurityTerms || 'Terms pending review.',
+  SecurityTerms: (p.SecurityTerms as string) || 'Terms pending review.',
   ElectricityCharges: Number(p.ElectricityCharges) || 10,
   Maintenance: Number(p.Maintenance) || 1000,
   ParentsStayCharge: Number(p.ParentsStayCharge) || 500,
-  Facilities: Array.isArray(p.Facilities) ? p.Facilities : ['AC', 'WiFi', 'Mess Facility', 'RO Water', 'Laundry'],
-  PhotoMain: p.PhotoMain || 'https://images.unsplash.com/photo-1512917774-50ad913ee29a?auto=format&fit=crop&q=80&w=2000',
-  PhotoRoom: p.PhotoRoom || 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=2000',
-  PhotoWashroom: p.PhotoWashroom || 'https://images.unsplash.com/photo-1584622650-61f8c508fe54?auto=format&fit=crop&q=80&w=2000',
-  ApprovalStatus: p.ApprovalStatus || ApprovalStatus.Pending
+  Facilities: Array.isArray(p.Facilities) ? (p.Facilities as string[]) : ['AC', 'WiFi', 'Mess Facility', 'RO Water', 'Laundry'],
+  PhotoMain: (p.PhotoMain as string) || 'https://images.unsplash.com/photo-1512917774-50ad913ee29a?auto=format&fit=crop&q=80&w=2000',
+  PhotoRoom: (p.PhotoRoom as string) || 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=2000',
+  PhotoWashroom: (p.PhotoWashroom || 'https://images.unsplash.com/photo-1584622650-61f8c508fe54?auto=format&fit=crop&q=80&w=2000') as string,
+  ApprovalStatus: (p.ApprovalStatus as ApprovalStatus) || ApprovalStatus.Pending
 });
 
 export const fetchProperties = async (): Promise<Property[]> => {

@@ -1,20 +1,21 @@
-
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
+import { motion, useScroll, useSpring } from 'framer-motion';
 import { 
   Wind, Wifi, Utensils, WashingMachine, Cctv, Droplet, 
   Zap, Bath, BookOpen, Shirt, Sun, Star, MapPin, 
-  Phone, Mail, ShieldCheck, Video, Info, CreditCard, 
-  User, ShieldAlert, MessageCircle, ExternalLink,
-  ChevronRight, Calendar, Sparkles, Map as MapIcon,
-  Heart, Share2, Navigation, Coffee, Stethoscope, Bus,
-  CheckCircle2, AlertTriangle, ArrowLeft, MoreHorizontal,
-  LayoutGrid, Shield as Safety, Monitor, Coffee as Cup,
+  Phone, ShieldCheck, 
+  ShieldAlert, ExternalLink,
+  Calendar, Sparkles, Map as MapIcon,
+  Heart, Share2, Navigation, Stethoscope, Bus,
+  CheckCircle2, ArrowLeft,
+  LayoutGrid, Shield as Safety, Coffee as Cup,
   ArrowRight, Eye, MousePointer2
 } from 'lucide-react';
 import { useProperties } from '../context/PropertyContext';
+import { useAuth } from '../context/AuthContext';
 import { Gender } from '../types';
+import { recordPropertyView, saveLead } from '../db';
 
 const facilityIconMap: Record<string, React.ElementType> = {
   'AC': Wind,
@@ -34,9 +35,10 @@ const facilityIconMap: Record<string, React.ElementType> = {
 const PropertyProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { properties, loading } = useProperties();
+  const { user, toggleShortlist } = useAuth();
   const property = properties.find(p => p.id === id);
   const [activeRentType, setActiveRentType] = useState<'Single' | 'Double'>('Double');
-  const [isSaved, setIsSaved] = useState(false);
+  const isSaved = user?.shortlist?.includes(id || '') || false;
   const [activeSection, setActiveSection] = useState('overview');
 
   const { scrollYProgress } = useScroll();
@@ -46,30 +48,36 @@ const PropertyProfile: React.FC = () => {
     restDelta: 0.001
   });
 
-  const sectionRefs = {
-    overview: useRef<HTMLDivElement>(null),
-    infrastructure: useRef<HTMLDivElement>(null),
-    budget: useRef<HTMLDivElement>(null),
-    proximity: useRef<HTMLDivElement>(null),
-    management: useRef<HTMLDivElement>(null),
-  };
+  const overviewRef = useRef<HTMLDivElement>(null);
+  const infrastructureRef = useRef<HTMLDivElement>(null);
+  const budgetRef = useRef<HTMLDivElement>(null);
+  const proximityRef = useRef<HTMLDivElement>(null);
+  const managementRef = useRef<HTMLDivElement>(null);
+
+  const sectionRefs = useMemo(() => ({
+    overview: overviewRef,
+    infrastructure: infrastructureRef,
+    budget: budgetRef,
+    proximity: proximityRef,
+    management: managementRef,
+  }), []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    if (id) recordPropertyView(id);
     
     const handleScroll = () => {
       const scrollPos = window.scrollY + 200;
-      for (const [key, ref] of Object.entries(sectionRefs)) {
+      Object.entries(sectionRefs).forEach(([key, ref]) => {
         if (ref.current && scrollPos >= ref.current.offsetTop && scrollPos < ref.current.offsetTop + ref.current.offsetHeight) {
           setActiveSection(key);
-          break;
         }
-      }
+      });
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [id, sectionRefs]);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -125,25 +133,43 @@ const PropertyProfile: React.FC = () => {
     { id: 'management', label: 'Host' },
   ];
 
+  const handleLead = (type: 'WhatsApp' | 'Call' | 'VisitRequest') => {
+    if (!property) return;
+    saveLead({
+      propertyId: property.id,
+      propertyName: property.ListingName,
+      studentId: user?.id || 'guest',
+      studentName: user?.username || 'Guest Scholar',
+      studentPhone: user?.phone || 'Not Provided',
+      type
+    });
+
+    if (type === 'WhatsApp') {
+      window.open(`https://wa.me/${property.OwnerWhatsApp}`, '_blank');
+    } else if (type === 'Call') {
+      window.location.href = `tel:${property.OwnerWhatsApp}`;
+    }
+  };
+
   return (
     <div className="bg-white min-h-screen pb-40 lg:pb-0 scroll-smooth">
       {/* Scroll Progress Bar */}
       <motion.div className="fixed top-0 left-0 right-0 h-1 bg-indigo-600 z-[100] origin-left" style={{ scaleX }} />
 
       {/* 1. Immersive Hero Gallery */}
-      <section id="overview" ref={sectionRefs.overview} className="relative h-[65vh] lg:h-[90vh] overflow-hidden">
+      <section id="overview" ref={overviewRef} className="relative h-[65vh] lg:h-[90vh] overflow-hidden">
         <div className="absolute inset-0 grid grid-cols-1 lg:grid-cols-12 gap-1 lg:gap-2">
            <div className="lg:col-span-8 h-full relative group">
-              <img src={property.PhotoMain} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Main" />
+              <img src={property.PhotoMain} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Main" referrerPolicy="no-referrer" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/10 to-transparent"></div>
            </div>
            <div className="hidden lg:grid lg:col-span-4 grid-rows-2 gap-2 h-full">
               <div className="relative overflow-hidden group">
-                 <img src={property.PhotoRoom} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Room" />
+                 <img src={property.PhotoRoom} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Room" referrerPolicy="no-referrer" />
                  <div className="absolute inset-0 bg-black/20"></div>
               </div>
               <div className="relative overflow-hidden group">
-                 <img src={property.PhotoWashroom} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Washroom" />
+                 <img src={property.PhotoWashroom} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Washroom" referrerPolicy="no-referrer" />
                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                     <span className="text-white font-black uppercase text-xs tracking-widest border border-white/40 px-6 py-3 rounded-xl backdrop-blur-md">View All 18 Photos</span>
                  </div>
@@ -157,7 +183,10 @@ const PropertyProfile: React.FC = () => {
               <ArrowLeft size={20} />
            </Link>
            <div className="flex gap-3 pointer-events-auto">
-              <button onClick={() => setIsSaved(!isSaved)} className={`p-4 rounded-2xl border backdrop-blur-xl transition-all shadow-2xl ${isSaved ? 'bg-rose-500 border-rose-500 text-white' : 'bg-white/10 border-white/20 text-white hover:bg-white hover:text-slate-900'}`}>
+              <button 
+                onClick={() => id && toggleShortlist(id)} 
+                className={`p-4 rounded-2xl border backdrop-blur-xl transition-all shadow-2xl ${isSaved ? 'bg-rose-500 border-rose-500 text-white' : 'bg-white/10 border-white/20 text-white hover:bg-white hover:text-slate-900'}`}
+              >
                  <Heart size={20} fill={isSaved ? "currentColor" : "none"} />
               </button>
               <button className="bg-white/10 backdrop-blur-2xl p-4 rounded-2xl border border-white/20 text-white hover:bg-white hover:text-slate-900 transition-all shadow-2xl">
@@ -185,12 +214,12 @@ const PropertyProfile: React.FC = () => {
                  </motion.h1>
                  <div className="flex flex-wrap items-center gap-6 text-white/70 font-bold">
                     <div className="flex items-center gap-3">
-                      <MapPin size={22} className="text-indigo-400" />
-                      <span className="text-lg lg:text-2xl">{property.Area}</span>
+                       <MapPin size={22} className="text-indigo-400" />
+                       <span className="text-lg lg:text-2xl">{property.Area}</span>
                     </div>
                     <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-2xl border border-white/10">
-                      <Eye size={18} />
-                      <span className="text-sm font-black uppercase tracking-widest">14 Scholars Viewing</span>
+                       <Eye size={18} />
+                       <span className="text-sm font-black uppercase tracking-widest">14 Scholars Viewing</span>
                     </div>
                  </div>
               </div>
@@ -234,7 +263,7 @@ const PropertyProfile: React.FC = () => {
           <div className="lg:col-span-8 space-y-32">
              
              {/* Infrastructure Section */}
-             <section id="infrastructure" ref={sectionRefs.infrastructure} className="space-y-16">
+             <section id="infrastructure" ref={infrastructureRef} className="space-y-16">
                 <div className="flex flex-col gap-4">
                    <p className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-600">Core Assets</p>
                    <h2 className="text-5xl font-black text-slate-900 uppercase tracking-tighter">Elite Infrastructure</h2>
@@ -317,7 +346,7 @@ const PropertyProfile: React.FC = () => {
              </section>
 
              {/* Budget Section */}
-             <section id="budget" ref={sectionRefs.budget} className="bg-slate-50 border border-slate-200 rounded-[72px] p-12 lg:p-20 shadow-sm relative overflow-hidden">
+             <section id="budget" ref={budgetRef} className="bg-slate-50 border border-slate-200 rounded-[72px] p-12 lg:p-20 shadow-sm relative overflow-hidden">
                 <div className="absolute -top-20 -right-20 w-80 h-80 bg-indigo-100 rounded-full blur-[100px] opacity-40"></div>
                 <div className="relative z-10">
                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-20">
@@ -336,7 +365,7 @@ const PropertyProfile: React.FC = () => {
                       <div className="lg:col-span-7 space-y-4">
                          <div className="flex items-baseline gap-3">
                             <span className="text-3xl font-black text-slate-200">₹</span>
-                            <span className="text-9xl lg:text-[140px] font-black tracking-tighter text-slate-900 leading-none">{activeRentType === 'Single' ? property.RentSingle.toLocaleString() : property.RentDouble.toLocaleString()}</span>
+                            <span className="text-7xl md:text-8xl lg:text-[140px] font-black tracking-tighter text-slate-900 leading-none">{activeRentType === 'Single' ? property.RentSingle.toLocaleString() : property.RentDouble.toLocaleString()}</span>
                             <span className="text-2xl font-bold text-slate-300">/mo</span>
                          </div>
                          <div className="flex items-center gap-4 bg-emerald-50 text-emerald-700 px-6 py-3 rounded-2xl border border-emerald-100 w-fit">
@@ -373,7 +402,7 @@ const PropertyProfile: React.FC = () => {
              </section>
 
              {/* Location Section */}
-             <section id="proximity" ref={sectionRefs.proximity} className="space-y-16">
+             <section id="proximity" ref={proximityRef} className="space-y-16">
                 <div className="flex flex-col gap-4">
                    <p className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-600">Geographic Context</p>
                    <h2 className="text-5xl font-black text-slate-900 uppercase tracking-tighter">Location Intel</h2>
@@ -399,7 +428,7 @@ const PropertyProfile: React.FC = () => {
                                  </div>
                               </div>
                               <div className="text-right">
-                                 <p className="text-2xl font-black text-slate-900 tracking-tighter">{item.distance} <span className="text-[10px]">KM</span></p>
+                                 <p className="text-2xl font-black text-slate-900 tracking-tighter">{item.distance.toFixed(1)} <span className="text-[10px]">KM</span></p>
                                  <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">🚶 {Math.ceil(item.distance * 12)}M WALK</p>
                               </div>
                            </div>
@@ -429,8 +458,8 @@ const PropertyProfile: React.FC = () => {
                          ))}
                          <div className="mt-6 p-8 bg-slate-900 rounded-[48px] text-white flex items-center justify-between shadow-2xl group cursor-pointer hover:bg-indigo-600 transition-colors">
                             <div className="flex items-center gap-4">
-                              <Navigation size={24} className="text-indigo-400 group-hover:text-white" />
-                              <p className="text-sm font-black uppercase tracking-widest">View on Satellite Map</p>
+                               <Navigation size={24} className="text-indigo-400 group-hover:text-white" />
+                               <p className="text-sm font-black uppercase tracking-widest">View on Satellite Map</p>
                             </div>
                             <ExternalLink size={18} className="opacity-40" />
                          </div>
@@ -441,7 +470,7 @@ const PropertyProfile: React.FC = () => {
           </div>
 
           {/* Sticky Conversion Sidebar */}
-          <aside id="management" ref={sectionRefs.management} className="lg:col-span-4">
+          <aside id="management" ref={managementRef} className="lg:col-span-4">
              <div className="lg:sticky lg:top-40 space-y-10">
                 
                 {/* 5. Booking Card */}
@@ -475,18 +504,25 @@ const PropertyProfile: React.FC = () => {
                             <span className="text-sm font-bold text-slate-400">/mo</span>
                          </div>
                       </div>
-
-                      <button onClick={() => window.open(`https://wa.me/${property.OwnerWhatsApp}`, '_blank')} className="w-full h-24 bg-indigo-600 text-white rounded-[32px] flex items-center justify-between px-10 font-black uppercase tracking-widest text-[11px] shadow-2xl shadow-indigo-100 hover:scale-[1.03] active:scale-95 transition-all group">
+                      
+                      <button 
+                        onClick={() => handleLead('VisitRequest')} 
+                        className="w-full h-24 bg-indigo-600 text-white rounded-[32px] flex items-center justify-between px-10 font-black uppercase tracking-widest text-[11px] shadow-2xl shadow-indigo-100 hover:scale-[1.03] active:scale-95 transition-all group"
+                      >
                          <div className="flex items-center gap-4">
                            <Calendar size={20} className="group-hover:rotate-12 transition-transform" />
                            <span>Schedule Free Visit</span>
                          </div>
                          <ArrowRight size={20} />
                       </button>
+
                       <div className="grid grid-cols-2 gap-4">
-                        <a href={`tel:${property.OwnerWhatsApp}`} className="h-20 bg-slate-900 text-white rounded-[32px] flex items-center justify-center gap-4 font-black uppercase tracking-widest text-[10px] shadow-xl hover:bg-slate-800 transition-all">
+                        <button 
+                          onClick={() => handleLead('Call')}
+                          className="h-20 bg-slate-900 text-white rounded-[32px] flex items-center justify-center gap-4 font-black uppercase tracking-widest text-[10px] shadow-xl hover:bg-slate-800 transition-all"
+                        >
                            <Phone size={18} /> Call Hub
-                        </a>
+                        </button>
                         <button className="h-20 bg-slate-50 text-slate-400 border border-slate-100 rounded-[32px] flex items-center justify-center gap-4 font-black uppercase tracking-widest text-[10px] hover:bg-white hover:text-slate-900 transition-all">
                            <Share2 size={18} /> Share
                         </button>
@@ -528,12 +564,12 @@ const PropertyProfile: React.FC = () => {
                 <p className="text-[9px] font-black uppercase text-white/40 tracking-widest mb-1">Rent</p>
                 <p className="text-xl font-black text-white leading-none">₹{property.RentDouble.toLocaleString()}</p>
             </div>
-            <button onClick={() => window.open(`https://wa.me/${property.OwnerWhatsApp}`, '_blank')} className="flex-grow h-16 bg-indigo-600 text-white rounded-[32px] flex items-center justify-center gap-4 font-black uppercase tracking-widest text-[11px] shadow-xl">
+            <button onClick={() => handleLead('WhatsApp')} className="flex-grow h-16 bg-indigo-600 text-white rounded-[32px] flex items-center justify-center gap-4 font-black uppercase tracking-widest text-[11px] shadow-xl">
                <MousePointer2 size={18} /> Book Free Visit
             </button>
-            <a href={`tel:${property.OwnerWhatsApp}`} className="w-16 h-16 bg-white text-slate-900 rounded-[32px] flex items-center justify-center shadow-lg transition-transform active:scale-90">
+            <button onClick={() => handleLead('Call')} className="w-16 h-16 bg-white text-slate-900 rounded-[32px] flex items-center justify-center shadow-lg transition-transform active:scale-90">
                <Phone size={22} />
-            </a>
+            </button>
          </div>
       </div>
 

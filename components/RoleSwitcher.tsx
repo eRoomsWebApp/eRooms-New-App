@@ -37,7 +37,7 @@ const RoleSwitcher: React.FC = () => {
             return (
               <button
                 key={role.id}
-                onClick={() => switchRole(role.id as any)}
+                onClick={() => switchRole(role.id as UserRole | 'guest')}
                 className={`relative group px-4 py-2.5 rounded-full transition-all duration-300 flex items-center gap-2 overflow-hidden ${
                   isActive 
                     ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 

@@ -6,11 +6,12 @@ import { getMockUsers } from '../db';
 interface AuthContextType {
   user: User | null;
   login: (email: string, pass: string, role: UserRole) => Promise<boolean>;
-  signup: (userData: any) => Promise<boolean>;
+  signup: (userData: Partial<User>) => Promise<boolean>;
   logout: () => void;
   switchRole: (role: UserRole | 'guest') => void;
-  saveSearch: (name: string, filters: any) => Promise<void>;
+  saveSearch: (name: string, filters: Record<string, unknown>) => Promise<void>;
   removeSavedSearch: (searchId: string) => Promise<void>;
+  toggleShortlist: (propertyId: string) => Promise<void>;
   isAuthenticated: boolean;
   isAdmin: boolean;
   isOwner: boolean;
@@ -22,21 +23,19 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const REGISTERED_USERS_KEY = 'erooms_atlas_users';
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const storedUser = localStorage.getItem('erooms_auth_session');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
   useEffect(() => {
     const storedUsers = localStorage.getItem(REGISTERED_USERS_KEY);
     if (!storedUsers) {
       localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(getMockUsers()));
     }
-
-    const storedUser = localStorage.getItem('erooms_auth_session');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
   }, []);
 
-  const getRegisteredUsers = (): any[] => {
+  const getRegisteredUsers = (): User[] => {
     const users = localStorage.getItem(REGISTERED_USERS_KEY);
     return users ? JSON.parse(users) : [];
   };
@@ -50,7 +49,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const saveSearch = async (name: string, filters: any) => {
+  const saveSearch = async (name: string, filters: Record<string, unknown>) => {
     if (!user) return;
     
     const newSearch: SavedSearch = {
@@ -93,12 +92,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     updateGlobalUser(updatedUser);
   };
 
-  const signup = async (userData: any): Promise<boolean> => {
+  const toggleShortlist = async (propertyId: string) => {
+    if (!user) return;
+
+    const shortlist = user.shortlist || [];
+    const isShortlisted = shortlist.includes(propertyId);
+    
+    const updatedShortlist = isShortlisted 
+      ? shortlist.filter(id => id !== propertyId)
+      : [...shortlist, propertyId];
+
+    const updatedUser: User = {
+      ...user,
+      shortlist: updatedShortlist,
+      activityLog: [
+        { 
+          id: `log-${Date.now()}`, 
+          action: isShortlisted ? 'Removed from Shortlist' : 'Added to Shortlist', 
+          target: propertyId, 
+          timestamp: new Date().toISOString(), 
+          importance: 'low' as const
+        },
+        ...(user.activityLog || [])
+      ]
+    };
+
+    setUser(updatedUser);
+    localStorage.setItem('erooms_auth_session', JSON.stringify(updatedUser));
+    updateGlobalUser(updatedUser);
+  };
+
+  const signup = async (userData: Partial<User>): Promise<boolean> => {
     const users = getRegisteredUsers();
     if (users.find(u => u.email === userData.email)) return false; 
 
     const newUser: User = {
-      ...userData,
+      ...(userData as User),
       id: Math.random().toString(36).substr(2, 9),
       status: UserStatus.Active,
       joinedAt: new Date().toISOString(),
@@ -155,47 +184,53 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
 
-    // Comprehensive Mock Data Injection for Inspection
-    const userData: User = { 
-      id: `emu-${role}`, 
-      username: role === UserRole.Student ? 'Aarav Sharma' : role === UserRole.Owner ? 'Vikram Malhotra' : 'Super Admin', 
-      email: `${role}@erooms.in`, 
-      role: role as UserRole, 
-      status: UserStatus.Active, 
-      avatar: role === UserRole.Student 
-        ? 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aarav' 
-        : 'https://api.dicebear.com/7.x/avataaars/svg?seed=Vikram',
-      savedSearches: role === UserRole.Student ? [
-        { 
-          id: 's1', 
-          name: 'Premium Landmark Selection', 
-          timestamp: new Date(Date.now() - 86400000).toISOString(), 
-          filters: { coaching: 'Allen Samyak', gender: 'Boys', area: 'Landmark City (Kunadi)', activePills: ['Luxury', 'AC'] } 
-        },
-        { 
-          id: 's2', 
-          name: 'Budget Indra Vihar', 
-          timestamp: new Date(Date.now() - 172800000).toISOString(), 
-          filters: { coaching: 'Motion', gender: 'Boys', area: 'Indra Vihar', activePills: ['Budget', 'Food'] } 
-        }
-      ] : [],
-      activityLog: [
-        { id: 'l1', action: 'Platform Entry', timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(), importance: 'low' as const, target: 'Discovery Hub' },
-        { id: 'l2', action: 'Signal Captured', timestamp: new Date(Date.now() - 1000 * 60 * 25).toISOString(), importance: 'medium' as const, target: 'Premium Landmark Selection' },
-        { id: 'l3', action: 'Node Inspection', timestamp: new Date(Date.now() - 1000 * 60 * 60).toISOString(), importance: 'high' as const, target: 'Zenith Elite Hostel' },
-        { id: 'l4', action: 'Filter Grid Refinement', timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(), importance: 'low' as const, target: 'Price: 15k+' },
-        { id: 'l5', action: 'Identity Verification', timestamp: new Date(Date.now() - 86400000).toISOString(), importance: 'high' as const, target: 'Biometric Core' },
-      ],
-      behavioralMetrics: role === UserRole.Student ? {
-        avgSessionTime: 18.4,
-        totalSessions: 142,
-        pricePreference: { min: 12000, max: 19500 },
-        topAreas: ['Landmark City', 'Kunadi', 'Coral Park'],
-        topFacilities: ['AC', 'Mess Facility', 'Biometric Entry', 'Laundry', 'Balcony'],
-        searchDepth: 9.2
-      } : undefined
+    const generateMockData = () => {
+      const now = Date.now();
+      const day = 86400000;
+      const min = 60000;
+
+      return {
+        id: `emu-${role}`, 
+        username: role === UserRole.Student ? 'Aarav Sharma' : role === UserRole.Owner ? 'Vikram Malhotra' : 'Super Admin', 
+        email: `${role}@erooms.in`, 
+        role: role as UserRole, 
+        status: UserStatus.Active, 
+        avatar: role === UserRole.Student 
+          ? 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aarav' 
+          : 'https://api.dicebear.com/7.x/avataaars/svg?seed=Vikram',
+        savedSearches: role === UserRole.Student ? [
+          { 
+            id: 's1', 
+            name: 'Premium Landmark Selection', 
+            timestamp: new Date(now - day).toISOString(), 
+            filters: { coaching: 'Allen Samyak', gender: 'Boys', area: 'Landmark City (Kunadi)', activePills: ['Luxury', 'AC'] } 
+          },
+          { 
+            id: 's2', 
+            name: 'Budget Indra Vihar', 
+            timestamp: new Date(now - (day * 2)).toISOString(), 
+            filters: { coaching: 'Motion', gender: 'Boys', area: 'Indra Vihar', activePills: ['Budget', 'Food'] } 
+          }
+        ] : [],
+        activityLog: [
+          { id: 'l1', action: 'Platform Entry', timestamp: new Date(now - (min * 5)).toISOString(), importance: 'low' as const, target: 'Discovery Hub' },
+          { id: 'l2', action: 'Signal Captured', timestamp: new Date(now - (min * 25)).toISOString(), importance: 'medium' as const, target: 'Premium Landmark Selection' },
+          { id: 'l3', action: 'Node Inspection', timestamp: new Date(now - (min * 60)).toISOString(), importance: 'high' as const, target: 'Zenith Elite Hostel' },
+          { id: 'l4', action: 'Filter Grid Refinement', timestamp: new Date(now - (min * 120)).toISOString(), importance: 'low' as const, target: 'Price: 15k+' },
+          { id: 'l5', action: 'Identity Verification', timestamp: new Date(now - day).toISOString(), importance: 'high' as const, target: 'Biometric Core' },
+        ],
+        behavioralMetrics: role === UserRole.Student ? {
+          avgSessionTime: 18.4,
+          totalSessions: 142,
+          pricePreference: { min: 12000, max: 19500 },
+          topAreas: ['Landmark City', 'Kunadi', 'Coral Park'],
+          topFacilities: ['AC', 'Mess Facility', 'Biometric Entry', 'Laundry', 'Balcony'],
+          searchDepth: 9.2
+        } : undefined
+      };
     };
     
+    const userData = generateMockData();
     setUser(userData);
     localStorage.setItem('erooms_auth_session', JSON.stringify(userData));
   };
@@ -214,6 +249,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       switchRole,
       saveSearch,
       removeSavedSearch,
+      toggleShortlist,
       isAuthenticated: !!user,
       isAdmin: user?.role === UserRole.Admin,
       isOwner: user?.role === UserRole.Owner,

@@ -6,13 +6,12 @@ import { useProperties } from '../context/PropertyContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropertyCard from '../components/PropertyCard';
 import { 
-  Heart, History, TrendingUp, MapPin, 
   Sparkles, Timer, Focus, ChevronRight,
   Activity, Bookmark, Trash2, ArrowUpRight,
-  ShieldCheck, Cpu, Layout, Fingerprint,
-  Zap, BarChart3, Target, MousePointer2
+  ShieldCheck, Cpu, Fingerprint,
+  Zap, BarChart3, Target
 } from 'lucide-react';
-import { UserRole, SavedSearch, UserStatus } from '../types';
+import { UserRole, SavedSearch } from '../types';
 
 const StudentDashboard: React.FC = () => {
   const { user, removeSavedSearch } = useAuth();
@@ -21,14 +20,14 @@ const StudentDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dossier' | 'searches' | 'insights' | 'activity'>('dossier');
 
   // Behavioral metrics from user object with intelligent defaults
-  const metrics = user?.behavioralMetrics || {
+  const metrics = useMemo(() => user?.behavioralMetrics || {
     avgSessionTime: 0,
     totalSessions: 0,
     pricePreference: { min: 0, max: 0 },
     topAreas: [],
     topFacilities: [],
     searchDepth: 0
-  };
+  }, [user]);
 
   // Filter properties based on "Price Affinity" insight
   const recommendedAssets = useMemo(() => {
@@ -104,7 +103,7 @@ const StudentDashboard: React.FC = () => {
              ].map(tab => (
                <button
                  key={tab.id}
-                 onClick={() => setActiveTab(tab.id as any)}
+                 onClick={() => setActiveTab(tab.id as typeof activeTab)}
                  className={`w-full flex items-center justify-between p-7 rounded-[32px] transition-all group ${
                    activeTab === tab.id 
                    ? 'bg-white text-slate-900 shadow-2xl shadow-slate-200 border border-slate-100' 

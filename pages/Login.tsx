@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
-import { User as UserIcon, ShieldCheck, Mail, Phone, Lock, ChevronRight, ArrowLeft, Key } from 'lucide-react';
+import { User as UserIcon, ShieldCheck, Mail, Lock, ChevronRight, ArrowLeft, Key } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [role, setRole] = useState<UserRole>(UserRole.Student);

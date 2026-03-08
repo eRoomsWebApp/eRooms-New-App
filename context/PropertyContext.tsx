@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
-import { Property, ApprovalStatus, Gender, ListingType } from '../types';
+import { Property, ApprovalStatus, Gender } from '../types';
 import { fetchProperties, syncProperties } from '../db';
 import { INSTITUTES } from '../constants';
 

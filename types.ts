@@ -14,7 +14,30 @@ export enum Gender {
 
 export enum ApprovalStatus {
   Pending = 'Pending',
-  Approved = 'Approved'
+  Approved = 'Approved',
+  Rejected = 'Rejected'
+}
+
+export interface Lead {
+  id: string;
+  propertyId: string;
+  propertyName: string;
+  studentId: string;
+  studentName: string;
+  studentPhone: string;
+  type: 'WhatsApp' | 'Call' | 'VisitRequest';
+  status: 'New' | 'Contacted' | 'Closed';
+  timestamp: string;
+}
+
+export interface Review {
+  id: string;
+  propertyId: string;
+  userId: string;
+  userName: string;
+  rating: number;
+  comment: string;
+  timestamp: string;
 }
 
 export enum UserRole {
@@ -60,7 +83,7 @@ export interface ActivityLog {
   action: string;
   target?: string;
   timestamp: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   importance: 'low' | 'medium' | 'high';
 }
 
@@ -96,6 +119,7 @@ export interface User {
   };
   activityLog?: ActivityLog[];
   savedSearches?: SavedSearch[];
+  shortlist?: string[]; // Array of property IDs
 }
 
 export interface Property {
@@ -124,4 +148,7 @@ export interface Property {
   PhotoRoom: string;
   PhotoWashroom: string;
   ApprovalStatus: ApprovalStatus;
+  views?: number;
+  leadsCount?: number;
+  rating?: number;
 }

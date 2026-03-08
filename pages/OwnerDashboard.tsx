@@ -1,80 +1,65 @@
-
 import React, { useState, useMemo } from 'react';
-import { useProperties } from '../context/PropertyContext';
-import { useAuth } from '../context/AuthContext';
-import { Property, ListingType, Gender, ApprovalStatus, UserRole } from '../types';
-import { KOTA_AREAS, FACILITY_OPTIONS, INSTITUTES } from '../constants';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { 
-  Plus, X, LayoutGrid, CheckCircle, Clock, 
-  Trash2, Edit3, MessageCircle, Building2,
-  TrendingUp, ShieldCheck, PieChart, Wallet,
-  Zap, ArrowRight, UserCheck, AlertTriangle,
-  ArrowUpRight, BarChart3, Database, ShieldAlert
+  Building2, Plus, TrendingUp, BarChart3, 
+  Trash2, UserCheck,
+  MessageCircle, Phone, Calendar, User,
+  Edit3, AlertTriangle, Wallet, ExternalLink,
+  ShieldAlert
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useProperties } from '../context/PropertyContext';
+import { ApprovalStatus, Property } from '../types';
+import { fetchLeads } from '../db';
+import PropertyFormModal from '../components/PropertyFormModal';
 
 const OwnerDashboard: React.FC = () => {
-  const { properties, addProperty, deleteProperty } = useProperties();
   const { user } = useAuth();
+  const { properties, addProperty, updateProperty, deleteProperty } = useProperties();
   const [isAdding, setIsAdding] = useState(false);
+  const [editingProperty, setEditingProperty] = useState<Property | null>(null);
+  const [activeTab, setActiveTab] = useState<'portfolio' | 'leads'>('portfolio');
+  
+  const myProperties = useMemo(() => 
+    properties.filter(p => p.ownerId === user?.id),
+    [properties, user]
+  );
 
-  const myProperties = useMemo(() => {
-    return properties.filter(p => p.ownerId === user?.id || p.ownerId === 'owner');
-  }, [properties, user]);
+  const leads = useMemo(() => {
+    const allLeads = fetchLeads();
+    // Filter leads for properties owned by this user
+    return allLeads.filter(l => myProperties.some(p => p.id === l.propertyId));
+  }, [myProperties]);
 
   const portfolioStats = useMemo(() => ({
     totalRent: myProperties.reduce((acc, p) => acc + p.RentDouble, 0),
-    liveNodes: myProperties.filter(p => p.ApprovalStatus === ApprovalStatus.Approved).length,
-    pendingAudit: myProperties.filter(p => p.ApprovalStatus === ApprovalStatus.Pending).length,
-    avgRent: myProperties.length > 0 ? Math.floor(myProperties.reduce((acc, p) => acc + p.RentDouble, 0) / myProperties.length) : 0
-  }), [myProperties]);
+    avgRent: myProperties.length ? Math.round(myProperties.reduce((acc, p) => acc + p.RentDouble, 0) / myProperties.length) : 0,
+    totalLeads: leads.length,
+    totalViews: myProperties.reduce((acc, p) => acc + (p.views || 0), 0)
+  }), [myProperties, leads]);
 
-  const initialForm: Omit<Property, 'id'> = {
-    ownerId: user?.id || 'owner',
-    ListingName: '',
-    ListingType: ListingType.Hostel,
-    Gender: Gender.Boys,
-    OwnerName: user?.username || 'Property Owner',
-    OwnerWhatsApp: '',
-    WardenName: '',
-    EmergencyContact: '',
-    OwnerEmail: user?.email || '',
-    Area: KOTA_AREAS[0],
-    FullAddress: '',
-    GoogleMapsPlusCode: '',
-    InstituteDistanceMatrix: INSTITUTES.map(name => ({ name, distance: 1.0 })),
-    RentSingle: 0,
-    RentDouble: 0,
-    SecurityTerms: 'Standard security terms apply. One month rent as security.',
-    ElectricityCharges: 0,
-    Maintenance: 0,
-    ParentsStayCharge: 0,
-    Facilities: [],
-    PhotoMain: 'https://images.unsplash.com/photo-1512917774-50ad913ee29a?auto=format&fit=crop&q=80&w=2000',
-    PhotoRoom: 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=2000',
-    PhotoWashroom: 'https://images.unsplash.com/photo-1584622650-61f8c508fe54?auto=format&fit=crop&q=80&w=2000',
-    ApprovalStatus: ApprovalStatus.Pending
-  };
+  if (!user) return null;
 
-  const [formData, setFormData] = useState<Omit<Property, 'id'>>(initialForm);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    addProperty({ ...formData, id: `prop-${Date.now()}` });
+  const handleFormSubmit = (property: Property) => {
+    if (editingProperty) {
+      updateProperty(editingProperty.id, property);
+    } else {
+      addProperty(property);
+    }
     setIsAdding(false);
-    setFormData(initialForm);
+    setEditingProperty(null);
   };
 
-  const toggleFacility = (fac: string) => {
-    setFormData(prev => ({
-      ...prev,
-      Facilities: prev.Facilities.includes(fac) 
-        ? prev.Facilities.filter(f => f !== fac)
-        : [...prev.Facilities, fac]
-    }));
+  const handleEdit = (property: Property) => {
+    setEditingProperty(property);
+    setIsAdding(true);
   };
 
-  if (user?.role !== UserRole.Owner) return null;
+  const handleCloseModal = () => {
+    setIsAdding(false);
+    setEditingProperty(null);
+  };
 
   return (
     <div className="min-h-screen bg-white pb-32">
@@ -105,8 +90,8 @@ const OwnerDashboard: React.FC = () => {
            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full md:w-auto">
               {[
                 { label: 'Asset Nodes', val: myProperties.length, icon: Building2, color: 'text-indigo-600', bg: 'bg-white' },
-                { label: 'Live Yield', val: portfolioStats.liveNodes, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-white' },
-                { label: 'Trust Index', val: '9.8', icon: ShieldCheck, color: 'text-blue-600', bg: 'bg-white' },
+                { label: 'Total Leads', val: portfolioStats.totalLeads, icon: UserCheck, color: 'text-emerald-600', bg: 'bg-white' },
+                { label: 'Total Views', val: portfolioStats.totalViews, icon: BarChart3, color: 'text-blue-600', bg: 'bg-white' },
               ].map((s, i) => (
                 <div key={i} className={`${s.bg} border border-slate-100 p-8 rounded-[40px] shadow-sm min-w-[200px] group hover:shadow-xl transition-all`}>
                    <s.icon size={20} className={`${s.color} mb-3 group-hover:scale-125 transition-transform`} />
@@ -118,10 +103,27 @@ const OwnerDashboard: React.FC = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        
-        {/* 2. Portfolio Management Workspace */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="flex gap-8 border-b border-slate-100 mb-12">
+          <button 
+            onClick={() => setActiveTab('portfolio')}
+            className={`pb-6 text-[11px] font-black uppercase tracking-[0.3em] transition-all relative ${activeTab === 'portfolio' ? 'text-slate-900' : 'text-slate-300 hover:text-slate-500'}`}
+          >
+            Portfolio Management
+            {activeTab === 'portfolio' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-1 bg-slate-900 rounded-full" />}
+          </button>
+          <button 
+            onClick={() => setActiveTab('leads')}
+            className={`pb-6 text-[11px] font-black uppercase tracking-[0.3em] transition-all relative ${activeTab === 'leads' ? 'text-slate-900' : 'text-slate-300 hover:text-slate-500'}`}
+          >
+            Inquiry Leads
+            <span className="ml-2 bg-indigo-600 text-white px-2 py-0.5 rounded-full text-[9px]">{leads.length}</span>
+            {activeTab === 'leads' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-1 bg-slate-900 rounded-full" />}
+          </button>
+        </div>
+
+        {activeTab === 'portfolio' ? (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
            
            {/* Registry Table */}
            <div className="lg:col-span-8 space-y-16">
@@ -173,9 +175,28 @@ const OwnerDashboard: React.FC = () => {
                             </span>
                           </td>
                           <td className="px-12 py-10 text-right">
-                             <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button className="p-4 bg-slate-100 text-slate-600 rounded-2xl hover:bg-slate-900 hover:text-white transition-all shadow-sm"><Edit3 size={18} /></button>
-                                <button onClick={() => deleteProperty(p.id)} className="p-4 bg-red-50 text-red-500 rounded-2xl hover:bg-red-600 hover:text-white transition-all shadow-sm"><Trash2 size={18} /></button>
+                             <div className="flex items-center justify-end gap-3">
+                                <Link 
+                                  to={`/property/${p.id}`}
+                                  className="px-6 py-3 bg-slate-50 text-slate-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm text-[10px] font-black uppercase tracking-widest flex items-center gap-2"
+                                  title="View Profile"
+                                >
+                                  <ExternalLink size={14} /> View
+                                </Link>
+                                <button 
+                                  onClick={() => handleEdit(p)}
+                                  className="px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-indigo-600 transition-all shadow-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2"
+                                  title="Edit Specifications & Photos"
+                                >
+                                  <Edit3 size={14} /> Edit Details
+                                </button>
+                                <button 
+                                  onClick={() => deleteProperty(p.id)} 
+                                  className="p-3 bg-red-50 text-red-400 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                                  title="Delete Property"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
                              </div>
                           </td>
                         </tr>
@@ -216,9 +237,8 @@ const OwnerDashboard: React.FC = () => {
                  <h3 className="text-xl font-black text-slate-900 mb-10 uppercase tracking-tighter flex items-center gap-3"><BarChart3 size={20} className="text-indigo-600" /> Inquiry Pulse</h3>
                  <div className="space-y-10">
                     {[
-                      { label: 'Scholar Leads', val: 42, color: 'bg-indigo-600', max: 100 },
-                      { label: 'WhatsApp Signal', val: 156, color: 'bg-green-500', max: 300 },
-                      { label: 'Discovery Views', val: 942, color: 'bg-blue-500', max: 1500 },
+                      { label: 'Scholar Leads', val: portfolioStats.totalLeads, color: 'bg-indigo-600', max: Math.max(portfolioStats.totalLeads * 1.5, 10) },
+                      { label: 'Discovery Views', val: portfolioStats.totalViews, color: 'bg-blue-500', max: Math.max(portfolioStats.totalViews * 1.5, 100) },
                     ].map((stat, i) => (
                       <div key={i} className="space-y-4">
                          <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
@@ -241,125 +261,102 @@ const OwnerDashboard: React.FC = () => {
                  </div>
               </div>
            </div>
-        </div>
-      </div>
+          </div>
+        ) : (
+          <div className="space-y-12">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {[
+                { label: 'New Leads', val: leads.filter(l => l.status === 'New').length, icon: AlertTriangle, color: 'text-amber-600' },
+                { label: 'WhatsApp', val: leads.filter(l => l.type === 'WhatsApp').length, icon: MessageCircle, color: 'text-emerald-600' },
+                { label: 'Call Logs', val: leads.filter(l => l.type === 'Call').length, icon: Phone, color: 'text-blue-600' },
+                { label: 'Visit Requests', val: leads.filter(l => l.type === 'VisitRequest').length, icon: Calendar, color: 'text-indigo-600' },
+              ].map((s, i) => (
+                <div key={i} className="bg-white border border-slate-100 p-8 rounded-[40px] shadow-sm">
+                   <s.icon size={20} className={`${s.color} mb-4`} />
+                   <p className="text-4xl font-black text-slate-900 tracking-tighter">{s.val}</p>
+                   <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{s.label}</p>
+                </div>
+              ))}
+            </div>
 
-      {/* Asset Registry Modal - Fully Restored */}
-      <AnimatePresence>
-        {isAdding && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setIsAdding(false)}
-              className="absolute inset-0 bg-slate-900/70 backdrop-blur-xl"
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="bg-white w-full max-w-6xl h-[94vh] overflow-hidden rounded-[64px] shadow-2xl relative z-10 flex flex-col border border-white/20"
-            >
-              <div className="p-12 lg:p-16 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                 <div>
-                   <h2 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Asset Registration</h2>
-                   <p className="text-slate-400 font-bold text-sm">Provide core narrative and financial vectors for Atlas verification.</p>
-                 </div>
-                 <button onClick={() => setIsAdding(false)} className="p-6 bg-white rounded-full hover:bg-red-50 hover:text-red-500 transition-all shadow-sm"><X size={32} /></button>
+            <div className="bg-white border border-slate-200 rounded-[56px] overflow-hidden shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-slate-50/50 border-b border-slate-100">
+                    <tr className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">
+                      <th className="px-12 py-8">Scholar Identity</th>
+                      <th className="px-12 py-8">Target Asset</th>
+                      <th className="px-12 py-8">Signal Type</th>
+                      <th className="px-12 py-8">Timestamp</th>
+                      <th className="px-12 py-8 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {leads.map(lead => (
+                      <tr key={lead.id} className="hover:bg-slate-50/40 transition-colors group">
+                        <td className="px-12 py-10">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
+                              <User size={20} />
+                            </div>
+                            <div>
+                              <p className="font-black text-slate-900 text-lg tracking-tight leading-none mb-1">{lead.studentName}</p>
+                              <p className="text-xs font-bold text-slate-400">{lead.studentPhone}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-12 py-10">
+                          <p className="font-bold text-slate-700">{lead.propertyName}</p>
+                        </td>
+                        <td className="px-12 py-10">
+                          <span className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-2 ${
+                            lead.type === 'WhatsApp' ? 'bg-emerald-50 text-emerald-700' : 
+                            lead.type === 'Call' ? 'bg-blue-50 text-blue-700' : 'bg-indigo-50 text-indigo-700'
+                          }`}>
+                            {lead.type === 'WhatsApp' && <MessageCircle size={12} />}
+                            {lead.type === 'Call' && <Phone size={12} />}
+                            {lead.type === 'VisitRequest' && <Calendar size={12} />}
+                            {lead.type}
+                          </span>
+                        </td>
+                        <td className="px-12 py-10 text-[13px] font-bold text-slate-400">
+                          {new Date(lead.timestamp).toLocaleDateString()}
+                        </td>
+                        <td className="px-12 py-10 text-right">
+                          <button className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all">
+                            Mark Contacted
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {leads.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="px-12 py-32 text-center">
+                          <MessageCircle size={60} className="mx-auto text-slate-100 mb-6" />
+                          <p className="text-slate-300 font-black uppercase tracking-[0.4em] text-xs">No leads captured yet.</p>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
-
-              <div className="flex-grow overflow-y-auto p-12 lg:p-16 custom-scrollbar space-y-20">
-                 <form id="asset-form" onSubmit={handleSubmit} className="space-y-20">
-                    <section className="space-y-10">
-                       <h3 className="text-2xl font-black uppercase flex items-center gap-5 tracking-tight"><Building2 size={24} className="text-indigo-600" /> Core Asset Narrative</h3>
-                       <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                          <div className="space-y-3">
-                             <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Listing Name</label>
-                             <input required className="w-full bg-slate-50 p-6 rounded-[28px] font-black border-none focus:ring-4 focus:ring-indigo-50 transition-all outline-none" value={formData.ListingName} onChange={e => setFormData({...formData, ListingName: e.target.value})} placeholder="e.g. Royal Zenith Elite" />
-                          </div>
-                          <div className="space-y-3">
-                             <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Asset Class</label>
-                             <select className="w-full bg-slate-50 p-6 rounded-[28px] font-black outline-none border-none focus:ring-4 focus:ring-indigo-50" value={formData.ListingType} onChange={e => setFormData({...formData, ListingType: e.target.value as ListingType})}>
-                               {Object.values(ListingType).map(v => <option key={v} value={v}>{v}</option>)}
-                             </select>
-                          </div>
-                          <div className="space-y-3">
-                             <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Gender Exclusion</label>
-                             <select className="w-full bg-slate-50 p-6 rounded-[28px] font-black outline-none border-none focus:ring-4 focus:ring-indigo-50" value={formData.Gender} onChange={e => setFormData({...formData, Gender: e.target.value as Gender})}>
-                               {Object.values(Gender).map(v => <option key={v} value={v}>{v}</option>)}
-                             </select>
-                          </div>
-                       </div>
-                    </section>
-
-                    <section className="space-y-10">
-                       <h3 className="text-2xl font-black uppercase flex items-center gap-5 tracking-tight"><Wallet size={24} className="text-indigo-600" /> Economic Protocol</h3>
-                       <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-                          <div className="space-y-3">
-                             <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Single Rent (₹)</label>
-                             <input type="number" required className="w-full bg-slate-50 p-6 rounded-[28px] font-black outline-none border-none focus:ring-4 focus:ring-indigo-50" value={formData.RentSingle} onChange={e => setFormData({...formData, RentSingle: +e.target.value})} />
-                          </div>
-                          <div className="space-y-3">
-                             <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Double Rent (₹)</label>
-                             <input type="number" required className="w-full bg-slate-50 p-6 rounded-[28px] font-black outline-none border-none focus:ring-4 focus:ring-indigo-50" value={formData.RentDouble} onChange={e => setFormData({...formData, RentDouble: +e.target.value})} />
-                          </div>
-                          <div className="space-y-3">
-                             <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Elec. (₹/Unit)</label>
-                             <input type="number" className="w-full bg-slate-50 p-6 rounded-[28px] font-black outline-none border-none focus:ring-4 focus:ring-indigo-50" value={formData.ElectricityCharges} onChange={e => setFormData({...formData, ElectricityCharges: +e.target.value})} />
-                          </div>
-                          <div className="space-y-3">
-                             <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Maintenance (₹)</label>
-                             <input type="number" className="w-full bg-slate-50 p-6 rounded-[28px] font-black outline-none border-none focus:ring-4 focus:ring-indigo-50" value={formData.Maintenance} onChange={e => setFormData({...formData, Maintenance: +e.target.value})} />
-                          </div>
-                       </div>
-                    </section>
-
-                    <section className="space-y-10">
-                       <h3 className="text-2xl font-black uppercase flex items-center gap-5 tracking-tight"><Zap size={24} className="text-indigo-600" /> Amenity Matrix</h3>
-                       <div className="flex flex-wrap gap-4">
-                          {FACILITY_OPTIONS.map(fac => (
-                            <button
-                              key={fac}
-                              type="button"
-                              onClick={() => toggleFacility(fac)}
-                              className={`px-10 py-5 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all border ${
-                                formData.Facilities.includes(fac) ? 'bg-slate-900 text-white border-slate-900 shadow-2xl' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-400'
-                              }`}
-                            >
-                              {fac}
-                            </button>
-                          ))}
-                       </div>
-                    </section>
-
-                    <section className="space-y-10">
-                       <h3 className="text-2xl font-black uppercase flex items-center gap-5 tracking-tight"><Clock size={24} className="text-indigo-600" /> Geographic Cluster</h3>
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                          <div className="space-y-3">
-                             <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Target Area</label>
-                             <select className="w-full bg-slate-50 p-6 rounded-[28px] font-black outline-none border-none focus:ring-4 focus:ring-indigo-50" value={formData.Area} onChange={e => setFormData({...formData, Area: e.target.value})}>
-                               {KOTA_AREAS.map(a => <option key={a} value={a}>{a}</option>)}
-                             </select>
-                          </div>
-                          <div className="space-y-3">
-                             <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Address Narrative</label>
-                             <input required className="w-full bg-slate-50 p-6 rounded-[28px] font-bold outline-none border-none focus:ring-4 focus:ring-indigo-50" value={formData.FullAddress} onChange={e => setFormData({...formData, FullAddress: e.target.value})} placeholder="Detailed Location Vector" />
-                          </div>
-                       </div>
-                    </section>
-                 </form>
-              </div>
-
-              <div className="p-12 lg:p-16 bg-slate-50 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-10">
-                 <div className="text-[11px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-5"><Database size={20} /> Transmitting to Atlas Master Node v2.4</div>
-                 <div className="flex gap-6 w-full md:w-auto">
-                    <button type="button" onClick={() => setIsAdding(false)} className="flex-1 md:flex-none px-14 py-6 font-black uppercase text-slate-400 hover:text-slate-900 transition-all">Abort Registry</button>
-                    <button type="submit" form="asset-form" className="flex-1 md:flex-none px-20 py-6 bg-slate-900 text-white rounded-[32px] font-black uppercase tracking-widest text-xs shadow-[0_24px_48px_-12px_rgba(15,23,42,0.3)] hover:bg-indigo-600 transition-all flex items-center justify-center gap-4">
-                       Finalize Transmit <ArrowRight size={20} />
-                    </button>
-                 </div>
-              </div>
-            </motion.div>
+            </div>
           </div>
         )}
-      </AnimatePresence>
+      </div>
+
+      {/* Asset Registry Modal */}
+      <PropertyFormModal 
+        key={editingProperty ? `edit-${editingProperty.id}` : 'add'}
+        isOpen={isAdding}
+        onClose={handleCloseModal}
+        onSubmit={handleFormSubmit}
+        initialData={editingProperty || undefined}
+        ownerId={user.id}
+        ownerName={user.username}
+        ownerEmail={user.email}
+        ownerPhone={user.phone}
+      />
     </div>
   );
 };

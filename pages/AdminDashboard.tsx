@@ -1,36 +1,37 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useProperties } from '../context/PropertyContext';
-import { useAuth } from '../context/AuthContext';
-import { Property, ListingType, Gender, ApprovalStatus, UserRole, User, UserStatus, AppConfig } from '../types';
+import { ApprovalStatus, UserRole, User, UserStatus, AppConfig, Property } from '../types';
 import { getAppConfig, saveAppConfig, getMockUsers } from '../db';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Shield, Check, X, Edit, Settings, BarChart3, 
-  Building2, Clock, Plus, Trash2, Search, AlertCircle,
-  Users, Activity, Globe, HardDrive, Smartphone,
-  MoreVertical, ShieldAlert, UserCheck, UserPlus, Zap,
-  Mail, Phone, Calendar, MapPin, ExternalLink, ArrowRight,
-  Sparkles, ShieldCheck, Heart, UserX, MessageCircle,
-  TrendingUp, MousePointer2, Timer, Focus, Target, Layers,
-  Layout, Eye, Lock, Server, Wrench, Database, Instagram, Twitter, Linkedin,
-  Cpu, Terminal, Command, LayoutGrid
+  Shield, X, 
+  Building2, Plus, Trash2, Search,
+  Users, Activity, Globe, Database,
+  UserPlus, Zap, Server,
+  MapPin,
+  Sparkles, ShieldCheck,
+  MousePointer2, Timer, Target, Layers,
+  Cpu, Terminal, Command,
+  Edit3, Focus
 } from 'lucide-react';
+import PropertyFormModal from '../components/PropertyFormModal';
 
 const AdminDashboard: React.FC = () => {
-  const { properties, approveProperty, deleteProperty } = useProperties();
+  const { properties, approveProperty, updateProperty, deleteProperty } = useProperties();
   const [activeTab, setActiveTab] = useState<'overview' | 'listings' | 'users' | 'config' | 'logs'>('overview');
   const [searchTerm, setSearchTerm] = useState('');
   const [registeredUsers, setRegisteredUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSaved, setLastSaved] = useState<string>(new Date().toLocaleTimeString());
+  const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   
   // Global Kernel State
   const [config, setConfig] = useState<AppConfig>(getAppConfig());
 
   useEffect(() => {
     const loadUsers = () => {
-      const users = JSON.parse(localStorage.getItem('erooms_registered_users') || '[]');
+      const users = JSON.parse(localStorage.getItem('erooms_atlas_users') || '[]');
       const mocks = getMockUsers();
       const uniqueUsers = [...users];
       mocks.forEach(m => {
@@ -41,7 +42,7 @@ const AdminDashboard: React.FC = () => {
     loadUsers();
   }, [activeTab]);
 
-  const handleUpdateConfig = (updates: any) => {
+  const handleUpdateConfig = (updates: Partial<AppConfig>) => {
     setIsSyncing(true);
     const newConfig = { ...config, ...updates };
     setConfig(newConfig);
@@ -108,7 +109,7 @@ const AdminDashboard: React.FC = () => {
           {navItems.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id as typeof activeTab)}
               className={`flex items-center gap-4 px-6 py-4 rounded-2xl transition-all whitespace-nowrap group ${
                 activeTab === tab.id 
                 ? 'bg-white text-slate-900 shadow-2xl' 
@@ -290,11 +291,29 @@ const AdminDashboard: React.FC = () => {
                           </span>
                         </td>
                         <td className="px-12 py-10 text-right">
-                          <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex items-center justify-end gap-3">
                             {p.ApprovalStatus === ApprovalStatus.Pending && (
-                              <button onClick={() => approveProperty(p.id)} className="bg-slate-900 text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl">Verify</button>
+                              <button 
+                                onClick={() => approveProperty(p.id)} 
+                                className="bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg"
+                              >
+                                Verify
+                              </button>
                             )}
-                            <button onClick={() => deleteProperty(p.id)} className="p-4 bg-red-50 text-red-500 rounded-xl hover:bg-red-600 hover:text-white transition-all"><Trash2 size={18} /></button>
+                            <button 
+                              onClick={() => setEditingProperty(p)}
+                              className="p-3 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-900 hover:text-white transition-all"
+                              title="Edit Listing"
+                            >
+                              <Edit3 size={16} />
+                            </button>
+                            <button 
+                              onClick={() => deleteProperty(p.id)} 
+                              className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-600 hover:text-white transition-all"
+                              title="Delete Listing"
+                            >
+                              <Trash2 size={16} />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -637,6 +656,16 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
       </AnimatePresence>
+
+      <PropertyFormModal 
+        isOpen={!!editingProperty} 
+        onClose={() => setEditingProperty(null)} 
+        onSave={(updated) => {
+          updateProperty(updated);
+          setEditingProperty(null);
+        }}
+        initialData={editingProperty || undefined}
+      />
     </div>
   );
 };

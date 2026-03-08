@@ -4,9 +4,10 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Wind, Wifi, Utensils, WashingMachine, Cctv, Droplet, 
-  Zap, Bath, BookOpen, Shirt, Sun, Star 
+  Zap, Bath, BookOpen, Shirt, Sun, Star, Heart 
 } from 'lucide-react';
 import { Property, Gender } from '../types';
+import { useAuth } from '../context/AuthContext';
 
 interface PropertyCardProps {
   property: Property;
@@ -27,6 +28,9 @@ const facilityIconMap: Record<string, React.ElementType> = {
 };
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
+  const { user, toggleShortlist } = useAuth();
+  const isShortlisted = user?.shortlist?.includes(property.id) || false;
+
   const genderColor = property.Gender === Gender.Boys ? 'bg-blue-500 text-white' : 
                       property.Gender === Gender.Girls ? 'bg-pink-500 text-white' : 
                       'bg-slate-500 text-white';
@@ -57,7 +61,13 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
             </span>
           </div>
 
-          <div className="absolute top-4 right-4">
+          <div className="absolute top-4 right-4 flex flex-col gap-2">
+            <button 
+              onClick={(e) => { e.preventDefault(); toggleShortlist(property.id); }}
+              className={`p-2.5 rounded-full shadow-lg backdrop-blur-md transition-all active:scale-90 ${isShortlisted ? 'bg-rose-500 text-white' : 'bg-white/90 text-slate-400 hover:text-rose-500'}`}
+            >
+              <Heart size={18} fill={isShortlisted ? "currentColor" : "none"} />
+            </button>
             <div className="bg-white/90 backdrop-blur-md p-1.5 rounded-full shadow-lg border border-white/50">
               <svg className="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-5-5 1.41-1.41L10 13.17l7.59-7.59L19 7l-9 9z"/>
@@ -66,18 +76,18 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
           </div>
 
           <div className="absolute bottom-4 left-4 right-4">
-             <div className="bg-slate-900/40 backdrop-blur-xl rounded-2xl p-3 border border-white/20 flex items-center justify-between text-white shadow-xl">
-               <div className="flex items-center gap-2">
-                 <span className="text-xl">🚶</span>
-                 <p className="text-xs font-bold leading-tight">
+             <div className="bg-slate-900/40 backdrop-blur-xl rounded-2xl p-3 border border-white/20 flex items-center justify-between text-white shadow-xl min-w-0">
+               <div className="flex items-center gap-2 min-w-0">
+                 <span className="text-xl flex-shrink-0">🚶</span>
+                 <p className="text-xs font-bold leading-tight truncate">
                     {minsWalk} mins walk <br/>
-                    <span className="text-white/60 font-medium">to {nearest?.name}</span>
+                    <span className="text-white/60 font-medium truncate block">to {nearest?.name}</span>
                  </p>
                </div>
-               <div className="h-8 w-px bg-white/20"></div>
-               <div className="text-right">
+               <div className="h-8 w-px bg-white/20 flex-shrink-0 mx-2"></div>
+               <div className="text-right flex-shrink-0">
                   <p className="text-[10px] uppercase font-black tracking-widest text-white/60">Area</p>
-                  <p className="text-xs font-bold">{property.Area.split(' (')[0]}</p>
+                  <p className="text-xs font-bold truncate max-w-[80px]">{property.Area.split(' (')[0]}</p>
                </div>
              </div>
           </div>

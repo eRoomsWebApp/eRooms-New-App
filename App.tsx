@@ -45,8 +45,11 @@ const App: React.FC = () => {
   const [config, setConfig] = useState(getAppConfig());
 
   useEffect(() => {
-    const handleSync = (e: any) => {
-      setConfig(e.detail);
+    const handleSync = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail) {
+        setConfig(detail);
+      }
     };
     window.addEventListener(CONFIG_UPDATED_EVENT, handleSync);
     return () => window.removeEventListener(CONFIG_UPDATED_EVENT, handleSync);
