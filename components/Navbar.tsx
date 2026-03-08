@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
 import { getAppConfig, CONFIG_UPDATED_EVENT } from '../db';
-import { Menu, X, ChevronRight, User } from 'lucide-react';
+import { Menu, X, ChevronRight, User, PlusCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar: React.FC = () => {
@@ -47,6 +47,13 @@ const Navbar: React.FC = () => {
     return '/';
   };
 
+  const getListPropertyPath = () => {
+    if (!isAuthenticated) return '/login';
+    if (user?.role === UserRole.Admin) return '/admin/dashboard?action=add';
+    if (user?.role === UserRole.Owner) return '/owner/dashboard?action=add';
+    return '/owner/dashboard'; // Fallback
+  };
+
   return (
     <nav className="bg-white border-b border-slate-100 sticky top-0 z-[60]">
       <div className="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
@@ -60,6 +67,12 @@ const Navbar: React.FC = () => {
           ))}
         </div>
         <div className="hidden lg:flex items-center gap-4">
+          <Link 
+            to={getListPropertyPath()} 
+            className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-700 px-4 py-3 rounded-xl border border-indigo-100 hover:bg-indigo-50 transition-all mr-2"
+          >
+            <PlusCircle size={16} /> List Your Property
+          </Link>
           {isAuthenticated ? (
             <div className="flex items-center gap-4">
               <Link to={getDashboardPath()} className="text-[11px] font-black uppercase tracking-widest bg-slate-900 text-white px-6 py-3 rounded-xl hover:bg-slate-800 transition-all shadow-lg">Dashboard</Link>
@@ -93,6 +106,12 @@ const Navbar: React.FC = () => {
                 </Link>
               ))}
               <div className="pt-4 border-t border-slate-50 flex flex-col gap-3">
+                <Link 
+                  to={getListPropertyPath()} 
+                  className="flex items-center justify-center gap-2 w-full bg-indigo-50 text-indigo-600 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest border border-indigo-100"
+                >
+                  <PlusCircle size={16} /> List Your Property
+                </Link>
                 {isAuthenticated ? (
                   <>
                     <Link to={getDashboardPath()} className="flex items-center justify-center gap-2 w-full bg-slate-900 text-white py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-lg">

@@ -6,11 +6,14 @@ import { useProperties } from '../context/PropertyContext';
 import PropertyCard from '../components/PropertyCard';
 import SearchBar from '../components/SearchBar';
 import FilterBar from '../components/FilterBar';
-import { ApprovalStatus } from '../types';
+import { ApprovalStatus, UserRole } from '../types';
 import { getAppConfig, CONFIG_UPDATED_EVENT } from '../db';
+import { useAuth } from '../context/AuthContext';
+import { Building2, PlusCircle, ArrowRight } from 'lucide-react';
 
 const Home: React.FC = () => {
   const { filteredProperties, properties, loading, isFiltering, setFilters } = useProperties();
+  const { user } = useAuth();
   const [config, setConfig] = useState(getAppConfig());
 
   useEffect(() => {
@@ -122,6 +125,31 @@ const Home: React.FC = () => {
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
+
+      {/* Host CTA Section */}
+      <div className="max-w-7xl mx-auto px-4 mt-32 mb-20">
+        <div className="bg-slate-900 rounded-[64px] p-12 lg:p-24 relative overflow-hidden shadow-2xl">
+           <div className="absolute top-0 right-0 p-12 opacity-5 -rotate-12 pointer-events-none"><Building2 size={300} /></div>
+           <div className="relative z-10 max-w-2xl">
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-5 py-2 rounded-full mb-8 border border-white/10">
+                 <PlusCircle size={16} className="text-indigo-400" />
+                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Host Your Asset</span>
+              </div>
+              <h2 className="text-4xl lg:text-7xl font-black text-white tracking-tighter uppercase mb-8 leading-none">
+                 Are you a property owner in Kota?
+              </h2>
+              <p className="text-white/60 font-bold text-lg mb-12 leading-relaxed">
+                 Join Kota's most elite student housing network. List your PG, Hostel, or Flat for free and connect directly with thousands of scholars. Zero commission, 100% transparency.
+              </p>
+              <Link 
+                to={!user ? '/login' : (user.role === UserRole.Admin ? '/admin/dashboard?action=add' : '/owner/dashboard?action=add')} 
+                className="inline-flex items-center gap-4 bg-white text-slate-900 px-10 py-6 rounded-[32px] font-black uppercase tracking-widest text-xs shadow-2xl hover:bg-indigo-500 hover:text-white transition-all group"
+              >
+                List Your Property Now <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
+              </Link>
+           </div>
+        </div>
       </div>
     </div>
   );

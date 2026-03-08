@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Property, Gender } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { transformDriveUrl } from '../utils/urlHelper';
 
 interface PropertyCardProps {
   property: Property;
@@ -47,9 +48,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       <Link to={`/property/${property.id}`} className="block overflow-hidden bg-white rounded-[24px] border border-[#e2e8f0] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-500">
         <div className="relative aspect-[4/3] overflow-hidden">
           <img 
-            src={property.PhotoMain} 
+            src={transformDriveUrl(property.PhotoMain)} 
             alt={property.ListingName} 
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+            referrerPolicy="no-referrer"
           />
           
           <div className="absolute top-4 left-4 flex gap-2">

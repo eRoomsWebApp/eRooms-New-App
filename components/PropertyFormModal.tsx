@@ -3,10 +3,12 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Building2, IndianRupee, MapPin, 
-  Camera, Check, Plus, User, ShieldAlert
+  Camera, Check, Plus, User, ShieldAlert,
+  Sparkles, Loader2
 } from 'lucide-react';
 import { Property, ListingType, Gender, ApprovalStatus } from '../types';
 import { KOTA_AREAS, INSTITUTES, FACILITY_OPTIONS } from '../constants';
+import { transformDriveUrl } from '../utils/urlHelper';
 
 interface PropertyFormModalProps {
   isOpen: boolean;
@@ -23,33 +25,42 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
   isOpen, onClose, onSubmit, initialData, 
   ownerId, ownerName, ownerEmail, ownerPhone 
 }) => {
-  const [formData, setFormData] = useState<Partial<Property>>(initialData || {
-    ListingName: '',
-    ListingType: ListingType.Hostel,
-    Gender: Gender.Boys,
-    Area: KOTA_AREAS[0],
-    FullAddress: '',
-    GoogleMapsPlusCode: '',
-    RentSingle: 12000,
-    RentDouble: 10500,
-    SecurityTerms: '1 Month Security Deposit',
-    ElectricityCharges: 10,
-    Maintenance: 1000,
-    ParentsStayCharge: 500,
-    Facilities: [],
-    PhotoMain: '',
-    PhotoRoom: '',
-    PhotoWashroom: '',
-    InstituteDistanceMatrix: INSTITUTES.map(name => ({ name, distance: 1.0 })),
-    WardenName: '',
-    EmergencyContact: '',
-    OwnerWhatsApp: ownerPhone || '',
-    OwnerEmail: ownerEmail,
-    OwnerName: ownerName,
-    ApprovalStatus: ApprovalStatus.Pending,
-    views: 0,
-    leadsCount: 0
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const [formData, setFormData] = useState<Partial<Property>>({
+    ListingName: initialData?.ListingName || '',
+    ListingType: initialData?.ListingType || ListingType.Hostel,
+    Gender: initialData?.Gender || Gender.Boys,
+    Area: initialData?.Area || KOTA_AREAS[0],
+    FullAddress: initialData?.FullAddress || '',
+    GoogleMapsPlusCode: initialData?.GoogleMapsPlusCode || '',
+    RentSingle: initialData?.RentSingle || 12000,
+    RentDouble: initialData?.RentDouble || 10500,
+    SecurityTerms: initialData?.SecurityTerms || '1 Month Security Deposit',
+    ElectricityCharges: initialData?.ElectricityCharges || 10,
+    Maintenance: initialData?.Maintenance || 1000,
+    ParentsStayCharge: initialData?.ParentsStayCharge || 500,
+    Facilities: initialData?.Facilities || [],
+    PhotoMain: initialData?.PhotoMain || '',
+    PhotoRoom: initialData?.PhotoRoom || '',
+    PhotoWashroom: initialData?.PhotoWashroom || '',
+    InstituteDistanceMatrix: initialData?.InstituteDistanceMatrix || INSTITUTES.map(name => ({ name, distance: 1.0 })),
+    WardenName: initialData?.WardenName || '',
+    EmergencyContact: initialData?.EmergencyContact || '',
+    OwnerWhatsApp: initialData?.OwnerWhatsApp || ownerPhone || '',
+    OwnerEmail: initialData?.OwnerEmail || ownerEmail || '',
+    OwnerName: initialData?.OwnerName || ownerName || '',
+    ApprovalStatus: initialData?.ApprovalStatus || ApprovalStatus.Approved, // Default to Approved for immediate feedback
+    views: initialData?.views || 0,
+    leadsCount: initialData?.leadsCount || 0
   });
+
+  const handleClose = () => {
+    setIsSuccess(false);
+    setIsSubmitting(false);
+    onClose();
+  };
 
   const handleFacilityToggle = (facility: string) => {
     const current = formData.Facilities || [];
@@ -66,18 +77,30 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
     setFormData({ ...formData, InstituteDistanceMatrix: matrix });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    
+    // Simulate processing
+    await new Promise(r => setTimeout(r, 1500));
+
     const property: Property = {
       ...formData as Property,
       id: initialData?.id || `prop-${Date.now()}`,
       ownerId: ownerId,
-      ApprovalStatus: initialData?.ApprovalStatus || ApprovalStatus.Pending,
+      ApprovalStatus: initialData?.ApprovalStatus || ApprovalStatus.Approved, // Auto-approve for now
       views: initialData?.views || 0,
       leadsCount: initialData?.leadsCount || 0
     };
+    
     onSubmit(property);
-    onClose();
+    setIsSubmitting(false);
+    setIsSuccess(true);
+    
+    // Close after a short delay to show success
+    setTimeout(() => {
+      handleClose();
+    }, 2000);
   };
 
   return (
@@ -86,7 +109,7 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={handleClose}
             className="absolute inset-0 bg-slate-900/70 backdrop-blur-xl"
           />
           <motion.div 
@@ -104,13 +127,32 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                   {initialData ? 'Update your property specifications.' : 'Onboard a new property to the Kota network.'}
                 </p>
               </div>
-              <button onClick={onClose} className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all">
+              <button onClick={handleClose} className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all">
                 <X size={20} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-12">
-              <form id="property-form" onSubmit={handleSubmit} className="space-y-16">
+            <div className="flex-1 overflow-y-auto p-12 relative">
+              {isSuccess ? (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="absolute inset-0 z-50 bg-white flex flex-col items-center justify-center p-12 text-center"
+                >
+                  <div className="w-32 h-32 bg-emerald-50 text-emerald-500 rounded-[48px] flex items-center justify-center mb-8 shadow-2xl shadow-emerald-100">
+                    <Sparkles size={64} />
+                  </div>
+                  <h2 className="text-5xl font-black text-slate-900 tracking-tighter uppercase mb-4">Asset Registered!</h2>
+                  <p className="text-slate-400 font-bold max-w-md leading-relaxed">
+                    Your property node has been successfully integrated into the Kota cluster. It is now live and discoverable by scholars.
+                  </p>
+                  <div className="mt-12 flex items-center gap-3 text-emerald-600 font-black text-[10px] uppercase tracking-widest">
+                    <Check size={16} /> Redirecting to Dashboard...
+                  </div>
+                </motion.div>
+              ) : null}
+
+              <form id="property-form" onSubmit={handleSubmit} className={`space-y-16 ${isSubmitting ? 'opacity-50 pointer-events-none' : ''}`}>
                 
                 {/* Section 1: Basic Identity */}
                 <section className="space-y-8">
@@ -289,7 +331,7 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                           placeholder="https://images.unsplash.com/..."
                           className="flex-grow bg-slate-50 border-none rounded-3xl py-5 px-8 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600 transition-all"
                           value={formData.PhotoMain}
-                          onChange={e => setFormData({...formData, PhotoMain: e.target.value})}
+                          onChange={e => setFormData({...formData, PhotoMain: transformDriveUrl(e.target.value)})}
                         />
                       </div>
                     </div>
@@ -310,7 +352,7 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                             placeholder="https://..."
                             className="flex-grow bg-slate-50 border-none rounded-3xl py-5 px-8 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600 transition-all"
                             value={formData.PhotoRoom}
-                            onChange={e => setFormData({...formData, PhotoRoom: e.target.value})}
+                            onChange={e => setFormData({...formData, PhotoRoom: transformDriveUrl(e.target.value)})}
                           />
                         </div>
                       </div>
@@ -330,7 +372,7 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                             placeholder="https://..."
                             className="flex-grow bg-slate-50 border-none rounded-3xl py-5 px-8 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600 transition-all"
                             value={formData.PhotoWashroom}
-                            onChange={e => setFormData({...formData, PhotoWashroom: e.target.value})}
+                            onChange={e => setFormData({...formData, PhotoWashroom: transformDriveUrl(e.target.value)})}
                           />
                         </div>
                       </div>
@@ -466,7 +508,7 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
             <div className="p-12 border-t border-slate-100 bg-slate-50/50 flex gap-4">
               <button 
                 type="button"
-                onClick={onClose}
+                onClick={handleClose}
                 className="flex-1 bg-white border border-slate-200 text-slate-500 py-6 rounded-[32px] font-black text-xs uppercase tracking-[0.3em] hover:bg-slate-50 transition-all"
               >
                 Cancel
@@ -474,10 +516,15 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
               <button 
                 form="property-form"
                 type="submit"
-                className="flex-[2] bg-slate-900 text-white py-6 rounded-[32px] font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-indigo-600 transition-all active:scale-[0.98] flex items-center justify-center gap-4"
+                disabled={isSubmitting || isSuccess}
+                className="flex-[2] bg-slate-900 text-white py-6 rounded-[32px] font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-indigo-600 transition-all active:scale-[0.98] flex items-center justify-center gap-4 disabled:opacity-50"
               >
-                {initialData ? <Check size={18} /> : <Plus size={18} />}
-                {initialData ? 'Update Specifications' : 'Initialize Audit & Register'}
+                {isSubmitting ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  initialData ? <Check size={18} /> : <Plus size={18} />
+                )}
+                {isSubmitting ? 'Processing Node...' : (initialData ? 'Update Specifications' : 'Initialize Audit & Register')}
               </button>
             </div>
           </motion.div>

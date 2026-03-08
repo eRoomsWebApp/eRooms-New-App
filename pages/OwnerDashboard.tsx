@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Building2, Plus, TrendingUp, BarChart3, 
@@ -17,10 +17,11 @@ import PropertyFormModal from '../components/PropertyFormModal';
 const OwnerDashboard: React.FC = () => {
   const { user } = useAuth();
   const { properties, addProperty, updateProperty, deleteProperty } = useProperties();
-  const [isAdding, setIsAdding] = useState(false);
+  const [searchParams] = useSearchParams();
+  const [isAdding, setIsAdding] = useState(searchParams.get('action') === 'add');
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   const [activeTab, setActiveTab] = useState<'portfolio' | 'leads'>('portfolio');
-  
+
   const myProperties = useMemo(() => 
     properties.filter(p => p.ownerId === user?.id),
     [properties, user]

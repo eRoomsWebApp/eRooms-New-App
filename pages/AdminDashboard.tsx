@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useProperties } from '../context/PropertyContext';
+import { useAuth } from '../context/AuthContext';
 import { ApprovalStatus, UserRole, User, UserStatus, AppConfig, Property } from '../types';
 import { getAppConfig, saveAppConfig, getMockUsers } from '../db';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,14 +19,19 @@ import {
 import PropertyFormModal from '../components/PropertyFormModal';
 
 const AdminDashboard: React.FC = () => {
-  const { properties, approveProperty, updateProperty, deleteProperty } = useProperties();
-  const [activeTab, setActiveTab] = useState<'overview' | 'listings' | 'users' | 'config' | 'logs'>('overview');
+  const { user } = useAuth();
+  const { properties, addProperty, approveProperty, updateProperty, deleteProperty } = useProperties();
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<'overview' | 'listings' | 'users' | 'config' | 'logs'>(
+    searchParams.get('action') === 'add' ? 'listings' : 'overview'
+  );
   const [searchTerm, setSearchTerm] = useState('');
   const [registeredUsers, setRegisteredUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSaved, setLastSaved] = useState<string>(new Date().toLocaleTimeString());
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
+  const [isAdding, setIsAdding] = useState(searchParams.get('action') === 'add');
   
   // Global Kernel State
   const [config, setConfig] = useState<AppConfig>(getAppConfig());
@@ -251,7 +258,20 @@ const AdminDashboard: React.FC = () => {
 
           {/* ASSET REGISTRY (Listings) */}
           {activeTab === 'listings' && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white border border-slate-200 rounded-[48px] shadow-sm overflow-hidden">
+            <div className="space-y-8">
+               <div className="flex justify-between items-center">
+                  <div>
+                     <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">Asset Registry</h2>
+                     <p className="text-sm font-bold text-slate-400 mt-1">Global management of all property nodes.</p>
+                  </div>
+                  <button 
+                    onClick={() => setIsAdding(true)}
+                    className="bg-slate-900 text-white px-10 py-5 rounded-[22px] font-black text-[11px] uppercase tracking-widest shadow-2xl hover:bg-indigo-600 transition-all active:scale-95 flex items-center gap-4"
+                  >
+                     <Plus size={18} /> New Registration
+                  </button>
+               </div>
+               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white border border-slate-200 rounded-[48px] shadow-sm overflow-hidden">
                <div className="overflow-x-auto">
                 <table className="w-full text-left min-w-[1000px]">
                   <thead className="bg-slate-50/50 border-b border-slate-100">
@@ -322,6 +342,7 @@ const AdminDashboard: React.FC = () => {
                 </table>
                </div>
             </motion.div>
+            </div>
           )}
 
           {/* NODE DIRECTORY (Users) */}
@@ -658,13 +679,26 @@ const AdminDashboard: React.FC = () => {
       </AnimatePresence>
 
       <PropertyFormModal 
-        isOpen={!!editingProperty} 
-        onClose={() => setEditingProperty(null)} 
-        onSave={(updated) => {
-          updateProperty(updated);
+        key={editingProperty ? `edit-${editingProperty.id}` : (isAdding ? 'admin-add-new' : 'admin-add')}
+        isOpen={!!editingProperty || isAdding} 
+        onClose={() => {
           setEditingProperty(null);
+          setIsAdding(false);
+        }} 
+        onSubmit={(updated) => {
+          if (editingProperty) {
+            updateProperty(updated.id, updated);
+          } else {
+            addProperty(updated);
+          }
+          setEditingProperty(null);
+          setIsAdding(false);
         }}
         initialData={editingProperty || undefined}
+        ownerId={editingProperty?.ownerId || user?.id || 'admin'}
+        ownerName={editingProperty?.OwnerName || user?.username || 'Admin'}
+        ownerEmail={editingProperty?.OwnerEmail || user?.email || 'admin@erooms.in'}
+        ownerPhone={editingProperty?.OwnerWhatsApp || user?.phone}
       />
     </div>
   );

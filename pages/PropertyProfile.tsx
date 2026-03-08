@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useProperties } from '../context/PropertyContext';
 import { useAuth } from '../context/AuthContext';
+import { transformDriveUrl } from '../utils/urlHelper';
 import { Gender } from '../types';
 import { recordPropertyView, saveLead } from '../db';
 
@@ -160,16 +161,16 @@ const PropertyProfile: React.FC = () => {
       <section id="overview" ref={overviewRef} className="relative h-[65vh] lg:h-[90vh] overflow-hidden">
         <div className="absolute inset-0 grid grid-cols-1 lg:grid-cols-12 gap-1 lg:gap-2">
            <div className="lg:col-span-8 h-full relative group">
-              <img src={property.PhotoMain} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Main" referrerPolicy="no-referrer" />
+              <img src={transformDriveUrl(property.PhotoMain)} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Main" referrerPolicy="no-referrer" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/10 to-transparent"></div>
            </div>
            <div className="hidden lg:grid lg:col-span-4 grid-rows-2 gap-2 h-full">
               <div className="relative overflow-hidden group">
-                 <img src={property.PhotoRoom} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Room" referrerPolicy="no-referrer" />
+                 <img src={transformDriveUrl(property.PhotoRoom)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Room" referrerPolicy="no-referrer" />
                  <div className="absolute inset-0 bg-black/20"></div>
               </div>
               <div className="relative overflow-hidden group">
-                 <img src={property.PhotoWashroom} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Washroom" referrerPolicy="no-referrer" />
+                 <img src={transformDriveUrl(property.PhotoWashroom)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Washroom" referrerPolicy="no-referrer" />
                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                     <span className="text-white font-black uppercase text-xs tracking-widest border border-white/40 px-6 py-3 rounded-xl backdrop-blur-md">View All 18 Photos</span>
                  </div>
