@@ -14,9 +14,10 @@ import {
   Sparkles, ShieldCheck,
   MousePointer2, Timer, Target, Layers,
   Cpu, Terminal, Command,
-  Edit3, Focus
+  Edit3, Focus, FileSpreadsheet
 } from 'lucide-react';
 import PropertyFormModal from '../components/PropertyFormModal';
+import BulkUploadModal from '../components/BulkUploadModal';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -32,6 +33,7 @@ const AdminDashboard: React.FC = () => {
   const [lastSaved, setLastSaved] = useState<string>(new Date().toLocaleTimeString());
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   const [isAdding, setIsAdding] = useState(searchParams.get('action') === 'add');
+  const [isBulkUploading, setIsBulkUploading] = useState(false);
   
   // Global Kernel State
   const [config, setConfig] = useState<AppConfig>(getAppConfig());
@@ -264,12 +266,20 @@ const AdminDashboard: React.FC = () => {
                      <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">Asset Registry</h2>
                      <p className="text-sm font-bold text-slate-400 mt-1">Global management of all property nodes.</p>
                   </div>
-                  <button 
-                    onClick={() => setIsAdding(true)}
-                    className="bg-slate-900 text-white px-10 py-5 rounded-[22px] font-black text-[11px] uppercase tracking-widest shadow-2xl hover:bg-indigo-600 transition-all active:scale-95 flex items-center gap-4"
-                  >
-                     <Plus size={18} /> New Registration
-                  </button>
+                  <div className="flex gap-4">
+                    <button 
+                      onClick={() => setIsBulkUploading(true)}
+                      className="bg-white border-2 border-slate-200 text-slate-600 px-8 py-5 rounded-[22px] font-black text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95 flex items-center gap-4"
+                    >
+                       <FileSpreadsheet size={18} /> Bulk Upload
+                    </button>
+                    <button 
+                      onClick={() => setIsAdding(true)}
+                      className="bg-slate-900 text-white px-10 py-5 rounded-[22px] font-black text-[11px] uppercase tracking-widest shadow-2xl hover:bg-indigo-600 transition-all active:scale-95 flex items-center gap-4"
+                    >
+                       <Plus size={18} /> New Registration
+                    </button>
+                  </div>
                </div>
                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white border border-slate-200 rounded-[48px] shadow-sm overflow-hidden">
                <div className="overflow-x-auto">
@@ -677,6 +687,15 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
       </AnimatePresence>
+
+      <BulkUploadModal 
+        isOpen={isBulkUploading}
+        onClose={() => setIsBulkUploading(false)}
+        onUpload={(newProperties) => {
+          newProperties.forEach(p => addProperty(p));
+          setIsBulkUploading(false);
+        }}
+      />
 
       <PropertyFormModal 
         key={editingProperty ? `edit-${editingProperty.id}` : (isAdding ? 'admin-add-new' : 'admin-add')}

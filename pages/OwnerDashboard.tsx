@@ -6,19 +6,21 @@ import {
   Trash2, UserCheck,
   MessageCircle, Phone, Calendar, User,
   Edit3, AlertTriangle, Wallet, ExternalLink,
-  ShieldAlert
+  ShieldAlert, FileSpreadsheet
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useProperties } from '../context/PropertyContext';
 import { ApprovalStatus, Property } from '../types';
 import { fetchLeads } from '../db';
 import PropertyFormModal from '../components/PropertyFormModal';
+import BulkUploadModal from '../components/BulkUploadModal';
 
 const OwnerDashboard: React.FC = () => {
   const { user } = useAuth();
   const { properties, addProperty, updateProperty, deleteProperty } = useProperties();
   const [searchParams] = useSearchParams();
   const [isAdding, setIsAdding] = useState(searchParams.get('action') === 'add');
+  const [isBulkUploading, setIsBulkUploading] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   const [activeTab, setActiveTab] = useState<'portfolio' | 'leads'>('portfolio');
 
@@ -346,7 +348,16 @@ const OwnerDashboard: React.FC = () => {
         )}
       </div>
 
-      {/* Asset Registry Modal */}
+      {/* Asset Registry Modal Test */}
+      <BulkUploadModal 
+        isOpen={isBulkUploading}
+        onClose={() => setIsBulkUploading(false)}
+        onUpload={(newProperties) => {
+          newProperties.forEach(p => addProperty({ ...p, ownerId: user.id }));
+          setIsBulkUploading(false);
+        }}
+      />
+
       <PropertyFormModal 
         key={editingProperty ? `edit-${editingProperty.id}` : 'add'}
         isOpen={isAdding}
