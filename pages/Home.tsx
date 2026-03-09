@@ -10,6 +10,7 @@ import { ApprovalStatus, UserRole } from '../types';
 import { getAppConfig, CONFIG_UPDATED_EVENT } from '../db';
 import { useAuth } from '../context/AuthContext';
 import { Building2, PlusCircle, ArrowRight } from 'lucide-react';
+import { transformDriveUrl } from '../utils/urlHelper';
 
 const Home: React.FC = () => {
   const { filteredProperties, properties, loading, isFiltering, setFilters } = useProperties();
@@ -108,7 +109,7 @@ const Home: React.FC = () => {
                     {recommendations.map(p => (
                       <Link key={p.id} to={`/property/${p.id}`} className="group block">
                         <div className="aspect-square rounded-2xl overflow-hidden mb-2 border border-slate-100">
-                           <img src={p.PhotoMain} className="w-full h-full object-cover group-hover:scale-110 transition-transform" alt={p.ListingName} />
+                           <img src={transformDriveUrl(p.PhotoMain)} className="w-full h-full object-cover group-hover:scale-110 transition-transform" alt={p.ListingName} />
                         </div>
                         <p className="text-xs font-black text-slate-900 truncate">{p.ListingName}</p>
                       </Link>

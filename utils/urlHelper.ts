@@ -6,8 +6,8 @@
  * - https://drive.google.com/open?id=FILE_ID
  * - https://drive.google.com/uc?id=FILE_ID
  */
-export const transformDriveUrl = (url: string): string => {
-  if (!url) return '';
+export const transformDriveUrl = (url: string | undefined | null): string | null => {
+  if (!url) return null;
   
   // If it's already a direct link or not a drive link, return as is
   if (!url.includes('drive.google.com')) return url;

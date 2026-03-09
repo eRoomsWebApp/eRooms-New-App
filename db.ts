@@ -1,13 +1,35 @@
 
 import { Property, ListingType, Gender, ApprovalStatus, User, AppConfig, Lead } from './types';
 import { KOTA_AREAS, INSTITUTES, FACILITY_OPTIONS } from './constants';
+import { normalizePhone, parseRent } from './utils/normalization';
+import { transformDriveUrl } from './utils/urlHelper';
 
 const STORAGE_KEY = 'erooms_atlas_v3_cluster';
+const BACKUP_KEY = 'erooms_atlas_v3_cluster_backup';
 const USERS_STORAGE_KEY = 'erooms_atlas_users';
 const CONFIG_STORAGE_KEY = 'erooms_atlas_config';
 const LEADS_STORAGE_KEY = 'erooms_atlas_leads';
+const DRAFT_PROPERTY_KEY = 'erooms_atlas_property_draft';
 
 export const CONFIG_UPDATED_EVENT = 'erooms_config_sync';
+
+// --- DRAFT MANAGEMENT ---
+export const savePropertyDraft = (data: Partial<Property>) => {
+  localStorage.setItem(DRAFT_PROPERTY_KEY, JSON.stringify(data));
+};
+
+export const getPropertyDraft = (): Partial<Property> | null => {
+  const stored = localStorage.getItem(DRAFT_PROPERTY_KEY);
+  try {
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+};
+
+export const clearPropertyDraft = () => {
+  localStorage.removeItem(DRAFT_PROPERTY_KEY);
+};
 
 export const DEFAULT_CONFIG: AppConfig = {
   siteName: 'erooms.in',
@@ -16,8 +38,8 @@ export const DEFAULT_CONFIG: AppConfig = {
   footerText: "Kota's largest student housing network. Hosted for free on Vercel. Database via Atlas.",
   maintenanceMode: false,
   allowNewRegistrations: true,
-  supportWhatsApp: '919876543210',
-  supportPhone: '+91 98765-43210',
+  supportWhatsApp: '919351099947',
+  supportPhone: '+91 93510-99947',
   supportEmail: 'support@erooms.in',
   socialLinks: {
     instagram: 'https://instagram.com/erooms',
@@ -75,45 +97,78 @@ const normalizeProperty = (p: Record<string, unknown>): Property => ({
   ListingType: (p.ListingType as ListingType) || ListingType.Hostel,
   Gender: (p.Gender as Gender) || Gender.Boys,
   OwnerName: (p.OwnerName as string) || 'Unknown Host',
-  OwnerWhatsApp: (p.OwnerWhatsApp as string) || '0000000000',
+  OwnerWhatsApp: normalizePhone((p.OwnerWhatsApp as string) || '919351099947'),
   WardenName: (p.WardenName as string) || 'On-Call Security',
-  EmergencyContact: (p.EmergencyContact as string) || '911',
+  EmergencyContact: normalizePhone((p.EmergencyContact as string) || '911'),
   OwnerEmail: (p.OwnerEmail as string) || 'contact@erooms.in',
   Area: (p.Area as string) || KOTA_AREAS[0],
   FullAddress: (p.FullAddress as string) || 'Address Pending',
   GoogleMapsPlusCode: (p.GoogleMapsPlusCode as string) || 'N/A',
   InstituteDistanceMatrix: Array.isArray(p.InstituteDistanceMatrix) ? (p.InstituteDistanceMatrix as { name: string; distance: number }[]) : INSTITUTES.map(name => ({ name, distance: 0.5 + Math.random() })),
-  RentSingle: Number(p.RentSingle) || 12000,
-  RentDouble: Number(p.RentDouble) || 10500,
+  RentSingle: parseRent(p.RentSingle),
+  RentDouble: parseRent(p.RentDouble),
   SecurityTerms: (p.SecurityTerms as string) || 'Terms pending review.',
   ElectricityCharges: Number(p.ElectricityCharges) || 10,
   Maintenance: Number(p.Maintenance) || 1000,
   ParentsStayCharge: Number(p.ParentsStayCharge) || 500,
   Facilities: Array.isArray(p.Facilities) ? (p.Facilities as string[]) : ['AC', 'WiFi', 'Mess Facility', 'RO Water', 'Laundry'],
-  PhotoMain: (p.PhotoMain as string) || 'https://images.unsplash.com/photo-1512917774-50ad913ee29a?auto=format&fit=crop&q=80&w=2000',
-  PhotoRoom: (p.PhotoRoom as string) || 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=2000',
-  PhotoWashroom: (p.PhotoWashroom || 'https://images.unsplash.com/photo-1584622650-61f8c508fe54?auto=format&fit=crop&q=80&w=2000') as string,
+  PhotoMain: transformDriveUrl((p.PhotoMain as string) || 'https://images.unsplash.com/photo-1512917774-50ad913ee29a?auto=format&fit=crop&q=80&w=2000'),
+  PhotoRoom: transformDriveUrl((p.PhotoRoom as string) || 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=2000'),
+  PhotoWashroom: transformDriveUrl((p.PhotoWashroom || 'https://images.unsplash.com/photo-1584622650-61f8c508fe54?auto=format&fit=crop&q=80&w=2000') as string),
   ApprovalStatus: (p.ApprovalStatus as ApprovalStatus) || ApprovalStatus.Pending
 });
 
 export const fetchProperties = async (): Promise<Property[]> => {
   await new Promise(r => setTimeout(r, 100)); // Simulating network latency
-  const stored = localStorage.getItem(STORAGE_KEY);
+  
+  let stored = localStorage.getItem(STORAGE_KEY);
+  
+  // If main storage is empty, try backup
+  if (!stored) {
+    stored = localStorage.getItem(BACKUP_KEY);
+    if (stored) {
+      console.log('Restored from backup');
+      localStorage.setItem(STORAGE_KEY, stored);
+    }
+  }
+
   if (!stored) {
     const initial = generateInitialProperties();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
+    localStorage.setItem(BACKUP_KEY, JSON.stringify(initial));
     return initial;
   }
+
   try {
     const data = JSON.parse(stored);
+    if (!Array.isArray(data)) throw new Error('Invalid data format');
     return data.map(normalizeProperty);
-  } catch {
+  } catch (err) {
+    console.error('Data corruption detected, attempting recovery...', err);
+    // Try backup as last resort
+    const backup = localStorage.getItem(BACKUP_KEY);
+    if (backup) {
+      try {
+        const backupData = JSON.parse(backup);
+        return backupData.map(normalizeProperty);
+      } catch {
+        return [];
+      }
+    }
     return [];
   }
 };
 
 export const syncProperties = async (properties: Property[]): Promise<void> => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(properties));
+  if (!properties || !Array.isArray(properties)) return;
+  
+  const data = JSON.stringify(properties);
+  localStorage.setItem(STORAGE_KEY, data);
+  
+  // Also update backup if not empty
+  if (properties.length > 0) {
+    localStorage.setItem(BACKUP_KEY, data);
+  }
 };
 
 export const getAppConfig = (): AppConfig => {

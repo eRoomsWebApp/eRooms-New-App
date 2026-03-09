@@ -17,14 +17,19 @@ const TopBar: React.FC = () => {
     <div className="bg-slate-900 text-white py-2.5 px-4 overflow-hidden hidden md:block border-b border-slate-800">
       <div className="max-w-7xl mx-auto flex justify-between items-center text-[11px] font-bold uppercase tracking-[0.15em]">
         <div className="flex items-center gap-8">
-          <div className="flex items-center gap-2">
+          <a href={`tel:${config.supportPhone}`} className="flex items-center gap-2 hover:text-indigo-400 transition-colors">
             <span className="text-slate-500 italic">Call Us:</span>
             <span>{config.supportPhone}</span>
-          </div>
-          <div className="flex items-center gap-2">
+          </a>
+          <a 
+            href={`https://wa.me/${config.supportWhatsApp}?text=${encodeURIComponent('नमस्ते, मैं रूम देख रहा था, मुझे रूम की जरूरत है।')}`} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="flex items-center gap-2 hover:text-emerald-400 transition-colors"
+          >
             <span className="text-slate-500 italic">WhatsApp:</span>
             <span>+{config.supportWhatsApp}</span>
-          </div>
+          </a>
         </div>
         <div className="flex items-center gap-6">
           <a href="#" className="hover:text-indigo-400 transition-colors">Career</a>

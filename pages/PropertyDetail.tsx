@@ -3,6 +3,7 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useProperties } from '../context/PropertyContext';
+import { transformDriveUrl } from '../utils/urlHelper';
 import { Gender } from '../types';
 
 const PropertyDetail: React.FC = () => {
@@ -67,19 +68,19 @@ const PropertyDetail: React.FC = () => {
         className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 h-[600px] mb-16"
       >
         <div className="md:col-span-2 md:row-span-2 rounded-[32px] overflow-hidden group relative border border-slate-100">
-          <img src={property.PhotoMain} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000" alt="Main View" />
+          <img src={transformDriveUrl(property.PhotoMain)} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000" alt="Main View" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
              <p className="text-white font-black text-xl">Property Exterior</p>
           </div>
         </div>
         <div className="md:col-span-2 md:row-span-1 rounded-[32px] overflow-hidden group relative border border-slate-100">
-          <img src={property.PhotoRoom} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000" alt="Living Space" />
+          <img src={transformDriveUrl(property.PhotoRoom)} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000" alt="Living Space" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
              <p className="text-white font-black text-xl">Private Room</p>
           </div>
         </div>
         <div className="md:col-span-1 md:row-span-1 rounded-[32px] overflow-hidden group relative border border-slate-100">
-          <img src={property.PhotoWashroom} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000" alt="Bathroom" />
+          <img src={transformDriveUrl(property.PhotoWashroom)} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000" alt="Bathroom" />
         </div>
         <div className="md:col-span-1 md:row-span-1 rounded-[32px] overflow-hidden bg-slate-900 border border-slate-900 flex flex-col items-center justify-center text-white text-center p-8 group relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-20"><svg className="w-20 h-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zM7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 2.88-2.88 7.19-5 9.88C9.92 16.21 7 11.85 7 9z"/><circle cx="12" cy="9" r="2.5"/></svg></div>

@@ -19,6 +19,7 @@ interface PropertyContextType {
   filters: Filters;
   setFilters: React.Dispatch<React.SetStateAction<Filters>>;
   addProperty: (property: Property) => void;
+  bulkAddProperties: (properties: Property[]) => void;
   updateProperty: (id: string, property: Property) => void;
   deleteProperty: (id: string) => void;
   approveProperty: (id: string) => void;
@@ -90,6 +91,13 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }
     syncProperties(newList);
   };
 
+  const bulkAddProperties = (newProps: Property[]) => {
+    const normalizedProps = newProps.map(normalize);
+    const newList = [...properties, ...normalizedProps];
+    setProperties(newList);
+    syncProperties(newList);
+  };
+
   const updateProperty = (id: string, updated: Property) => {
     const normalized = normalize(updated);
     const newList = properties.map(p => p.id === id ? normalized : p);
@@ -120,6 +128,7 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }
       filters, 
       setFilters, 
       addProperty, 
+      bulkAddProperties,
       updateProperty, 
       deleteProperty, 
       approveProperty 

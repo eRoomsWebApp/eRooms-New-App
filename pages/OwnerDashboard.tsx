@@ -6,11 +6,12 @@ import {
   Trash2, UserCheck,
   MessageCircle, Phone, Calendar, User,
   Edit3, AlertTriangle, Wallet, ExternalLink,
-  ShieldAlert, FileSpreadsheet
+  ShieldAlert
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useProperties } from '../context/PropertyContext';
 import { ApprovalStatus, Property } from '../types';
+import { transformDriveUrl } from '../utils/urlHelper';
 import { fetchLeads } from '../db';
 import PropertyFormModal from '../components/PropertyFormModal';
 import BulkUploadModal from '../components/BulkUploadModal';
@@ -160,7 +161,7 @@ const OwnerDashboard: React.FC = () => {
                           <td className="px-12 py-10">
                             <div className="flex items-center gap-6">
                                <div className="w-16 h-16 rounded-[22px] overflow-hidden border border-slate-100 shadow-sm flex-shrink-0 group-hover:scale-110 transition-transform">
-                                  <img src={p.PhotoMain} className="w-full h-full object-cover" alt="" />
+                                  <img src={transformDriveUrl(p.PhotoMain)} className="w-full h-full object-cover" alt="" />
                                </div>
                                <div>
                                   <p className="font-black text-slate-900 text-xl tracking-tight leading-none mb-2">{p.ListingName}</p>

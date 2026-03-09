@@ -106,6 +106,21 @@ const Navbar: React.FC = () => {
                 </Link>
               ))}
               <div className="pt-4 border-t border-slate-50 flex flex-col gap-3">
+                <div className="flex flex-col gap-2 px-2 mb-2">
+                  <a href={`tel:${getAppConfig().supportPhone}`} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl text-[11px] font-black uppercase tracking-widest text-slate-600">
+                    Call Us
+                    <span className="text-slate-900">{getAppConfig().supportPhone}</span>
+                  </a>
+                  <a 
+                    href={`https://wa.me/${getAppConfig().supportWhatsApp}?text=${encodeURIComponent('नमस्ते, मैं रूम देख रहा था, मुझे रूम की जरूरत है।')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between p-4 bg-emerald-50 rounded-2xl text-[11px] font-black uppercase tracking-widest text-emerald-600"
+                  >
+                    WhatsApp
+                    <span className="text-emerald-700">+{getAppConfig().supportWhatsApp}</span>
+                  </a>
+                </div>
                 <Link 
                   to={getListPropertyPath()} 
                   className="flex items-center justify-center gap-2 w-full bg-indigo-50 text-indigo-600 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest border border-indigo-100"

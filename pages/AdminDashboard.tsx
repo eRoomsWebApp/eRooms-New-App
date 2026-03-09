@@ -4,6 +4,7 @@ import { useProperties } from '../context/PropertyContext';
 import { useAuth } from '../context/AuthContext';
 import { ApprovalStatus, UserRole, User, UserStatus, AppConfig, Property } from '../types';
 import { getAppConfig, saveAppConfig, getMockUsers } from '../db';
+import { transformDriveUrl } from '../utils/urlHelper';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Shield, X, 
@@ -21,7 +22,7 @@ import BulkUploadModal from '../components/BulkUploadModal';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { properties, addProperty, approveProperty, updateProperty, deleteProperty } = useProperties();
+  const { properties, addProperty, bulkAddProperties, approveProperty, updateProperty, deleteProperty } = useProperties();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<'overview' | 'listings' | 'users' | 'config' | 'logs'>(
     searchParams.get('action') === 'add' ? 'listings' : 'overview'
@@ -184,7 +185,7 @@ const AdminDashboard: React.FC = () => {
           
           {/* OVERVIEW MODULE */}
           {activeTab === 'overview' && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-12">
+            <motion.div key="overview" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-12">
                {/* High-Level Pulse */}
                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {[
@@ -192,8 +193,8 @@ const AdminDashboard: React.FC = () => {
                     { label: 'Active Directory', val: stats.totalUsers, trend: '+4 today', color: 'text-emerald-600', bg: 'bg-emerald-50' },
                     { label: 'Kernel Health', val: '100%', trend: 'OPTIMAL', color: 'text-blue-600', bg: 'bg-blue-50' },
                     { label: 'Audit Queue', val: stats.pendingListings, trend: 'ACTION REQ', color: 'text-amber-600', bg: 'bg-amber-50' },
-                  ].map((stat, i) => (
-                    <div key={i} className="bg-white p-10 rounded-[48px] border border-slate-200 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all">
+                  ].map((stat) => (
+                    <div key={stat.label} className="bg-white p-10 rounded-[48px] border border-slate-200 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all">
                        <div className={`w-2 h-12 absolute left-0 top-1/2 -translate-y-1/2 ${stat.bg.replace('bg-', 'bg-')}`}></div>
                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">{stat.label}</p>
                        <p className="text-6xl font-black text-slate-900 tracking-tighter mb-4">{stat.val}</p>
@@ -260,7 +261,7 @@ const AdminDashboard: React.FC = () => {
 
           {/* ASSET REGISTRY (Listings) */}
           {activeTab === 'listings' && (
-            <div className="space-y-8">
+            <div key="listings" className="space-y-8">
                <div className="flex justify-between items-center">
                   <div>
                      <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">Asset Registry</h2>
@@ -299,7 +300,7 @@ const AdminDashboard: React.FC = () => {
                         <td className="px-12 py-10">
                           <div className="flex items-center gap-6">
                             <div className="w-20 h-20 rounded-3xl overflow-hidden border border-slate-100 shadow-sm flex-shrink-0 group-hover:scale-110 transition-transform duration-500">
-                              <img src={p.PhotoMain} className="w-full h-full object-cover" alt="" />
+                              <img src={transformDriveUrl(p.PhotoMain)} className="w-full h-full object-cover" alt="" />
                             </div>
                             <div>
                               <p className="text-lg font-black text-slate-900 tracking-tight">{p.ListingName}</p>
@@ -357,7 +358,7 @@ const AdminDashboard: React.FC = () => {
 
           {/* NODE DIRECTORY (Users) */}
           {activeTab === 'users' && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white border border-slate-200 rounded-[48px] shadow-sm overflow-hidden">
+            <motion.div key="users" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white border border-slate-200 rounded-[48px] shadow-sm overflow-hidden">
                <div className="overflow-x-auto">
                 <table className="w-full text-left min-w-[1000px]">
                   <thead className="bg-slate-50/50 border-b border-slate-100">
@@ -370,8 +371,8 @@ const AdminDashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
-                    {filteredUsers.map((u, i) => (
-                      <tr key={u.id || i} className="hover:bg-slate-50/30 transition-colors group">
+                    {filteredUsers.map((u) => (
+                      <tr key={u.id || u.email} className="hover:bg-slate-50/30 transition-colors group">
                         <td className="px-12 py-10">
                           <div className="flex items-center gap-6">
                             <div className="w-16 h-16 bg-slate-100 rounded-[24px] overflow-hidden border border-slate-100 flex-shrink-0">
@@ -412,7 +413,7 @@ const AdminDashboard: React.FC = () => {
 
           {/* KERNEL CONTROL (Global Config) */}
           {activeTab === 'config' && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-12 pb-32">
+            <motion.div key="config" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-12 pb-32">
                {/* Health Switches */}
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   <div className="bg-white border border-slate-200 rounded-[48px] p-10 shadow-sm">
@@ -548,7 +549,7 @@ const AdminDashboard: React.FC = () => {
 
           {/* AUDIT TRAIL (Logs) */}
           {activeTab === 'logs' && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+            <motion.div key="logs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
                <div className="bg-slate-900 border border-white/5 rounded-[48px] p-12 shadow-2xl font-mono">
                   <div className="flex items-center gap-3 mb-10 text-emerald-400">
                      <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
@@ -629,8 +630,8 @@ const AdminDashboard: React.FC = () => {
                          { label: 'Total Cycles', val: selectedUser.behavioralMetrics.totalSessions, icon: MousePointer2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
                          { label: 'Price Affinity', val: `₹${selectedUser.behavioralMetrics.pricePreference.max / 1000}k`, icon: Target, color: 'text-indigo-600', bg: 'bg-indigo-50' },
                          { label: 'Search Depth', val: `${selectedUser.behavioralMetrics.searchDepth}/10`, icon: Focus, color: 'text-amber-600', bg: 'bg-amber-50' },
-                       ].map((kpi, i) => (
-                         <div key={i} className={`p-10 rounded-[48px] ${kpi.bg} border border-white shadow-sm flex flex-col items-center text-center`}>
+                       ].map((kpi) => (
+                         <div key={kpi.label} className={`p-10 rounded-[48px] ${kpi.bg} border border-white shadow-sm flex flex-col items-center text-center`}>
                             <div className={`${kpi.color} mb-4`}><kpi.icon size={28} /></div>
                             <p className="text-[10px] font-black uppercase text-slate-400 mb-1">{kpi.label}</p>
                             <p className="text-5xl font-black text-slate-900 tracking-tighter">{kpi.val}</p>
@@ -651,8 +652,8 @@ const AdminDashboard: React.FC = () => {
                            <section className="bg-slate-50 p-12 rounded-[56px] border border-slate-100">
                              <h5 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400 mb-10 flex items-center gap-3"><Layers size={16} /> Cluster Affinity Heatmap</h5>
                              <div className="flex flex-wrap gap-4">
-                                {selectedUser.behavioralMetrics.topAreas.map((area, i) => (
-                                   <div key={i} className="px-8 py-5 bg-white rounded-[24px] border border-slate-200 shadow-sm flex items-center gap-4 group hover:border-indigo-500 transition-colors">
+                                {selectedUser.behavioralMetrics.topAreas.map((area) => (
+                                   <div key={area} className="px-8 py-5 bg-white rounded-[24px] border border-slate-200 shadow-sm flex items-center gap-4 group hover:border-indigo-500 transition-colors">
                                       <MapPin size={20} className="text-indigo-500" />
                                       <span className="font-black text-slate-900 uppercase tracking-widest text-[11px]">{area}</span>
                                       <span className="text-[9px] font-black text-slate-300 uppercase">92% Match</span>
@@ -667,8 +668,8 @@ const AdminDashboard: React.FC = () => {
                            <section className="bg-white border border-slate-100 p-12 rounded-[56px] shadow-sm">
                              <h5 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400 mb-12 flex items-center gap-3"><Activity size={16} /> Activity Stream Terminal</h5>
                              <div className="space-y-12 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-slate-100">
-                                {selectedUser.activityLog.map((log, i) => (
-                                   <div key={i} className="relative pl-12">
+                                {selectedUser.activityLog.map((log) => (
+                                   <div key={log.id} className="relative pl-12">
                                       <div className={`absolute left-0 top-1.5 w-6 h-6 rounded-full border-4 border-white shadow-md ${log.importance === 'high' ? 'bg-indigo-600' : 'bg-slate-300'}`} />
                                       <div className="flex justify-between items-start mb-1">
                                          <p className="font-black text-slate-900 text-lg leading-none uppercase tracking-tighter">{log.action}</p>
@@ -692,7 +693,12 @@ const AdminDashboard: React.FC = () => {
         isOpen={isBulkUploading}
         onClose={() => setIsBulkUploading(false)}
         onUpload={(newProperties) => {
-          newProperties.forEach(p => addProperty(p));
+          const propertiesWithIds = newProperties.map((p, index) => ({
+            ...p,
+            id: `bulk-${Date.now()}-${index}`
+          })) as Property[];
+          
+          bulkAddProperties(propertiesWithIds);
           setIsBulkUploading(false);
         }}
       />

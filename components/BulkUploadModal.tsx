@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { Property, ListingType, Gender, ApprovalStatus } from '../types';
+import { normalizePhone, parseRent, parseMultiLinks } from '../utils/normalization';
+import { transformDriveUrl } from '../utils/urlHelper';
 
 interface BulkUploadModalProps {
   isOpen: boolean;
@@ -15,7 +17,7 @@ interface BulkUploadModalProps {
 }
 
 const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUpload }) => {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<Record<string, unknown>[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -34,7 +36,7 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
         const wb = XLSX.read(bstr, { type: 'binary' });
         const wsname = wb.SheetNames[0];
         const ws = wb.Sheets[wsname];
-        const rawData = XLSX.utils.sheet_to_json(ws);
+        const rawData = XLSX.utils.sheet_to_json(ws) as Record<string, unknown>[];
         
         if (rawData.length === 0) {
           setError("The uploaded file is empty.");
@@ -44,7 +46,7 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
 
         setData(rawData);
         setIsProcessing(false);
-      } catch (err) {
+      } catch {
         setError("Failed to parse Excel file. Please ensure it's a valid .xlsx or .xls file.");
         setIsProcessing(false);
       }
@@ -90,35 +92,42 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
   };
 
   const processAndSubmit = () => {
-    const properties: Omit<Property, 'id'>[] = data.map(row => ({
-      ownerId: 'admin-bulk', // Default for bulk upload if not specified
-      ListingName: String(row.ListingName || ''),
-      ListingType: (row.ListingType as ListingType) || ListingType.PG,
-      Gender: (row.Gender as Gender) || Gender.Unisex,
-      OwnerName: String(row.OwnerName || ''),
-      OwnerWhatsApp: String(row.OwnerWhatsApp || ''),
-      WardenName: String(row.WardenName || ''),
-      EmergencyContact: String(row.EmergencyContact || ''),
-      OwnerEmail: String(row.OwnerEmail || ''),
-      Area: String(row.Area || ''),
-      FullAddress: String(row.FullAddress || ''),
-      GoogleMapsPlusCode: String(row.GoogleMapsPlusCode || ''),
-      InstituteDistanceMatrix: [], // Empty for bulk upload
-      RentSingle: Number(row.RentSingle || 0),
-      RentDouble: Number(row.RentDouble || 0),
-      SecurityTerms: String(row.SecurityTerms || ''),
-      ElectricityCharges: Number(row.ElectricityCharges || 0),
-      Maintenance: Number(row.Maintenance || 0),
-      ParentsStayCharge: Number(row.ParentsStayCharge || 0),
-      Facilities: String(row.Facilities || '').split(',').map(f => f.trim()).filter(f => f !== ''),
-      PhotoMain: String(row.PhotoMain || ''),
-      PhotoRoom: String(row.PhotoRoom || ''),
-      PhotoWashroom: String(row.PhotoWashroom || ''),
-      ApprovalStatus: ApprovalStatus.Approved,
-      views: 0,
-      leadsCount: 0,
-      rating: 5
-    }));
+    const properties: Omit<Property, 'id'>[] = data.map(row => {
+      // Handle multi-link photos if provided in a single column or separate columns
+      const mainPhotos = parseMultiLinks(String(row.PhotoMain || ''));
+      const roomPhotos = parseMultiLinks(String(row.PhotoRoom || ''));
+      const washroomPhotos = parseMultiLinks(String(row.PhotoWashroom || ''));
+
+      return {
+        ownerId: 'admin-bulk', // Default for bulk upload if not specified
+        ListingName: String(row.ListingName || ''),
+        ListingType: (row.ListingType as ListingType) || ListingType.PG,
+        Gender: (row.Gender as Gender) || Gender.Unisex,
+        OwnerName: String(row.OwnerName || ''),
+        OwnerWhatsApp: normalizePhone(String(row.OwnerWhatsApp || '')),
+        WardenName: String(row.WardenName || ''),
+        EmergencyContact: normalizePhone(String(row.EmergencyContact || '')),
+        OwnerEmail: String(row.OwnerEmail || ''),
+        Area: String(row.Area || ''),
+        FullAddress: String(row.FullAddress || ''),
+        GoogleMapsPlusCode: String(row.GoogleMapsPlusCode || ''),
+        InstituteDistanceMatrix: [], // Empty for bulk upload
+        RentSingle: parseRent(row.RentSingle),
+        RentDouble: parseRent(row.RentDouble),
+        SecurityTerms: String(row.SecurityTerms || ''),
+        ElectricityCharges: Number(row.ElectricityCharges || 0),
+        Maintenance: Number(row.Maintenance || 0),
+        ParentsStayCharge: Number(row.ParentsStayCharge || 0),
+        Facilities: parseMultiLinks(String(row.Facilities || '')),
+        PhotoMain: transformDriveUrl(mainPhotos[0] || ''),
+        PhotoRoom: transformDriveUrl(roomPhotos[0] || ''),
+        PhotoWashroom: transformDriveUrl(washroomPhotos[0] || ''),
+        ApprovalStatus: ApprovalStatus.Approved,
+        views: 0,
+        leadsCount: 0,
+        rating: 5
+      };
+    });
 
     onUpload(properties);
     setData([]);
@@ -216,36 +225,33 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
                     </button>
                   </div>
 
-                  <div className="border border-slate-100 rounded-[32px] overflow-hidden">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left">
-                        <thead className="bg-slate-50 border-b border-slate-100">
+                  <div className="border border-slate-100 rounded-[32px] overflow-hidden flex flex-col max-h-[400px]">
+                    <div className="overflow-y-auto custom-scrollbar">
+                      <table className="w-full text-left border-collapse">
+                        <thead className="bg-slate-50 border-b border-slate-100 sticky top-0 z-10">
                           <tr className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                            <th className="px-6 py-4">Property Name</th>
-                            <th className="px-6 py-4">Type</th>
-                            <th className="px-6 py-4">Area</th>
-                            <th className="px-6 py-4">Rent (S/D)</th>
-                            <th className="px-6 py-4">Owner</th>
+                            <th className="px-6 py-4 bg-slate-50">#</th>
+                            <th className="px-6 py-4 bg-slate-50">Property Name</th>
+                            <th className="px-6 py-4 bg-slate-50">Type</th>
+                            <th className="px-6 py-4 bg-slate-50">Area</th>
+                            <th className="px-6 py-4 bg-slate-50">Rent (S/D)</th>
+                            <th className="px-6 py-4 bg-slate-50">Owner</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                          {data.slice(0, 10).map((row, idx) => (
-                            <tr key={idx} className="text-xs font-bold text-slate-600">
-                              <td className="px-6 py-4 text-slate-900">{row.ListingName}</td>
-                              <td className="px-6 py-4 uppercase tracking-tighter">{row.ListingType}</td>
-                              <td className="px-6 py-4">{row.Area}</td>
-                              <td className="px-6 py-4">₹{row.RentSingle} / ₹{row.RentDouble}</td>
-                              <td className="px-6 py-4">{row.OwnerName}</td>
+                          {data.map((row, idx) => (
+                            <tr key={idx} className="text-xs font-bold text-slate-600 hover:bg-slate-50/50 transition-colors">
+                              <td className="px-6 py-4 text-slate-300 font-mono">{idx + 1}</td>
+                              <td className="px-6 py-4 text-slate-900">{String(row.ListingName || 'N/A')}</td>
+                              <td className="px-6 py-4 uppercase tracking-tighter">{String(row.ListingType || 'N/A')}</td>
+                              <td className="px-6 py-4">{String(row.Area || 'N/A')}</td>
+                              <td className="px-6 py-4">₹{String(row.RentSingle || 0)} / ₹{String(row.RentDouble || 0)}</td>
+                              <td className="px-6 py-4">{String(row.OwnerName || 'N/A')}</td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     </div>
-                    {data.length > 10 && (
-                      <div className="p-4 bg-slate-50 text-center">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">And {data.length - 10} more properties...</p>
-                      </div>
-                    )}
                   </div>
                 </div>
               )}

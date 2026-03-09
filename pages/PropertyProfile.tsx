@@ -10,13 +10,14 @@ import {
   Heart, Share2, Navigation, Stethoscope, Bus,
   CheckCircle2, ArrowLeft,
   LayoutGrid, Shield as Safety, Coffee as Cup,
-  ArrowRight, Eye, MousePointer2
+  ArrowRight, Eye, MousePointer2, ChevronLeft, ChevronRight as ChevronRightIcon, X as CloseIcon
 } from 'lucide-react';
 import { useProperties } from '../context/PropertyContext';
 import { useAuth } from '../context/AuthContext';
 import { transformDriveUrl } from '../utils/urlHelper';
 import { Gender } from '../types';
 import { recordPropertyView, saveLead } from '../db';
+import { AnimatePresence } from 'framer-motion';
 
 const facilityIconMap: Record<string, React.ElementType> = {
   'AC': Wind,
@@ -41,6 +42,7 @@ const PropertyProfile: React.FC = () => {
   const [activeRentType, setActiveRentType] = useState<'Single' | 'Double'>('Double');
   const isSaved = user?.shortlist?.includes(id || '') || false;
   const [activeSection, setActiveSection] = useState('overview');
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -111,6 +113,16 @@ const PropertyProfile: React.FC = () => {
     };
   }, [property]);
 
+  const sortedMatrix = useMemo(() => {
+    if (!property) return [];
+    return [...(property.InstituteDistanceMatrix || [])].sort((a, b) => a.distance - b.distance);
+  }, [property]);
+
+  const allPhotos = useMemo(() => {
+    if (!property) return [];
+    return [property.PhotoMain, property.PhotoRoom, property.PhotoWashroom].filter(Boolean);
+  }, [property]);
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-white">
       <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} className="w-12 h-12 border-4 border-slate-900 border-t-transparent rounded-full" />
@@ -124,8 +136,6 @@ const PropertyProfile: React.FC = () => {
     </div>
   );
 
-  const sortedMatrix = [...(property.InstituteDistanceMatrix || [])].sort((a, b) => a.distance - b.distance);
-
   const navLinks = [
     { id: 'overview', label: 'Overview' },
     { id: 'infrastructure', label: 'Infrastructure' },
@@ -133,6 +143,20 @@ const PropertyProfile: React.FC = () => {
     { id: 'proximity', label: 'Location' },
     { id: 'management', label: 'Host' },
   ];
+
+  const maskPhone = (phone: string) => {
+    if (!phone) return 'Not Provided';
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length < 10) return phone;
+    return `+91 ${cleaned.slice(0, 5)}XXXXX`;
+  };
+
+  const maskAddress = (address: string) => {
+    if (!address) return 'Address Pending';
+    const parts = address.split(',');
+    if (parts.length <= 2) return address.slice(0, 15) + '...';
+    return `${parts[0]}, ${parts[1].trim().slice(0, 5)}... [Contact for Full Address]`;
+  };
 
   const handleLead = (type: 'WhatsApp' | 'Call' | 'VisitRequest') => {
     if (!property) return;
@@ -146,7 +170,8 @@ const PropertyProfile: React.FC = () => {
     });
 
     if (type === 'WhatsApp') {
-      window.open(`https://wa.me/${property.OwnerWhatsApp}`, '_blank');
+      const message = encodeURIComponent(`नमस्ते, मैं ${property.ListingName} रूम देख रहा था, मुझे रूम की जरूरत है।`);
+      window.open(`https://wa.me/${property.OwnerWhatsApp}?text=${message}`, '_blank');
     } else if (type === 'Call') {
       window.location.href = `tel:${property.OwnerWhatsApp}`;
     }
@@ -158,21 +183,21 @@ const PropertyProfile: React.FC = () => {
       <motion.div className="fixed top-0 left-0 right-0 h-1 bg-indigo-600 z-[100] origin-left" style={{ scaleX }} />
 
       {/* 1. Immersive Hero Gallery */}
-      <section id="overview" ref={overviewRef} className="relative h-[65vh] lg:h-[90vh] overflow-hidden">
+      <section id="overview" ref={overviewRef} className="relative h-[65vh] lg:h-[85vh] overflow-hidden">
         <div className="absolute inset-0 grid grid-cols-1 lg:grid-cols-12 gap-1 lg:gap-2">
-           <div className="lg:col-span-8 h-full relative group">
+           <div className="lg:col-span-8 h-full relative group cursor-zoom-in" onClick={() => setLightboxIndex(0)}>
               <img src={transformDriveUrl(property.PhotoMain)} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Main" referrerPolicy="no-referrer" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/10 to-transparent"></div>
            </div>
            <div className="hidden lg:grid lg:col-span-4 grid-rows-2 gap-2 h-full">
-              <div className="relative overflow-hidden group">
+              <div className="relative overflow-hidden group cursor-zoom-in" onClick={() => setLightboxIndex(1)}>
                  <img src={transformDriveUrl(property.PhotoRoom)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Room" referrerPolicy="no-referrer" />
                  <div className="absolute inset-0 bg-black/20"></div>
               </div>
-              <div className="relative overflow-hidden group">
+              <div className="relative overflow-hidden group cursor-zoom-in" onClick={() => setLightboxIndex(2)}>
                  <img src={transformDriveUrl(property.PhotoWashroom)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Washroom" referrerPolicy="no-referrer" />
-                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                    <span className="text-white font-black uppercase text-xs tracking-widest border border-white/40 px-6 py-3 rounded-xl backdrop-blur-md">View All 18 Photos</span>
+                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-white font-black uppercase text-xs tracking-widest border border-white/40 px-6 py-3 rounded-xl backdrop-blur-md">View All Photos</span>
                  </div>
               </div>
            </div>
@@ -216,7 +241,7 @@ const PropertyProfile: React.FC = () => {
                  <div className="flex flex-wrap items-center gap-6 text-white/70 font-bold">
                     <div className="flex items-center gap-3">
                        <MapPin size={22} className="text-indigo-400" />
-                       <span className="text-lg lg:text-2xl">{property.Area}</span>
+                       <span className="text-lg lg:text-2xl">{maskAddress(property.FullAddress)}</span>
                     </div>
                     <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-2xl border border-white/10">
                        <Eye size={18} />
@@ -488,7 +513,7 @@ const PropertyProfile: React.FC = () => {
                          <p className="text-2xl font-black text-slate-900 tracking-tighter leading-none mb-2">{property.OwnerName}</p>
                          <div className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Direct Host Contact</p>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{maskPhone(property.OwnerWhatsApp)}</p>
                          </div>
                       </div>
                    </div>
@@ -547,7 +572,7 @@ const PropertyProfile: React.FC = () => {
                    </div>
                    <div className="bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-[40px] text-center relative z-10 shadow-2xl">
                       <p className="text-[11px] font-black uppercase text-indigo-100 mb-3 flex items-center justify-center gap-3"><ShieldAlert size={16} /> 24/7 Security Hotline</p>
-                      <p className="text-3xl font-black font-mono tracking-widest text-white/95">{property.EmergencyContact}</p>
+                      <p className="text-3xl font-black font-mono tracking-widest text-white/95">{maskPhone(property.EmergencyContact)}</p>
                    </div>
                    <p className="text-[10px] text-indigo-100/40 text-center font-bold mt-8 relative z-10 uppercase tracking-widest">Mandatory Node Presence for Scholars</p>
                 </div>
@@ -573,6 +598,66 @@ const PropertyProfile: React.FC = () => {
             </button>
          </div>
       </div>
+
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {lightboxIndex !== null && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setLightboxIndex(null)}
+            className="fixed inset-0 z-[200] bg-slate-900/95 backdrop-blur-2xl flex items-center justify-center p-4 md:p-20"
+          >
+            <button 
+              onClick={(e) => { e.stopPropagation(); setLightboxIndex(null); }}
+              className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors p-4 bg-white/5 rounded-2xl z-[210]"
+            >
+              <CloseIcon size={32} />
+            </button>
+
+            <div className="relative w-full max-w-6xl aspect-video md:aspect-[16/9] flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex(prev => prev !== null ? (prev - 1 + allPhotos.length) % allPhotos.length : null);
+                }}
+                className="absolute left-0 md:-left-20 text-white/50 hover:text-white transition-colors p-4"
+              >
+                <ChevronLeft size={48} />
+              </button>
+
+              <motion.img 
+                key={lightboxIndex}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                src={transformDriveUrl(allPhotos[lightboxIndex])} 
+                className="w-full h-full object-contain rounded-3xl shadow-2xl"
+                alt="Full View"
+              />
+
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex(prev => prev !== null ? (prev + 1) % allPhotos.length : null);
+                }}
+                className="absolute right-0 md:-right-20 text-white/50 hover:text-white transition-colors p-4"
+              >
+                <ChevronRightIcon size={48} />
+              </button>
+
+              <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 flex gap-2">
+                {allPhotos.map((_, i) => (
+                  <div 
+                    key={i} 
+                    className={`w-2 h-2 rounded-full transition-all ${i === lightboxIndex ? 'bg-indigo-500 w-8' : 'bg-white/20'}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

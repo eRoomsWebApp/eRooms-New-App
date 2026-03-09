@@ -9,6 +9,8 @@ import {
 import { Property, ListingType, Gender, ApprovalStatus } from '../types';
 import { KOTA_AREAS, INSTITUTES, FACILITY_OPTIONS } from '../constants';
 import { transformDriveUrl } from '../utils/urlHelper';
+import { normalizePhone, parseRent } from '../utils/normalization';
+import { savePropertyDraft, getPropertyDraft, clearPropertyDraft } from '../db';
 
 interface PropertyFormModalProps {
   isOpen: boolean;
@@ -56,6 +58,23 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
     leadsCount: initialData?.leadsCount || 0
   });
 
+  // Load draft on mount if creating new
+  React.useEffect(() => {
+    if (!initialData && isOpen) {
+      const draft = getPropertyDraft();
+      if (draft) {
+        setFormData(prev => ({ ...prev, ...draft }));
+      }
+    }
+  }, [initialData, isOpen]);
+
+  // Save draft on change
+  React.useEffect(() => {
+    if (!initialData && isOpen && !isSuccess) {
+      savePropertyDraft(formData);
+    }
+  }, [formData, initialData, isOpen, isSuccess]);
+
   const handleClose = () => {
     setIsSuccess(false);
     setIsSubmitting(false);
@@ -88,6 +107,13 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
       ...formData as Property,
       id: initialData?.id || `prop-${Date.now()}`,
       ownerId: ownerId,
+      OwnerWhatsApp: normalizePhone(formData.OwnerWhatsApp || ''),
+      EmergencyContact: normalizePhone(formData.EmergencyContact || ''),
+      RentSingle: parseRent(formData.RentSingle),
+      RentDouble: parseRent(formData.RentDouble),
+      PhotoMain: transformDriveUrl(formData.PhotoMain || ''),
+      PhotoRoom: transformDriveUrl(formData.PhotoRoom || ''),
+      PhotoWashroom: transformDriveUrl(formData.PhotoWashroom || ''),
       ApprovalStatus: initialData?.ApprovalStatus || ApprovalStatus.Approved, // Auto-approve for now
       views: initialData?.views || 0,
       leadsCount: initialData?.leadsCount || 0
@@ -96,6 +122,7 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
     onSubmit(property);
     setIsSubmitting(false);
     setIsSuccess(true);
+    clearPropertyDraft();
     
     // Close after a short delay to show success
     setTimeout(() => {
@@ -320,7 +347,7 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                       <div className="flex gap-4">
                         <div className="w-24 h-24 rounded-3xl bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-200">
                           {formData.PhotoMain ? (
-                            <img src={formData.PhotoMain} className="w-full h-full object-cover" alt="Preview" referrerPolicy="no-referrer" />
+                            <img src={transformDriveUrl(formData.PhotoMain)} className="w-full h-full object-cover" alt="Preview" referrerPolicy="no-referrer" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-slate-300"><Camera size={24} /></div>
                           )}
@@ -341,7 +368,7 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                         <div className="flex gap-4">
                           <div className="w-20 h-20 rounded-2xl bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-200">
                             {formData.PhotoRoom ? (
-                              <img src={formData.PhotoRoom} className="w-full h-full object-cover" alt="Preview" referrerPolicy="no-referrer" />
+                              <img src={transformDriveUrl(formData.PhotoRoom)} className="w-full h-full object-cover" alt="Preview" referrerPolicy="no-referrer" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-slate-300"><Camera size={20} /></div>
                             )}
@@ -361,7 +388,7 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                         <div className="flex gap-4">
                           <div className="w-20 h-20 rounded-2xl bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-200">
                             {formData.PhotoWashroom ? (
-                              <img src={formData.PhotoWashroom} className="w-full h-full object-cover" alt="Preview" referrerPolicy="no-referrer" />
+                              <img src={transformDriveUrl(formData.PhotoWashroom)} className="w-full h-full object-cover" alt="Preview" referrerPolicy="no-referrer" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-slate-300"><Camera size={20} /></div>
                             )}
