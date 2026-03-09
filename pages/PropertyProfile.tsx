@@ -234,7 +234,7 @@ const PropertyProfile: React.FC = () => {
                  </motion.div>
                  <motion.h1 
                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                   className="text-6xl lg:text-[120px] font-black tracking-tighter leading-[0.85] uppercase"
+                   className="text-4xl sm:text-6xl lg:text-[120px] font-black tracking-tighter leading-[0.9] lg:leading-[0.85] uppercase break-words"
                  >
                     {property.ListingName}
                  </motion.h1>
@@ -255,13 +255,13 @@ const PropertyProfile: React.FC = () => {
 
       {/* 2. Sticky Navigation Bar */}
       <nav className="sticky top-20 z-[80] bg-white border-b border-slate-100 shadow-sm overflow-x-auto no-scrollbar">
-        <div className="max-w-7xl mx-auto px-4 lg:px-12 flex items-center justify-between">
-          <div className="flex gap-8">
+        <div className="max-w-7xl mx-auto px-4 lg:px-12 flex items-center justify-between min-w-max lg:min-w-0">
+          <div className="flex gap-6 lg:gap-8">
             {navLinks.map((link) => (
               <button
                 key={link.id}
                 onClick={() => scrollToSection(link.id)}
-                className={`py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all relative ${
+                className={`py-4 lg:py-6 text-[10px] lg:text-[11px] font-black uppercase tracking-[0.2em] transition-all relative whitespace-nowrap ${
                   activeSection === link.id ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-900'
                 }`}
               >
@@ -286,14 +286,14 @@ const PropertyProfile: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 lg:gap-32">
           
           {/* Main Info Stream */}
-          <div className="lg:col-span-8 space-y-32">
+          <div className="lg:col-span-8 space-y-20 lg:space-y-32">
              
              {/* Infrastructure Section */}
-             <section id="infrastructure" ref={infrastructureRef} className="space-y-16">
+             <section id="infrastructure" ref={infrastructureRef} className="space-y-10 lg:space-y-16">
                 <div className="flex flex-col gap-4">
                    <p className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-600">Core Assets</p>
-                   <h2 className="text-5xl font-black text-slate-900 uppercase tracking-tighter">Elite Infrastructure</h2>
-                   <p className="text-slate-400 font-bold max-w-xl text-lg leading-relaxed">
+                   <h2 className="text-3xl lg:text-5xl font-black text-slate-900 uppercase tracking-tighter">Elite Infrastructure</h2>
+                   <p className="text-slate-400 font-bold max-w-xl text-base lg:text-lg leading-relaxed">
                      Purpose-built student habitat designed for academic excellence and mental well-being.
                    </p>
                 </div>
@@ -372,27 +372,27 @@ const PropertyProfile: React.FC = () => {
              </section>
 
              {/* Budget Section */}
-             <section id="budget" ref={budgetRef} className="bg-slate-50 border border-slate-200 rounded-[72px] p-12 lg:p-20 shadow-sm relative overflow-hidden">
+             <section id="budget" ref={budgetRef} className="bg-slate-50 border border-slate-200 rounded-[40px] lg:rounded-[72px] p-8 lg:p-20 shadow-sm relative overflow-hidden">
                 <div className="absolute -top-20 -right-20 w-80 h-80 bg-indigo-100 rounded-full blur-[100px] opacity-40"></div>
                 <div className="relative z-10">
                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-20">
                       <div className="space-y-4">
                         <p className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-600">Financial Protocol</p>
-                        <h2 className="text-5xl lg:text-6xl font-black tracking-tighter uppercase mb-2 text-slate-900">Budget Matrix</h2>
-                        <p className="text-slate-400 font-bold text-lg">Platform-verified fixed pricing. No hidden overheads.</p>
+                        <h2 className="text-3xl lg:text-6xl font-black tracking-tighter uppercase mb-2 text-slate-900">Budget Matrix</h2>
+                        <p className="text-slate-400 font-bold text-base lg:text-lg">Platform-verified fixed pricing. No hidden overheads.</p>
                       </div>
-                      <div className="flex p-2 bg-white rounded-3xl border border-slate-200 shadow-sm">
-                        <button onClick={() => setActiveRentType('Single')} className={`px-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${activeRentType === 'Single' ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'}`}>Single Stay</button>
-                        <button onClick={() => setActiveRentType('Double')} className={`px-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${activeRentType === 'Double' ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'}`}>Shared Stay</button>
+                      <div className="flex p-1.5 lg:p-2 bg-white rounded-2xl lg:rounded-3xl border border-slate-200 shadow-sm w-full lg:w-auto">
+                        <button onClick={() => setActiveRentType('Single')} className={`flex-1 lg:flex-none px-6 lg:px-10 py-3 lg:py-4 rounded-xl lg:rounded-2xl text-[10px] lg:text-[11px] font-black uppercase tracking-widest transition-all ${activeRentType === 'Single' ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'}`}>Single</button>
+                        <button onClick={() => setActiveRentType('Double')} className={`flex-1 lg:flex-none px-6 lg:px-10 py-3 lg:py-4 rounded-xl lg:rounded-2xl text-[10px] lg:text-[11px] font-black uppercase tracking-widest transition-all ${activeRentType === 'Double' ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'}`}>Shared</button>
                       </div>
                    </div>
 
                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
                       <div className="lg:col-span-7 space-y-4">
-                         <div className="flex items-baseline gap-3">
-                            <span className="text-3xl font-black text-slate-200">₹</span>
-                            <span className="text-7xl md:text-8xl lg:text-[140px] font-black tracking-tighter text-slate-900 leading-none">{activeRentType === 'Single' ? property.RentSingle.toLocaleString() : property.RentDouble.toLocaleString()}</span>
-                            <span className="text-2xl font-bold text-slate-300">/mo</span>
+                         <div className="flex items-baseline gap-2 lg:gap-3">
+                            <span className="text-2xl lg:text-3xl font-black text-slate-200">₹</span>
+                            <span className="text-6xl sm:text-8xl lg:text-[140px] font-black tracking-tighter text-slate-900 leading-none">{activeRentType === 'Single' ? property.RentSingle.toLocaleString() : property.RentDouble.toLocaleString()}</span>
+                            <span className="text-xl lg:text-2xl font-bold text-slate-300">/mo</span>
                          </div>
                          <div className="flex items-center gap-4 bg-emerald-50 text-emerald-700 px-6 py-3 rounded-2xl border border-emerald-100 w-fit">
                             <Zap size={16} />
@@ -414,25 +414,25 @@ const PropertyProfile: React.FC = () => {
                       </div>
                    </div>
 
-                   <div className="mt-20 p-8 bg-slate-900 text-white rounded-[40px] flex flex-col md:flex-row items-center justify-between gap-8 border border-white/5 shadow-2xl">
-                      <div className="flex items-center gap-6">
-                         <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-indigo-400"><ShieldCheck size={32} /></div>
+                   <div className="mt-10 lg:mt-20 p-6 lg:p-8 bg-slate-900 text-white rounded-[32px] lg:rounded-[40px] flex flex-col md:flex-row items-center justify-between gap-6 lg:gap-8 border border-white/5 shadow-2xl">
+                      <div className="flex items-center gap-4 lg:gap-6">
+                         <div className="w-12 h-12 lg:w-16 lg:h-16 bg-white/10 rounded-xl lg:rounded-2xl flex items-center justify-center text-indigo-400"><ShieldCheck size={28} /></div>
                          <div>
-                            <p className="text-xl font-black tracking-tight leading-none mb-1">Elite Security Terms</p>
-                            <p className="text-xs font-bold text-white/40">{property.SecurityTerms}</p>
+                            <p className="text-lg lg:text-xl font-black tracking-tight leading-none mb-1">Elite Security Terms</p>
+                            <p className="text-[10px] lg:text-xs font-bold text-white/40">{property.SecurityTerms}</p>
                          </div>
                       </div>
-                      <button className="bg-white text-slate-900 px-10 py-5 rounded-[24px] font-black uppercase tracking-widest text-[11px] shadow-xl hover:bg-indigo-600 hover:text-white transition-all">Download Contract Template</button>
+                      <button className="w-full lg:w-auto bg-white text-slate-900 px-8 lg:px-10 py-4 lg:py-5 rounded-xl lg:rounded-[24px] font-black uppercase tracking-widest text-[10px] lg:text-[11px] shadow-xl hover:bg-indigo-600 hover:text-white transition-all">Contract Template</button>
                    </div>
                 </div>
              </section>
 
              {/* Location Section */}
-             <section id="proximity" ref={proximityRef} className="space-y-16">
+             <section id="proximity" ref={proximityRef} className="space-y-10 lg:space-y-16">
                 <div className="flex flex-col gap-4">
                    <p className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-600">Geographic Context</p>
-                   <h2 className="text-5xl font-black text-slate-900 uppercase tracking-tighter">Location Intel</h2>
-                   <p className="text-slate-400 font-bold max-w-xl text-lg leading-relaxed">
+                   <h2 className="text-3xl lg:text-5xl font-black text-slate-900 uppercase tracking-tighter">Location Intel</h2>
+                   <p className="text-slate-400 font-bold max-w-xl text-base lg:text-lg leading-relaxed">
                      Strategically anchored in the {property.Area} cluster for minimal commute and maximum productivity.
                    </p>
                 </div>
@@ -440,22 +440,22 @@ const PropertyProfile: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                    <div className="space-y-8">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3"><Navigation size={22} className="text-indigo-600" /> Institute Pulse</h3>
+                        <h3 className="text-lg lg:text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3"><Navigation size={20} className="text-indigo-600" /> Institute Pulse</h3>
                         <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Normalized Commute</span>
                       </div>
                       <div className="bg-white border border-slate-100 rounded-[56px] overflow-hidden shadow-sm">
                          {sortedMatrix.slice(0, 5).map((item, i) => (
-                           <div key={i} className="p-8 border-b border-slate-50 flex items-center justify-between hover:bg-slate-50 transition-colors group cursor-default">
+                           <div key={i} className="p-6 lg:p-8 border-b border-slate-50 flex items-center justify-between hover:bg-slate-50 transition-colors group cursor-default">
                               <div className="flex items-center gap-6">
-                                 <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center font-black text-xs text-slate-300 group-hover:bg-slate-900 group-hover:text-white transition-all">{i+1}</div>
+                                 <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-xl lg:rounded-2xl bg-slate-50 flex items-center justify-center font-black text-[10px] lg:text-xs text-slate-300 group-hover:bg-slate-900 group-hover:text-white transition-all">{i+1}</div>
                                  <div>
-                                   <p className="font-black text-slate-900 text-lg tracking-tight">{item.name}</p>
+                                   <p className="font-black text-slate-900 text-base lg:text-lg tracking-tight">{item.name}</p>
                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Coaching Node</p>
                                  </div>
                               </div>
                               <div className="text-right">
-                                 <p className="text-2xl font-black text-slate-900 tracking-tighter">{item.distance.toFixed(1)} <span className="text-[10px]">KM</span></p>
-                                 <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">🚶 {Math.ceil(item.distance * 12)}M WALK</p>
+                                 <p className="text-xl lg:text-2xl font-black text-slate-900 tracking-tighter">{item.distance.toFixed(1)} <span className="text-[10px]">KM</span></p>
+                                 <p className="text-[9px] lg:text-[10px] font-black text-emerald-500 uppercase tracking-widest">🚶 {Math.ceil(item.distance * 12)}M</p>
                               </div>
                            </div>
                          ))}
@@ -464,30 +464,30 @@ const PropertyProfile: React.FC = () => {
 
                    <div className="space-y-8">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3"><MapIcon size={22} className="text-indigo-600" /> Ecosystem Hub</h3>
+                        <h3 className="text-lg lg:text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3"><MapIcon size={20} className="text-indigo-600" /> Ecosystem Hub</h3>
                         <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Essential Nodes</span>
                       </div>
-                      <div className="grid grid-cols-1 gap-6">
+                      <div className="grid grid-cols-1 gap-4 lg:gap-6">
                          {survivalMatrix.map((node, i) => (
-                           <div key={i} className="p-8 bg-slate-50 border border-slate-100 rounded-[48px] flex items-center gap-8 group hover:border-indigo-600 transition-all hover:bg-white hover:shadow-xl">
-                              <div className="w-16 h-16 bg-white rounded-3xl shadow-sm flex items-center justify-center text-indigo-600 group-hover:rotate-12 transition-transform border border-slate-50">
-                                 <node.icon size={28} />
+                           <div key={i} className="p-6 lg:p-8 bg-slate-50 border border-slate-100 rounded-[32px] lg:rounded-[48px] flex items-center gap-6 lg:gap-8 group hover:border-indigo-600 transition-all hover:bg-white hover:shadow-xl">
+                              <div className="w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-2xl lg:rounded-3xl shadow-sm flex items-center justify-center text-indigo-600 group-hover:rotate-12 transition-transform border border-slate-50">
+                                 <node.icon size={24} />
                               </div>
                               <div>
-                                 <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] mb-1">{node.label}</p>
-                                 <p className="text-xl font-black text-slate-900 tracking-tight">{node.desc} <span className="text-indigo-600 ml-2 font-mono text-sm opacity-60">[{node.value}]</span></p>
+                                 <p className="text-[9px] lg:text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] mb-1">{node.label}</p>
+                                 <p className="text-lg lg:text-xl font-black text-slate-900 tracking-tight">{node.desc} <span className="text-indigo-600 ml-2 font-mono text-xs lg:text-sm opacity-60">[{node.value}]</span></p>
                               </div>
                               <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                                <ArrowRight size={20} className="text-slate-300" />
+                                <ArrowRight size={18} className="text-slate-300" />
                               </div>
                            </div>
                          ))}
-                         <div className="mt-6 p-8 bg-slate-900 rounded-[48px] text-white flex items-center justify-between shadow-2xl group cursor-pointer hover:bg-indigo-600 transition-colors">
+                         <div className="mt-4 lg:mt-6 p-6 lg:p-8 bg-slate-900 rounded-[32px] lg:rounded-[48px] text-white flex items-center justify-between shadow-2xl group cursor-pointer hover:bg-indigo-600 transition-colors">
                             <div className="flex items-center gap-4">
-                               <Navigation size={24} className="text-indigo-400 group-hover:text-white" />
-                               <p className="text-sm font-black uppercase tracking-widest">View on Satellite Map</p>
+                               <Navigation size={20} className="text-indigo-400 group-hover:text-white" />
+                               <p className="text-xs lg:text-sm font-black uppercase tracking-widest">Satellite Map</p>
                             </div>
-                            <ExternalLink size={18} className="opacity-40" />
+                            <ExternalLink size={16} className="opacity-40" />
                          </div>
                       </div>
                    </div>
@@ -584,17 +584,17 @@ const PropertyProfile: React.FC = () => {
       </div>
 
       {/* 6. Mobile Floating Action Bar - Optimized for Conversion */}
-      <div className="fixed bottom-8 left-6 right-6 lg:hidden z-[90]">
-         <div className="bg-slate-900/95 backdrop-blur-3xl rounded-[40px] p-3 flex items-center gap-3 border border-white/10 shadow-[0_40px_80px_-16px_rgba(0,0,0,0.5)]">
-            <div className="px-6 border-r border-white/10">
-                <p className="text-[9px] font-black uppercase text-white/40 tracking-widest mb-1">Rent</p>
-                <p className="text-xl font-black text-white leading-none">₹{property.RentDouble.toLocaleString()}</p>
+      <div className="fixed bottom-6 left-4 right-4 lg:hidden z-[90]">
+         <div className="bg-slate-900/95 backdrop-blur-3xl rounded-[32px] p-2 flex items-center gap-2 border border-white/10 shadow-[0_40px_80px_-16px_rgba(0,0,0,0.5)]">
+            <div className="px-4 border-r border-white/10">
+                <p className="text-[8px] font-black uppercase text-white/40 tracking-widest mb-0.5">Rent</p>
+                <p className="text-lg font-black text-white leading-none">₹{property.RentDouble.toLocaleString()}</p>
             </div>
-            <button onClick={() => handleLead('WhatsApp')} className="flex-grow h-16 bg-indigo-600 text-white rounded-[32px] flex items-center justify-center gap-4 font-black uppercase tracking-widest text-[11px] shadow-xl">
-               <MousePointer2 size={18} /> Book Free Visit
+            <button onClick={() => handleLead('WhatsApp')} className="flex-grow h-14 bg-indigo-600 text-white rounded-[24px] flex items-center justify-center gap-3 font-black uppercase tracking-widest text-[10px] shadow-xl">
+               <MousePointer2 size={16} /> Visit Now
             </button>
-            <button onClick={() => handleLead('Call')} className="w-16 h-16 bg-white text-slate-900 rounded-[32px] flex items-center justify-center shadow-lg transition-transform active:scale-90">
-               <Phone size={22} />
+            <button onClick={() => handleLead('Call')} className="w-14 h-14 bg-white text-slate-900 rounded-[24px] flex items-center justify-center shadow-lg transition-transform active:scale-90">
+               <Phone size={20} />
             </button>
          </div>
       </div>
