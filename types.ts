@@ -147,6 +147,8 @@ export interface Property {
   PhotoMain: string;
   PhotoRoom: string;
   PhotoWashroom: string;
+  PhotosGallery?: string[];
+  SecurityDeposit?: string;
   ApprovalStatus: ApprovalStatus;
   views?: number;
   leadsCount?: number;

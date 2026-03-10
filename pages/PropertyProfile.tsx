@@ -98,11 +98,43 @@ const PropertyProfile: React.FC = () => {
     }
   };
 
-  const survivalMatrix = useMemo(() => [
-    { label: 'Caffeine Node', value: '0.2km', icon: Cup, desc: 'Brew & Bites' },
-    { label: 'Medical Pulse', value: '1.4km', icon: Stethoscope, desc: 'City Hospital' },
-    { label: 'Transit Link', value: '0.5km', icon: Bus, desc: 'Sector 5 Bus Stop' },
-  ], []);
+  const survivalMatrix = useMemo(() => {
+    if (!property || !property.InstituteDistanceMatrix || property.InstituteDistanceMatrix.length === 0) {
+      return [
+        { label: 'Caffeine Node', value: '0.2km', icon: Cup, desc: 'Brew & Bites' },
+        { label: 'Medical Pulse', value: '1.4km', icon: Stethoscope, desc: 'City Hospital' },
+        { label: 'Transit Link', value: '0.5km', icon: Bus, desc: 'Sector 5 Bus Stop' },
+      ];
+    }
+
+    // Filter for non-institute nodes
+    const nodes = property.InstituteDistanceMatrix.filter(item => 
+      !['ALLEN', 'MOTION', 'PW', 'RESONANCE', 'VIBRANT', 'BANSAL', 'AKASH', 'ISAC', 'RELIABLE', 'UNACADEMY', 'E-SARAL', 'SARVAM'].some(brand => item.name.toUpperCase().includes(brand))
+    );
+    
+    if (nodes.length > 0) {
+      return nodes.slice(0, 3).map(node => {
+        let icon = MapIcon;
+        let label = 'Essential Node';
+        if (node.name.toUpperCase().includes('HOSPITAL')) { icon = Stethoscope; label = 'Medical Pulse'; }
+        if (node.name.toUpperCase().includes('BUS') || node.name.toUpperCase().includes('STATION')) { icon = Bus; label = 'Transit Link'; }
+        if (node.name.toUpperCase().includes('MANDIR') || node.name.toUpperCase().includes('MASJID') || node.name.toUpperCase().includes('GURUDWARA')) { icon = Sparkles; label = 'Spiritual Node'; }
+        
+        return {
+          label,
+          value: `${node.distance.toFixed(1)}km`,
+          icon,
+          desc: node.name
+        };
+      });
+    }
+
+    return [
+      { label: 'Caffeine Node', value: '0.2km', icon: Cup, desc: 'Brew & Bites' },
+      { label: 'Medical Pulse', value: '1.4km', icon: Stethoscope, desc: 'City Hospital' },
+      { label: 'Transit Link', value: '0.5km', icon: Bus, desc: 'Sector 5 Bus Stop' },
+    ];
+  }, [property]);
 
   const categorizedFacilities = useMemo(() => {
     if (!property) return { essential: [], comfort: [], safety: [] };
@@ -120,7 +152,9 @@ const PropertyProfile: React.FC = () => {
 
   const allPhotos = useMemo(() => {
     if (!property) return [];
-    return [property.PhotoMain, property.PhotoRoom, property.PhotoWashroom].filter(Boolean);
+    const base = [property.PhotoMain, property.PhotoRoom, property.PhotoWashroom].filter(Boolean);
+    const gallery = property.PhotosGallery || [];
+    return [...base, ...gallery];
   }, [property]);
 
   if (loading) return (
@@ -403,7 +437,7 @@ const PropertyProfile: React.FC = () => {
                          {[
                            { label: 'Electricity', val: `₹${property.ElectricityCharges}`, unit: '/Unit' },
                            { label: 'Parent Stay', val: `₹${property.ParentsStayCharge}`, unit: '/Day' },
-                           { label: 'Security', val: '1 Month', unit: 'Refundable' },
+                           { label: 'Security', val: property.SecurityDeposit || '1 Month', unit: 'Refundable' },
                            { label: 'Annual Maintenance', val: `₹${property.Maintenance}`, unit: 'Audit Fee' },
                          ].map((fee, i) => (
                            <div key={i} className="bg-white border border-slate-100 p-8 rounded-[40px] shadow-sm hover:translate-y-[-4px] transition-all">

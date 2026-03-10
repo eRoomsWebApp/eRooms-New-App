@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { Property, ListingType, Gender, ApprovalStatus } from '../types';
-import { normalizePhone, parseRent, parseMultiLinks } from '../utils/normalization';
+import { normalizePhone, parseRent, parseMultiLinks, parseDistanceMatrix } from '../utils/normalization';
 import { transformDriveUrl } from '../utils/urlHelper';
 
 interface BulkUploadModalProps {
@@ -61,27 +61,28 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
   const downloadTemplate = () => {
     const template = [
       {
-        ListingName: "Sample PG Name",
-        ListingType: "PG",
-        Gender: "Boys",
-        OwnerName: "John Doe",
-        OwnerWhatsApp: "919876543210",
-        WardenName: "Jane Smith",
-        EmergencyContact: "919876543211",
-        OwnerEmail: "owner@example.com",
-        Area: "Landmark City",
-        FullAddress: "Plot 123, Landmark City, Kunhari, Kota",
-        GoogleMapsPlusCode: "5V2X+XF Kota, Rajasthan",
-        RentSingle: 12000,
-        RentDouble: 8000,
-        SecurityTerms: "1 Month Security Deposit",
-        ElectricityCharges: 10,
-        Maintenance: 500,
-        ParentsStayCharge: 200,
-        Facilities: "AC, WiFi, Laundry, Mess",
-        PhotoMain: "https://example.com/photo1.jpg",
-        PhotoRoom: "https://example.com/photo2.jpg",
-        PhotoWashroom: "https://example.com/photo3.jpg"
+        "Listing Name": "Sample PG Name",
+        "Listing Type": "PG",
+        "Category Type": "Boys",
+        "Owner Name": "John Doe",
+        "Owner Contact Number": "919876543210",
+        "Warden Name": "Jane Smith",
+        "Office Contact Number": "919876543211",
+        "Email ID": "owner@example.com",
+        "Area": "Landmark City",
+        "Property Full Address": "Plot 123, Landmark City, Kunhari, Kota",
+        "Property Location": "5V2X+XF Kota, Rajasthan",
+        "What is the monthly rent? (Single Room Actual Price)": "12,000/-",
+        "What is the monthly rent? (Double Room Actual Price)": "8,000/-",
+        "Electricity Unit Charge": 10,
+        "Maintenance": 500,
+        "Parents Stay Charge": 200,
+        "INCLUDING RENT": "AC, WiFi, Laundry, Mess",
+        "Institute Nearby Property (Under 750m)": "ALLEN SUPATH-450M",
+        "Hostel Front Photo": "https://drive.google.com/open?id=...",
+        "Property Rooms Photos (Single)": "https://drive.google.com/open?id=...",
+        "Bathroom Photos": "https://drive.google.com/open?id=...",
+        "Extra Photos": "https://drive.google.com/open?id=..., https://drive.google.com/open?id=..."
       }
     ];
 
@@ -91,37 +92,83 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
     XLSX.writeFile(wb, "Property_Bulk_Upload_Template.xlsx");
   };
 
+  const getValue = (row: Record<string, unknown>, keys: string[]): unknown => {
+    for (const key of keys) {
+      if (row[key] !== undefined && row[key] !== null && row[key] !== '') {
+        return row[key];
+      }
+    }
+    return undefined;
+  };
+
   const processAndSubmit = () => {
     const properties: Omit<Property, 'id'>[] = data.map(row => {
-      // Handle multi-link photos if provided in a single column or separate columns
-      const mainPhotos = parseMultiLinks(String(row.PhotoMain || ''));
-      const roomPhotos = parseMultiLinks(String(row.PhotoRoom || ''));
-      const washroomPhotos = parseMultiLinks(String(row.PhotoWashroom || ''));
+      const listingName = getValue(row, ['Listing Name', 'ListingName']);
+      const listingType = getValue(row, ['Listing Type', 'ListingType']);
+      const gender = getValue(row, ['Category Type', 'Gender']);
+      const ownerName = getValue(row, ['Owner Name', 'OwnerName']);
+      const ownerPhone = getValue(row, ['Owner Contact Number', 'OwnerWhatsApp']);
+      const wardenName = getValue(row, ['Warden Name', 'WardenName']);
+      const wardenPhone = getValue(row, ['Office Contact Number', 'EmergencyContact']);
+      const email = getValue(row, ['Email ID', 'OwnerEmail']);
+      const area = getValue(row, ['Area']);
+      const address = getValue(row, ['Property Full Address', 'FullAddress']);
+      const location = getValue(row, ['Property Location', 'GoogleMapsPlusCode']);
+      const rentSingle = getValue(row, ['What is the monthly rent? (Single Room Actual Price)', 'Single Room', 'RentSingle']);
+      const rentDouble = getValue(row, ['What is the monthly rent? (Double Room Actual Price)', 'Double Room', 'RentDouble']);
+      const electricity = getValue(row, ['Electricity Unit Charge', 'ElectricityCharges']);
+      const maintenance = getValue(row, ['Maintenance']);
+      const parentsCharge = getValue(row, ['Parents Stay Charge']);
+      const facilitiesRaw = getValue(row, ['INCLUDING RENT', 'Facilities']);
+      
+      const photoMainRaw = getValue(row, ['Hostel Front Photo', 'PhotoMain']);
+      const photoRoomRaw = getValue(row, ['Property Rooms Photos (Single)', 'PhotoRoom']);
+      const photoWashroomRaw = getValue(row, ['Bathroom Photos', 'PhotoWashroom']);
+      
+      const extraPhotosRaw = getValue(row, ['Extra Photos', 'Office Photos', 'Hostel Reception Photo', 'Dining Area']);
+      
+      const distancesUnder750 = getValue(row, ['Institute Nearby Property (Under 750m)']);
+      const distancesAbove750 = getValue(row, ['Institute Nearby Property (Above 750m)']);
+      const mandirMasjid = getValue(row, ['Mandir / Majid / Gurudwara / Church Near by']);
+      const hospital = getValue(row, ['Hospital Name / Km from Hostel']);
+
+      // Combine distances
+      const combinedDistances = [
+        ...(distancesUnder750 ? parseDistanceMatrix(String(distancesUnder750)) : []),
+        ...(distancesAbove750 ? parseDistanceMatrix(String(distancesAbove750)) : []),
+        ...(mandirMasjid ? parseDistanceMatrix(String(mandirMasjid)) : []),
+        ...(hospital ? parseDistanceMatrix(String(hospital)) : [])
+      ];
+
+      // Parse Gallery
+      const gallery = parseMultiLinks(String(extraPhotosRaw || '')).map(url => transformDriveUrl(url)).filter(Boolean) as string[];
 
       return {
-        ownerId: 'admin-bulk', // Default for bulk upload if not specified
-        ListingName: String(row.ListingName || ''),
-        ListingType: (row.ListingType as ListingType) || ListingType.PG,
-        Gender: (row.Gender as Gender) || Gender.Unisex,
-        OwnerName: String(row.OwnerName || ''),
-        OwnerWhatsApp: normalizePhone(String(row.OwnerWhatsApp || '')),
-        WardenName: String(row.WardenName || ''),
-        EmergencyContact: normalizePhone(String(row.EmergencyContact || '')),
-        OwnerEmail: String(row.OwnerEmail || ''),
-        Area: String(row.Area || ''),
-        FullAddress: String(row.FullAddress || ''),
-        GoogleMapsPlusCode: String(row.GoogleMapsPlusCode || ''),
-        InstituteDistanceMatrix: [], // Empty for bulk upload
-        RentSingle: parseRent(row.RentSingle),
-        RentDouble: parseRent(row.RentDouble),
-        SecurityTerms: String(row.SecurityTerms || ''),
-        ElectricityCharges: Number(row.ElectricityCharges || 0),
-        Maintenance: Number(row.Maintenance || 0),
-        ParentsStayCharge: Number(row.ParentsStayCharge || 0),
-        Facilities: parseMultiLinks(String(row.Facilities || '')),
-        PhotoMain: transformDriveUrl(mainPhotos[0] || ''),
-        PhotoRoom: transformDriveUrl(roomPhotos[0] || ''),
-        PhotoWashroom: transformDriveUrl(washroomPhotos[0] || ''),
+        ownerId: 'admin-bulk',
+        ListingName: String(listingName || 'Unlabeled Asset'),
+        ListingType: (listingType as ListingType) || ListingType.Hostel,
+        Gender: (gender as Gender) || Gender.Boys,
+        OwnerName: String(ownerName || 'Unknown Host'),
+        OwnerWhatsApp: normalizePhone(String(ownerPhone || '')),
+        WardenName: String(wardenName || 'On-Call Security'),
+        EmergencyContact: normalizePhone(String(wardenPhone || '')),
+        OwnerEmail: String(email || 'contact@erooms.in'),
+        Area: String(area || ''),
+        FullAddress: String(address || ''),
+        GoogleMapsPlusCode: String(location || ''),
+        InstituteDistanceMatrix: combinedDistances,
+        RentSingle: parseRent(rentSingle),
+        RentDouble: parseRent(rentDouble),
+        SecurityTerms: '1 Month Security Deposit',
+        ElectricityCharges: Number(electricity || 0),
+        Maintenance: Number(maintenance || 0),
+        ParentsStayCharge: Number(parentsCharge || 0),
+        Facilities: parseMultiLinks(String(facilitiesRaw || '')),
+        PhotoMain: transformDriveUrl(String(photoMainRaw || '')) || '',
+        PhotoRoom: transformDriveUrl(String(photoRoomRaw || '')) || '',
+        PhotoWashroom: transformDriveUrl(String(photoWashroomRaw || '')) || '',
+        PhotosGallery: gallery,
+        SecurityDeposit: '1 Month Advance',
         ApprovalStatus: ApprovalStatus.Approved,
         views: 0,
         leadsCount: 0,
