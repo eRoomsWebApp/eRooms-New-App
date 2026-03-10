@@ -105,8 +105,8 @@ const PropertyDetail: React.FC = () => {
              
              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                {[
-                 { label: 'Single Occupancy', val: `₹${property.RentSingle.toLocaleString()}`, sub: 'per month' },
-                 { label: 'Double Occupancy', val: `₹${property.RentDouble.toLocaleString()}`, sub: 'per month', highlight: true },
+                 { label: 'Single Occupancy', val: `₹${property.RentSingle.join('/')}`, sub: 'per month' },
+                 { label: 'Double Occupancy', val: `₹${property.RentDouble.join('/')}`, sub: 'per month', highlight: true },
                  { label: 'Electricity', val: `₹${property.ElectricityCharges}`, sub: 'per unit consumed' },
                  { label: 'Maintenance', val: `₹${property.Maintenance.toLocaleString()}`, sub: 'one-time fix' }
                ].map((item, idx) => (
@@ -158,8 +158,12 @@ const PropertyDetail: React.FC = () => {
                           </div>
                        </div>
                        <div className="text-right">
-                          <p className="text-2xl font-black text-slate-900 tracking-tighter">{item.distance} <span className="text-xs">KM</span></p>
-                          <p className="text-[10px] font-black text-green-500 uppercase tracking-widest">~{Math.ceil(item.distance * 12)} MINS WALK</p>
+                          <p className="text-2xl font-black text-slate-900 tracking-tighter">
+                            {item.distance >= 1000 ? `${(item.distance / 1000).toFixed(1)} KM` : `${item.distance} M`}
+                          </p>
+                          <p className="text-[10px] font-black text-green-500 uppercase tracking-widest">
+                            ~{Math.ceil((item.distance / 1000) * 12)} MINS WALK
+                          </p>
                        </div>
                     </div>
                   ))}

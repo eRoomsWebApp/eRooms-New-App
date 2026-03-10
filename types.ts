@@ -75,7 +75,8 @@ export interface AppConfig {
 
 export interface DistanceMatrixItem {
   name: string;
-  distance: number; // in kilometers
+  distance: number; // in meters
+  unit: string;
 }
 
 export interface ActivityLog {
@@ -137,8 +138,10 @@ export interface Property {
   FullAddress: string;
   GoogleMapsPlusCode: string;
   InstituteDistanceMatrix: DistanceMatrixItem[];
-  RentSingle: number;
-  RentDouble: number;
+  RentSingle: number[];
+  RentDouble: number[];
+  RentSingleDetails?: string;
+  RentDoubleDetails?: string;
   SecurityTerms: string;
   ElectricityCharges: number; 
   Maintenance: number; 
@@ -150,6 +153,8 @@ export interface Property {
   PhotosGallery?: string[];
   SecurityDeposit?: string;
   ApprovalStatus: ApprovalStatus;
+  lat?: number;
+  lng?: number;
   views?: number;
   leadsCount?: number;
   rating?: number;

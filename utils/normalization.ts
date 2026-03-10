@@ -1,4 +1,6 @@
 
+import { DistanceMatrixItem } from '../types';
+
 /**
  * Normalizes a phone number by removing special characters and keeping only the last 10 digits.
  * Rules:
@@ -15,57 +17,55 @@ export const normalizePhone = (phone: string): string => {
 };
 
 /**
- * Parses a rent string into a clean integer.
- * If multiple prices are provided (e.g., "12,000/- 13,000/-"), it takes the first one.
+ * Parses a rent string into an array of clean integers.
+ * If multiple prices are provided (e.g., "12,000/- 14,000/-"), it extracts all of them.
  */
-export const parseRent = (rent: unknown): number => {
-  if (typeof rent === 'number') return Math.floor(rent);
-  if (!rent || rent === 'NA') return 0;
+export const parseRent = (rent: unknown): number[] => {
+  if (typeof rent === 'number') return [Math.floor(rent)];
+  if (!rent || rent === 'NA') return [];
   
-  // If it's a string with multiple prices, take the first one
-  const firstPrice = String(rent).split(/[ \n,]/)[0];
+  const str = String(rent);
+  // Find all numbers in the string, handling commas
+  const matches = str.match(/\d{1,3}(,\d{3})*/g);
   
-  // Remove commas, currency symbols, and /- suffix
-  const cleaned = firstPrice.replace(/[₹,/-]/g, '').trim();
-  const parsed = parseInt(cleaned, 10);
+  if (!matches) return [];
   
-  return isNaN(parsed) ? 0 : parsed;
+  return matches
+    .map(m => parseInt(m.replace(/,/g, ''), 10))
+    .filter(p => !isNaN(p) && p > 0);
 };
 
 /**
  * Parses a distance matrix string into an array of DistanceMatrixItem.
- * Format: "ALLEN SUPATH-450M \n VIDHYAPEETH (PW)-600M"
+ * Normalizes 'km' into 'meters' (1km = 1000m).
  */
-export const parseDistanceMatrix = (data: string): { name: string; distance: number }[] => {
+export const parseDistanceMatrix = (data: string): DistanceMatrixItem[] => {
   if (!data || data === 'NA') return [];
   
-  // Split by newline or comma
-  const entries = data.split(/[\n,]/).map(e => e.trim()).filter(e => e !== '');
-  
-  return entries.map(entry => {
-    // Handle formats like "ALLEN SUPATH-450M" or "ALLEN SUPATH 450M"
-    // We look for the last dash or space before a number
-    const lastDashIndex = entry.lastIndexOf('-');
-    const lastSpaceIndex = entry.lastIndexOf(' ');
-    const splitIndex = lastDashIndex !== -1 ? lastDashIndex : lastSpaceIndex;
-    
-    if (splitIndex === -1) return null;
-    
-    const name = entry.substring(0, splitIndex).trim();
-    const distanceStr = entry.substring(splitIndex + 1).trim().toLowerCase();
-    
-    let distance = 0;
-    if (distanceStr.includes('km')) {
-      distance = parseFloat(distanceStr.replace('km', ''));
-    } else if (distanceStr.includes('m')) {
-      distance = parseFloat(distanceStr.replace('m', '')) / 1000;
-    } else {
-      distance = parseFloat(distanceStr);
-      if (distance > 50) distance = distance / 1000; // Heuristic: if > 50, it's probably meters
+  const lines = data.split(/[\n,;]/).map(l => l.trim()).filter(l => l !== '');
+  const results: DistanceMatrixItem[] = [];
+
+  for (const line of lines) {
+    const regex = /^(.*?)(?:\s*[-:]\s*|\s+)(\d+(?:\.\d+)?)\s*(m|km|meter|kilometer)?$/i;
+    const match = line.match(regex);
+
+    if (match) {
+      const name = match[1].trim();
+      const value = parseFloat(match[2]);
+      const unitRaw = (match[3] || 'm').toLowerCase();
+
+      let distance = value;
+      if (unitRaw.startsWith('k')) {
+        distance = value * 1000;
+      }
+
+      if (!isNaN(distance)) {
+        results.push({ name, distance, unit: 'm' });
+      }
     }
-    
-    return isNaN(distance) ? null : { name, distance };
-  }).filter((item): item is { name: string; distance: number } => item !== null);
+  }
+  
+  return results;
 };
 
 /**
@@ -78,9 +78,66 @@ export const parseMultiLinks = (links: string): string[] => {
 };
 
 /**
+ * Standardizes area names using fuzzy matching logic.
+ */
+export const standardizeArea = (area: string, masterAreas: string[]): string => {
+  if (!area) return '';
+  const normalized = area.trim().toUpperCase();
+  
+  // Direct match
+  const directMatch = masterAreas.find(a => a.toUpperCase() === normalized);
+  if (directMatch) return directMatch;
+  
+  // Fuzzy match: check if normalized area contains or is contained by any master area
+  const partialMatch = masterAreas.find(a => {
+    const masterNorm = a.toUpperCase();
+    return normalized.includes(masterNorm) || masterNorm.includes(normalized);
+  });
+  
+  return partialMatch || area;
+};
+
+/**
+ * Generates a unique composite key for a property.
+ */
+export const generatePropertyKey = (phone: string, name: string): string => {
+  const cleanP = normalizePhone(phone);
+  const cleanN = name.toLowerCase().replace(/\s+/g, '');
+  return `${cleanP}_${cleanN}`;
+};
+
+/**
  * Formats a number as a currency string for display.
  * Example: 12000 -> "12,000/-"
  */
 export const formatRentDisplay = (rent: number): string => {
   return `${rent.toLocaleString('en-IN')}/-`;
+};
+
+/**
+ * Geocodes a Plus Code into Latitude and Longitude.
+ * In a real production environment, this would call the Google Maps Geocoding API.
+ * For this implementation, we provide a robust placeholder that simulates the behavior.
+ */
+export const geocodePlusCode = async (plusCode: string): Promise<{ lat: number; lng: number } | null> => {
+  if (!plusCode || plusCode === 'NA') return null;
+
+  // Kota, Rajasthan coordinates as a base for simulation
+  const KOTA_LAT = 25.18;
+  const KOTA_LNG = 75.83;
+
+  // Simple simulation: Generate stable but random-looking coordinates based on the plus code string
+  // This ensures the same Plus Code always results in the same Lat/Lng for the demo
+  let hash = 0;
+  for (let i = 0; i < plusCode.length; i++) {
+    hash = plusCode.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  const latOffset = (hash % 100) / 1000;
+  const lngOffset = ((hash >> 8) % 100) / 1000;
+
+  return {
+    lat: KOTA_LAT + latOffset,
+    lng: KOTA_LNG + lngOffset
+  };
 };

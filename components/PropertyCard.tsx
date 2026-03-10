@@ -37,7 +37,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
                       'bg-slate-500 text-white';
 
   const nearest = property.InstituteDistanceMatrix[0];
-  const minsWalk = nearest ? Math.ceil(nearest.distance * 12) : null;
+  const minsWalk = nearest ? Math.ceil((nearest.distance / 1000) * 12) : null;
+
+  const minRent = Math.min(...(property.RentDouble || [0]));
+  const hasMultiplePrices = property.RentDouble.length > 1;
 
   return (
     <motion.div 
@@ -115,9 +118,11 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 
           <div className="flex items-center justify-between pt-4 border-t border-slate-50">
             <div>
-              <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.15em] mb-1">Monthly Rental</p>
+              <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.15em] mb-1">
+                {hasMultiplePrices ? 'Starting From' : 'Monthly Rental'}
+              </p>
               <p className="text-2xl font-black text-indigo-600 tracking-tighter">
-                ₹{property.RentDouble.toLocaleString()}
+                ₹{minRent.toLocaleString()}
                 <span className="text-xs font-bold text-slate-400 ml-1">/mo</span>
               </p>
             </div>

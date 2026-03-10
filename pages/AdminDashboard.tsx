@@ -15,14 +15,15 @@ import {
   Sparkles, ShieldCheck,
   MousePointer2, Timer, Target, Layers,
   Cpu, Terminal, Command,
-  Edit3, Focus, FileSpreadsheet
+  Edit3, Focus, FileSpreadsheet, TrendingUp
 } from 'lucide-react';
 import PropertyFormModal from '../components/PropertyFormModal';
 import BulkUploadModal from '../components/BulkUploadModal';
+import BulkPriceUpdateModal from '../components/BulkPriceUpdateModal';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { properties, addProperty, bulkAddProperties, approveProperty, updateProperty, deleteProperty } = useProperties();
+  const { properties, addProperty, bulkAddProperties, approveProperty, updateProperty, deleteProperty, bulkUpdatePrices } = useProperties();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<'overview' | 'listings' | 'users' | 'config' | 'logs'>(
     searchParams.get('action') === 'add' ? 'listings' : 'overview'
@@ -35,6 +36,7 @@ const AdminDashboard: React.FC = () => {
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   const [isAdding, setIsAdding] = useState(searchParams.get('action') === 'add');
   const [isBulkUploading, setIsBulkUploading] = useState(false);
+  const [isBulkPriceUpdating, setIsBulkPriceUpdating] = useState(false);
   
   // Global Kernel State
   const [config, setConfig] = useState<AppConfig>(getAppConfig());
@@ -268,6 +270,12 @@ const AdminDashboard: React.FC = () => {
                      <p className="text-sm font-bold text-slate-400 mt-1">Global management of all property nodes.</p>
                   </div>
                   <div className="flex gap-4">
+                    <button 
+                      onClick={() => setIsBulkPriceUpdating(true)}
+                      className="bg-white border-2 border-slate-200 text-indigo-600 px-8 py-5 rounded-[22px] font-black text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95 flex items-center gap-4"
+                    >
+                       <TrendingUp size={18} /> Price Shift
+                    </button>
                     <button 
                       onClick={() => setIsBulkUploading(true)}
                       className="bg-white border-2 border-slate-200 text-slate-600 px-8 py-5 rounded-[22px] font-black text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95 flex items-center gap-4"
@@ -700,6 +708,14 @@ const AdminDashboard: React.FC = () => {
           
           bulkAddProperties(propertiesWithIds);
           setIsBulkUploading(false);
+        }}
+      />
+
+      <BulkPriceUpdateModal 
+        isOpen={isBulkPriceUpdating}
+        onClose={() => setIsBulkPriceUpdating(false)}
+        onUpdate={(area, amount) => {
+          bulkUpdatePrices(area, amount);
         }}
       />
 

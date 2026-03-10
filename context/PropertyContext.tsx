@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useMe
 import { Property, ApprovalStatus, Gender } from '../types';
 import { fetchProperties, syncProperties } from '../db';
 import { INSTITUTES } from '../constants';
+import { generatePropertyKey } from '../utils/normalization';
 
 export interface Filters {
   coaching: string;
@@ -23,6 +24,7 @@ interface PropertyContextType {
   updateProperty: (id: string, property: Property) => void;
   deleteProperty: (id: string) => void;
   approveProperty: (id: string) => void;
+  bulkUpdatePrices: (area: string, amount: number) => void;
 }
 
 const PropertyContext = createContext<PropertyContextType | undefined>(undefined);
@@ -58,13 +60,14 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }
         let matchesPills = true;
         if (filters.activePills.length > 0) {
           matchesPills = filters.activePills.every(pill => {
+            const minRent = Math.min(...(p.RentDouble || [0]));
             switch (pill) {
-              case 'Luxury': return p.RentDouble > 15000;
-              case 'Budget': return p.RentDouble < 10000;
+              case 'Luxury': return minRent > 15000;
+              case 'Budget': return minRent < 10000;
               case 'Girls': return p.Gender === Gender.Girls;
               case 'Boys': return p.Gender === Gender.Boys;
-              case 'Near Allen': return p.InstituteDistanceMatrix?.some(i => i.name.includes('Allen') && i.distance < 0.5);
-              case 'Near PW': return p.InstituteDistanceMatrix?.some(i => i.name.includes('PW') && i.distance < 0.5);
+              case 'Near Allen': return p.InstituteDistanceMatrix?.some(i => i.name.includes('Allen') && i.distance < 500);
+              case 'Near PW': return p.InstituteDistanceMatrix?.some(i => i.name.includes('PW') && i.distance < 500);
               case 'AC': return p.Facilities?.includes('AC');
               case 'Food': return p.Facilities?.includes('Mess Facility');
               default: return true;
@@ -93,7 +96,24 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const bulkAddProperties = (newProps: Property[]) => {
     const normalizedProps = newProps.map(normalize);
-    const newList = [...properties, ...normalizedProps];
+    
+    const newList = [...properties];
+    
+    normalizedProps.forEach(incoming => {
+      const incomingKey = generatePropertyKey(incoming.OwnerWhatsApp, incoming.ListingName);
+      const existingIndex = newList.findIndex(p => 
+        generatePropertyKey(p.OwnerWhatsApp, p.ListingName) === incomingKey
+      );
+      
+      if (existingIndex >= 0) {
+        // Update existing record
+        newList[existingIndex] = { ...newList[existingIndex], ...incoming, id: newList[existingIndex].id };
+      } else {
+        // Insert new record
+        newList.push(incoming);
+      }
+    });
+
     setProperties(newList);
     syncProperties(newList);
   };
@@ -119,6 +139,21 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }
     syncProperties(newList);
   };
 
+  const bulkUpdatePrices = (area: string, amount: number) => {
+    const newList = properties.map(p => {
+      if (area === 'All' || p.Area === area) {
+        return {
+          ...p,
+          RentSingle: p.RentSingle.map(r => r + amount),
+          RentDouble: p.RentDouble.map(r => r + amount)
+        };
+      }
+      return p;
+    });
+    setProperties(newList);
+    syncProperties(newList);
+  };
+
   return (
     <PropertyContext.Provider value={{ 
       properties, 
@@ -131,7 +166,8 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }
       bulkAddProperties,
       updateProperty, 
       deleteProperty, 
-      approveProperty 
+      approveProperty,
+      bulkUpdatePrices
     }}>
       {children}
     </PropertyContext.Provider>

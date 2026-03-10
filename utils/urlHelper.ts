@@ -27,8 +27,8 @@ export const transformDriveUrl = (url: string | undefined | null): string | null
     }
 
     if (fileId) {
-      // Using the lh3.googleusercontent.com format which is more reliable for direct embedding
-      return `https://lh3.googleusercontent.com/d/${fileId}`;
+      // Using the requested format for direct viewing
+      return `https://lh3.googleusercontent.com/u/0/d/${fileId}`;
     }
   } catch (e) {
     console.error('Error parsing Drive URL:', e);

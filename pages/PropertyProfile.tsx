@@ -428,6 +428,11 @@ const PropertyProfile: React.FC = () => {
                             <span className="text-6xl sm:text-8xl lg:text-[140px] font-black tracking-tighter text-slate-900 leading-none">{activeRentType === 'Single' ? property.RentSingle.toLocaleString() : property.RentDouble.toLocaleString()}</span>
                             <span className="text-xl lg:text-2xl font-bold text-slate-300">/mo</span>
                          </div>
+                         {(activeRentType === 'Single' ? property.RentSingleDetails : property.RentDoubleDetails) && (
+                           <p className="text-sm lg:text-base font-black text-indigo-600 uppercase tracking-widest mt-4 bg-indigo-50 px-6 py-3 rounded-2xl border border-indigo-100 w-fit">
+                             {activeRentType === 'Single' ? property.RentSingleDetails : property.RentDoubleDetails}
+                           </p>
+                         )}
                          <div className="flex items-center gap-4 bg-emerald-50 text-emerald-700 px-6 py-3 rounded-2xl border border-emerald-100 w-fit">
                             <Zap size={16} />
                             <span className="text-[11px] font-black uppercase tracking-widest">Fixed Pricing: No Brokerage Applied</span>
@@ -516,13 +521,18 @@ const PropertyProfile: React.FC = () => {
                               </div>
                            </div>
                          ))}
-                         <div className="mt-4 lg:mt-6 p-6 lg:p-8 bg-slate-900 rounded-[32px] lg:rounded-[48px] text-white flex items-center justify-between shadow-2xl group cursor-pointer hover:bg-indigo-600 transition-colors">
+                         <a 
+                           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(property.GoogleMapsPlusCode || property.FullAddress)}`}
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           className="mt-4 lg:mt-6 p-6 lg:p-8 bg-slate-900 rounded-[32px] lg:rounded-[48px] text-white flex items-center justify-between shadow-2xl group cursor-pointer hover:bg-indigo-600 transition-colors"
+                         >
                             <div className="flex items-center gap-4">
                                <Navigation size={20} className="text-indigo-400 group-hover:text-white" />
                                <p className="text-xs lg:text-sm font-black uppercase tracking-widest">Satellite Map</p>
                             </div>
                             <ExternalLink size={16} className="opacity-40" />
-                         </div>
+                         </a>
                       </div>
                    </div>
                 </div>

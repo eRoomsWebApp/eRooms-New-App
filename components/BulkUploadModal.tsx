@@ -1,14 +1,23 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Upload, FileSpreadsheet, Download, 
-  CheckCircle2, AlertCircle, Loader2, Trash2
+  CheckCircle2, AlertCircle, Loader2, Trash2,
+  Edit3, Save, AlertTriangle, Image as ImageIcon
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { Property, ListingType, Gender, ApprovalStatus } from '../types';
-import { normalizePhone, parseRent, parseMultiLinks, parseDistanceMatrix } from '../utils/normalization';
+import { 
+  normalizePhone, 
+  parseRent, 
+  parseDistanceMatrix, 
+  parseMultiLinks, 
+  geocodePlusCode,
+  standardizeArea
+} from '../utils/normalization';
 import { transformDriveUrl } from '../utils/urlHelper';
+import { getAppConfig } from '../db';
 
 interface BulkUploadModalProps {
   isOpen: boolean;
@@ -17,10 +26,24 @@ interface BulkUploadModalProps {
 }
 
 const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUpload }) => {
-  const [data, setData] = useState<Record<string, unknown>[]>([]);
+  const config = getAppConfig();
+  const [stagingData, setStagingData] = useState<Omit<Property, 'id'>[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [geocodingProgress, setGeocodingProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const validateProperty = (p: Omit<Property, 'id'>) => {
+    const errors: string[] = [];
+    if (!p.ListingName || p.ListingName === 'Unlabeled Asset') errors.push('Missing Name');
+    if (!p.PhotoMain) errors.push('Missing Main Photo');
+    if (p.OwnerWhatsApp.length < 10) errors.push('Invalid Phone');
+    if (!p.Area) errors.push('Missing Area');
+    if (p.RentSingle.length === 0 && p.RentDouble.length === 0) errors.push('Missing Rent');
+    return errors;
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -44,9 +67,83 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
           return;
         }
 
-        setData(rawData);
+        const processed = rawData.map(row => {
+          const getAllValues = (patterns: string[]): string[] => {
+            const values: string[] = [];
+            const rowKeys = Object.keys(row);
+            for (const pattern of patterns) {
+              for (const key of rowKeys) {
+                if (key === pattern || key.startsWith(`${pattern}_`)) {
+                  const val = row[key];
+                  if (val) values.push(...parseMultiLinks(String(val)));
+                }
+              }
+            }
+            return values;
+          };
+
+          const getValue = (keys: string[]): unknown => {
+            for (const key of keys) {
+              if (row[key] !== undefined && row[key] !== null && row[key] !== '') return row[key];
+            }
+            return undefined;
+          };
+
+          const rentSingleRaw = getValue(['What is the monthly rent? (Single Room Actual Price)', 'Single Room', 'RentSingle']);
+          const rentDoubleRaw = getValue(['What is the monthly rent? (Double Room Actual Price)', 'Double Room', 'RentDouble']);
+          const extraPhotos = getAllValues(['Extra Photos', 'Office Photos', 'Hostel Reception Photo', 'Dining Area']);
+          
+          const distancesUnder750 = getValue(['Institute Nearby Property (Under 750m)']);
+          const distancesAbove750 = getValue(['Institute Nearby Property (Above 750m)']);
+          const mandirMasjid = getValue(['Mandir / Majid / Gurudwara / Church Near by']);
+          const hospital = getValue(['Hospital Name / Km from Hostel']);
+
+          const combinedDistances = [
+            ...(distancesUnder750 ? parseDistanceMatrix(String(distancesUnder750)) : []),
+            ...(distancesAbove750 ? parseDistanceMatrix(String(distancesAbove750)) : []),
+            ...(mandirMasjid ? parseDistanceMatrix(String(mandirMasjid)) : []),
+            ...(hospital ? parseDistanceMatrix(String(hospital)) : [])
+          ];
+
+          return {
+            ownerId: 'admin-bulk',
+            ListingName: String(getValue(['Listing Name', 'ListingName']) || 'Unlabeled Asset'),
+            ListingType: (getValue(['Listing Type', 'ListingType']) as ListingType) || ListingType.Hostel,
+            Gender: (getValue(['Category Type', 'Gender']) as Gender) || Gender.Boys,
+            OwnerName: String(getValue(['Owner Name', 'OwnerName']) || 'Unknown Host'),
+            OwnerWhatsApp: normalizePhone(String(getValue(['Owner Contact Number', 'OwnerWhatsApp']) || '')),
+            WardenName: String(getValue(['Warden Name', 'WardenName']) || 'On-Call Security'),
+            EmergencyContact: normalizePhone(String(getValue(['Office Contact Number', 'EmergencyContact']) || '')),
+            OwnerEmail: String(getValue(['Email ID', 'OwnerEmail']) || 'contact@erooms.in'),
+            Area: standardizeArea(String(getValue(['Area']) || ''), config.areas),
+            FullAddress: String(getValue(['Property Full Address', 'FullAddress']) || ''),
+            GoogleMapsPlusCode: String(getValue(['Property Location', 'GoogleMapsPlusCode']) || ''),
+            InstituteDistanceMatrix: combinedDistances,
+            RentSingle: parseRent(rentSingleRaw),
+            RentDouble: parseRent(rentDoubleRaw),
+            RentSingleDetails: String(rentSingleRaw || ''),
+            RentDoubleDetails: String(rentDoubleRaw || ''),
+            SecurityTerms: '1 Month Security Deposit',
+            ElectricityCharges: Number(getValue(['Electricity Unit Charge', 'ElectricityCharges']) || 0),
+            Maintenance: Number(getValue(['Maintenance']) || 0),
+            ParentsStayCharge: Number(getValue(['Parents Stay Charge']) || 0),
+            Facilities: parseMultiLinks(String(getValue(['INCLUDING RENT', 'Facilities']) || '')),
+            PhotoMain: transformDriveUrl(String(getValue(['Hostel Front Photo', 'PhotoMain']) || '')) || '',
+            PhotoRoom: transformDriveUrl(String(getValue(['Property Rooms Photos (Single)', 'PhotoRoom']) || '')) || '',
+            PhotoWashroom: transformDriveUrl(String(getValue(['Bathroom Photos', 'PhotoWashroom']) || '')) || '',
+            PhotosGallery: extraPhotos.map(url => transformDriveUrl(url)).filter(Boolean) as string[],
+            SecurityDeposit: '1 Month Advance',
+            ApprovalStatus: ApprovalStatus.Approved,
+            views: 0,
+            leadsCount: 0,
+            rating: 5
+          };
+        });
+
+        setStagingData(processed);
         setIsProcessing(false);
-      } catch {
+      } catch (err) {
+        console.error(err);
         setError("Failed to parse Excel file. Please ensure it's a valid .xlsx or .xls file.");
         setIsProcessing(false);
       }
@@ -56,6 +153,12 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
       setIsProcessing(false);
     };
     reader.readAsBinaryString(file);
+  };
+
+  const handleUpdateStaging = (index: number, updates: Partial<Omit<Property, 'id'>>) => {
+    const newData = [...stagingData];
+    newData[index] = { ...newData[index], ...updates };
+    setStagingData(newData);
   };
 
   const downloadTemplate = () => {
@@ -92,94 +195,38 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
     XLSX.writeFile(wb, "Property_Bulk_Upload_Template.xlsx");
   };
 
-  const getValue = (row: Record<string, unknown>, keys: string[]): unknown => {
-    for (const key of keys) {
-      if (row[key] !== undefined && row[key] !== null && row[key] !== '') {
-        return row[key];
-      }
+  const handleConfirmUpload = async () => {
+    setIsUploading(true);
+    setGeocodingProgress(0);
+
+    const validProperties = stagingData.filter(p => validateProperty(p).length === 0);
+    const total = validProperties.length;
+    
+    // Geocode each property in the background
+    const geocodedProperties = [];
+    for (let i = 0; i < total; i++) {
+      const p = validProperties[i];
+      const coords = await geocodePlusCode(p.GoogleMapsPlusCode || '');
+      geocodedProperties.push({
+        ...p,
+        lat: coords?.lat,
+        lng: coords?.lng
+      });
+      setGeocodingProgress(Math.round(((i + 1) / total) * 100));
     }
-    return undefined;
-  };
 
-  const processAndSubmit = () => {
-    const properties: Omit<Property, 'id'>[] = data.map(row => {
-      const listingName = getValue(row, ['Listing Name', 'ListingName']);
-      const listingType = getValue(row, ['Listing Type', 'ListingType']);
-      const gender = getValue(row, ['Category Type', 'Gender']);
-      const ownerName = getValue(row, ['Owner Name', 'OwnerName']);
-      const ownerPhone = getValue(row, ['Owner Contact Number', 'OwnerWhatsApp']);
-      const wardenName = getValue(row, ['Warden Name', 'WardenName']);
-      const wardenPhone = getValue(row, ['Office Contact Number', 'EmergencyContact']);
-      const email = getValue(row, ['Email ID', 'OwnerEmail']);
-      const area = getValue(row, ['Area']);
-      const address = getValue(row, ['Property Full Address', 'FullAddress']);
-      const location = getValue(row, ['Property Location', 'GoogleMapsPlusCode']);
-      const rentSingle = getValue(row, ['What is the monthly rent? (Single Room Actual Price)', 'Single Room', 'RentSingle']);
-      const rentDouble = getValue(row, ['What is the monthly rent? (Double Room Actual Price)', 'Double Room', 'RentDouble']);
-      const electricity = getValue(row, ['Electricity Unit Charge', 'ElectricityCharges']);
-      const maintenance = getValue(row, ['Maintenance']);
-      const parentsCharge = getValue(row, ['Parents Stay Charge']);
-      const facilitiesRaw = getValue(row, ['INCLUDING RENT', 'Facilities']);
-      
-      const photoMainRaw = getValue(row, ['Hostel Front Photo', 'PhotoMain']);
-      const photoRoomRaw = getValue(row, ['Property Rooms Photos (Single)', 'PhotoRoom']);
-      const photoWashroomRaw = getValue(row, ['Bathroom Photos', 'PhotoWashroom']);
-      
-      const extraPhotosRaw = getValue(row, ['Extra Photos', 'Office Photos', 'Hostel Reception Photo', 'Dining Area']);
-      
-      const distancesUnder750 = getValue(row, ['Institute Nearby Property (Under 750m)']);
-      const distancesAbove750 = getValue(row, ['Institute Nearby Property (Above 750m)']);
-      const mandirMasjid = getValue(row, ['Mandir / Majid / Gurudwara / Church Near by']);
-      const hospital = getValue(row, ['Hospital Name / Km from Hostel']);
-
-      // Combine distances
-      const combinedDistances = [
-        ...(distancesUnder750 ? parseDistanceMatrix(String(distancesUnder750)) : []),
-        ...(distancesAbove750 ? parseDistanceMatrix(String(distancesAbove750)) : []),
-        ...(mandirMasjid ? parseDistanceMatrix(String(mandirMasjid)) : []),
-        ...(hospital ? parseDistanceMatrix(String(hospital)) : [])
-      ];
-
-      // Parse Gallery
-      const gallery = parseMultiLinks(String(extraPhotosRaw || '')).map(url => transformDriveUrl(url)).filter(Boolean) as string[];
-
-      return {
-        ownerId: 'admin-bulk',
-        ListingName: String(listingName || 'Unlabeled Asset'),
-        ListingType: (listingType as ListingType) || ListingType.Hostel,
-        Gender: (gender as Gender) || Gender.Boys,
-        OwnerName: String(ownerName || 'Unknown Host'),
-        OwnerWhatsApp: normalizePhone(String(ownerPhone || '')),
-        WardenName: String(wardenName || 'On-Call Security'),
-        EmergencyContact: normalizePhone(String(wardenPhone || '')),
-        OwnerEmail: String(email || 'contact@erooms.in'),
-        Area: String(area || ''),
-        FullAddress: String(address || ''),
-        GoogleMapsPlusCode: String(location || ''),
-        InstituteDistanceMatrix: combinedDistances,
-        RentSingle: parseRent(rentSingle),
-        RentDouble: parseRent(rentDouble),
-        SecurityTerms: '1 Month Security Deposit',
-        ElectricityCharges: Number(electricity || 0),
-        Maintenance: Number(maintenance || 0),
-        ParentsStayCharge: Number(parentsCharge || 0),
-        Facilities: parseMultiLinks(String(facilitiesRaw || '')),
-        PhotoMain: transformDriveUrl(String(photoMainRaw || '')) || '',
-        PhotoRoom: transformDriveUrl(String(photoRoomRaw || '')) || '',
-        PhotoWashroom: transformDriveUrl(String(photoWashroomRaw || '')) || '',
-        PhotosGallery: gallery,
-        SecurityDeposit: '1 Month Advance',
-        ApprovalStatus: ApprovalStatus.Approved,
-        views: 0,
-        leadsCount: 0,
-        rating: 5
-      };
-    });
-
-    onUpload(properties);
-    setData([]);
+    onUpload(geocodedProperties);
+    setIsUploading(false);
+    setGeocodingProgress(0);
+    setStagingData([]);
     onClose();
   };
+
+  const stats = useMemo(() => {
+    const total = stagingData.length;
+    const withErrors = stagingData.filter(p => validateProperty(p).length > 0).length;
+    return { total, withErrors, valid: total - withErrors };
+  }, [stagingData]);
 
   return (
     <AnimatePresence>
@@ -195,22 +242,40 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="relative bg-white w-full max-w-5xl max-h-[90vh] rounded-[40px] shadow-2xl overflow-hidden flex flex-col"
+            className="relative bg-white w-full max-w-7xl max-h-[95vh] rounded-[40px] shadow-2xl overflow-hidden flex flex-col"
           >
             {/* Header */}
             <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <div>
                 <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Bulk Node Registration</h2>
-                <p className="text-sm font-bold text-slate-400">Upload multiple properties via Excel spreadsheet.</p>
+                <p className="text-sm font-bold text-slate-400">Upload, Review, and Confirm properties.</p>
               </div>
-              <button onClick={onClose} className="p-3 hover:bg-red-50 hover:text-red-500 rounded-2xl transition-all">
-                <X size={24} />
-              </button>
+              <div className="flex items-center gap-4">
+                {stagingData.length > 0 && (
+                  <div className="flex items-center gap-6 px-6 py-3 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                    <div className="text-center">
+                      <p className="text-[10px] font-black text-slate-300 uppercase">Total</p>
+                      <p className="text-lg font-black text-slate-900 leading-none">{stats.total}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-[10px] font-black text-emerald-400 uppercase">Valid</p>
+                      <p className="text-lg font-black text-emerald-600 leading-none">{stats.valid}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-[10px] font-black text-rose-400 uppercase">Issues</p>
+                      <p className="text-lg font-black text-rose-600 leading-none">{stats.withErrors}</p>
+                    </div>
+                  </div>
+                )}
+                <button onClick={onClose} className="p-3 hover:bg-red-50 hover:text-red-500 rounded-2xl transition-all">
+                  <X size={24} />
+                </button>
+              </div>
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-8">
-              {data.length === 0 ? (
+            <div className="flex-1 overflow-hidden p-8 flex flex-col">
+              {stagingData.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center space-y-8 py-12">
                   <div className="w-32 h-32 bg-indigo-50 rounded-[40px] flex items-center justify-center text-indigo-600">
                     <FileSpreadsheet size={64} />
@@ -253,49 +318,146 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
                   )}
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div className="flex flex-col h-full space-y-6">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
                         <CheckCircle2 size={20} />
                       </div>
                       <div>
-                        <p className="text-sm font-black text-slate-900 uppercase">{data.length} Properties Detected</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Review the data before final registration.</p>
+                        <p className="text-sm font-black text-slate-900 uppercase">Staging Area</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Edit rows directly. Red cells indicate critical issues.</p>
                       </div>
                     </div>
                     <button 
-                      onClick={() => setData([])}
+                      onClick={() => setStagingData([])}
                       className="text-red-500 hover:text-red-600 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest"
                     >
                       <Trash2 size={16} /> Clear & Restart
                     </button>
                   </div>
 
-                  <div className="border border-slate-100 rounded-[32px] overflow-hidden flex flex-col max-h-[400px]">
-                    <div className="overflow-y-auto custom-scrollbar">
-                      <table className="w-full text-left border-collapse">
-                        <thead className="bg-slate-50 border-b border-slate-100 sticky top-0 z-10">
+                  <div className="flex-1 border border-slate-100 rounded-[32px] overflow-hidden flex flex-col shadow-inner bg-slate-50/30">
+                    <div className="overflow-auto custom-scrollbar h-full">
+                      <table className="w-full text-left border-collapse min-w-[1200px]">
+                        <thead className="bg-slate-900 border-b border-slate-800 sticky top-0 z-20">
                           <tr className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                            <th className="px-6 py-4 bg-slate-50">#</th>
-                            <th className="px-6 py-4 bg-slate-50">Property Name</th>
-                            <th className="px-6 py-4 bg-slate-50">Type</th>
-                            <th className="px-6 py-4 bg-slate-50">Area</th>
-                            <th className="px-6 py-4 bg-slate-50">Rent (S/D)</th>
-                            <th className="px-6 py-4 bg-slate-50">Owner</th>
+                            <th className="px-6 py-5 sticky left-0 bg-slate-900 z-30">#</th>
+                            <th className="px-6 py-5">Property Name</th>
+                            <th className="px-6 py-5">Type</th>
+                            <th className="px-6 py-5">Area</th>
+                            <th className="px-6 py-5">Rent (S/D)</th>
+                            <th className="px-6 py-5">Phone</th>
+                            <th className="px-6 py-5">Photos</th>
+                            <th className="px-6 py-5">Actions</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50">
-                          {data.map((row, idx) => (
-                            <tr key={idx} className="text-xs font-bold text-slate-600 hover:bg-slate-50/50 transition-colors">
-                              <td className="px-6 py-4 text-slate-300 font-mono">{idx + 1}</td>
-                              <td className="px-6 py-4 text-slate-900">{String(row.ListingName || 'N/A')}</td>
-                              <td className="px-6 py-4 uppercase tracking-tighter">{String(row.ListingType || 'N/A')}</td>
-                              <td className="px-6 py-4">{String(row.Area || 'N/A')}</td>
-                              <td className="px-6 py-4">₹{String(row.RentSingle || 0)} / ₹{String(row.RentDouble || 0)}</td>
-                              <td className="px-6 py-4">{String(row.OwnerName || 'N/A')}</td>
-                            </tr>
-                          ))}
+                        <tbody className="divide-y divide-slate-100 bg-white">
+                          {stagingData.map((row, idx) => {
+                            const errors = validateProperty(row);
+                            const isEditing = editingIndex === idx;
+
+                            return (
+                              <tr key={idx} className={`text-xs font-bold transition-colors ${errors.length > 0 ? 'bg-rose-50/30' : 'hover:bg-slate-50/50'}`}>
+                                <td className="px-6 py-4 text-slate-300 font-mono sticky left-0 bg-white z-10 border-r border-slate-50">{idx + 1}</td>
+                                
+                                <td className={`px-6 py-4 ${!row.ListingName || row.ListingName === 'Unlabeled Asset' ? 'text-rose-500 bg-rose-50/50' : 'text-slate-900'}`}>
+                                  {isEditing ? (
+                                    <input 
+                                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 focus:outline-none focus:border-indigo-500"
+                                      value={row.ListingName}
+                                      onChange={(e) => handleUpdateStaging(idx, { ListingName: e.target.value })}
+                                    />
+                                  ) : row.ListingName}
+                                </td>
+
+                                <td className="px-6 py-4">
+                                  {isEditing ? (
+                                    <select 
+                                      className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 focus:outline-none"
+                                      value={row.ListingType}
+                                      onChange={(e) => handleUpdateStaging(idx, { ListingType: e.target.value as ListingType })}
+                                    >
+                                      {Object.values(ListingType).map(t => <option key={t} value={t}>{t}</option>)}
+                                    </select>
+                                  ) : <span className="uppercase tracking-tighter">{row.ListingType}</span>}
+                                </td>
+
+                                <td className={`px-6 py-4 ${!row.Area ? 'text-rose-500 bg-rose-50/50' : ''}`}>
+                                  {isEditing ? (
+                                    <input 
+                                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 focus:outline-none"
+                                      value={row.Area}
+                                      onChange={(e) => handleUpdateStaging(idx, { Area: e.target.value })}
+                                    />
+                                  ) : row.Area}
+                                </td>
+
+                                <td className={`px-6 py-4 ${row.RentSingle.length === 0 && row.RentDouble.length === 0 ? 'text-rose-500 bg-rose-50/50' : ''}`}>
+                                  {isEditing ? (
+                                    <div className="flex flex-col gap-2">
+                                      <input 
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 focus:outline-none"
+                                        value={row.RentSingle.join(', ')}
+                                        onChange={(e) => handleUpdateStaging(idx, { RentSingle: parseRent(e.target.value) })}
+                                        placeholder="Single Rent (e.g. 12000, 14000)"
+                                      />
+                                      <input 
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 focus:outline-none"
+                                        value={row.RentDouble.join(', ')}
+                                        onChange={(e) => handleUpdateStaging(idx, { RentDouble: parseRent(e.target.value) })}
+                                        placeholder="Double Rent (e.g. 8000, 10000)"
+                                      />
+                                    </div>
+                                  ) : `₹${row.RentSingle.join('/')} / ₹${row.RentDouble.join('/')}`}
+                                </td>
+
+                                <td className={`px-6 py-4 ${row.OwnerWhatsApp.length < 10 ? 'text-rose-500 bg-rose-50/50' : ''}`}>
+                                  {isEditing ? (
+                                    <input 
+                                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 focus:outline-none"
+                                      value={row.OwnerWhatsApp}
+                                      onChange={(e) => handleUpdateStaging(idx, { OwnerWhatsApp: e.target.value })}
+                                    />
+                                  ) : row.OwnerWhatsApp}
+                                </td>
+
+                                <td className="px-6 py-4">
+                                  <div className="flex gap-1">
+                                    <div className={`w-6 h-6 rounded flex items-center justify-center ${row.PhotoMain ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
+                                      <ImageIcon size={12} />
+                                    </div>
+                                    <div className={`w-6 h-6 rounded flex items-center justify-center ${row.PhotoRoom ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
+                                      <ImageIcon size={12} />
+                                    </div>
+                                    <div className={`w-6 h-6 rounded flex items-center justify-center ${row.PhotoWashroom ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
+                                      <ImageIcon size={12} />
+                                    </div>
+                                    <div className="w-6 h-6 rounded bg-slate-100 text-slate-400 flex items-center justify-center text-[8px]">
+                                      +{row.PhotosGallery?.length || 0}
+                                    </div>
+                                  </div>
+                                </td>
+
+                                <td className="px-6 py-4">
+                                  <div className="flex items-center gap-2">
+                                    <button 
+                                      onClick={() => setEditingIndex(isEditing ? null : idx)}
+                                      className={`p-2 rounded-lg transition-all ${isEditing ? 'bg-emerald-500 text-white' : 'hover:bg-slate-100 text-slate-400'}`}
+                                    >
+                                      {isEditing ? <Save size={14} /> : <Edit3 size={14} />}
+                                    </button>
+                                    <button 
+                                      onClick={() => setStagingData(prev => prev.filter((_, i) => i !== idx))}
+                                      className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-500 rounded-lg transition-all"
+                                    >
+                                      <Trash2 size={14} />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
@@ -305,28 +467,42 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
             </div>
 
             {/* Footer */}
-            <div className="p-8 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-4">
-              <button 
-                onClick={onClose}
-                className="px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-100 transition-all"
-              >
-                Cancel
-              </button>
-              <button 
-                disabled={data.length === 0 || isProcessing}
-                onClick={processAndSubmit}
-                className="flex items-center gap-3 bg-slate-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl"
-              >
-                {isProcessing ? (
-                  <>
-                    <Loader2 size={18} className="animate-spin" /> Processing...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 size={18} /> Initialize Bulk Audit
-                  </>
+            <div className="p-8 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                {stats.withErrors > 0 && (
+                  <div className="flex items-center gap-2 text-rose-600 bg-rose-50 px-4 py-2 rounded-xl border border-rose-100">
+                    <AlertTriangle size={16} />
+                    <p className="text-[10px] font-black uppercase tracking-widest">{stats.withErrors} Rows require attention</p>
+                  </div>
                 )}
-              </button>
+              </div>
+              <div className="flex gap-4">
+                <button 
+                  onClick={onClose}
+                  className="px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-100 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  disabled={stagingData.length === 0 || isProcessing || stats.withErrors > 0 || isUploading}
+                  onClick={handleConfirmUpload}
+                  className="flex items-center gap-3 bg-slate-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl"
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" /> Geocoding {geocodingProgress}%
+                    </>
+                  ) : isProcessing ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" /> Processing...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 size={18} /> Confirm & Upload {stagingData.length} Nodes
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </motion.div>
         </div>
