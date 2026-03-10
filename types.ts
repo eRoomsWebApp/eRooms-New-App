@@ -143,6 +143,7 @@ export interface Property {
   RentSingleDetails?: string;
   RentDoubleDetails?: string;
   SecurityTerms: string;
+  ValidationIssues?: string[];
   ElectricityCharges: number; 
   Maintenance: number; 
   ParentsStayCharge: number; 

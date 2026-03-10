@@ -20,6 +20,60 @@ const PropertyDetail: React.FC = () => {
 
   const sortedMatrix = [...property.InstituteDistanceMatrix].sort((a, b) => a.distance - b.distance);
 
+  const renderPriceCard = (label: string, prices: number[] | number, sub: string, highlight: boolean = false) => {
+    const priceArray = Array.isArray(prices) ? prices : [prices];
+    const mainPrice = priceArray[0];
+    const otherPrices = priceArray.slice(1);
+
+    return (
+      <div className={`rounded-[32px] p-8 border transition-all flex flex-col min-h-[200px] relative overflow-hidden group ${
+        highlight 
+          ? 'bg-slate-900 border-slate-900 text-white shadow-2xl shadow-slate-200' 
+          : 'bg-white border-slate-100 text-slate-900 shadow-sm hover:shadow-md'
+      }`}>
+        {highlight && (
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+        )}
+        
+        <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-6 ${highlight ? 'text-white/40' : 'text-slate-400'}`}>
+          {label}
+        </p>
+        
+        <div className="flex-grow flex flex-col justify-center">
+          <div className="flex items-baseline gap-1">
+            <span className={`text-xl font-black ${highlight ? 'text-white/40' : 'text-slate-300'}`}>₹</span>
+            <p className="text-5xl font-black tracking-tighter leading-none">
+              {mainPrice.toLocaleString()}
+            </p>
+          </div>
+          
+          {otherPrices.length > 0 && (
+            <div className="mt-6 space-y-2">
+              <p className={`text-[9px] font-black uppercase tracking-widest ${highlight ? 'text-white/30' : 'text-slate-300'}`}>
+                Other Variants
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {otherPrices.map((p, idx) => (
+                  <span key={idx} className={`text-[11px] font-black px-3 py-1.5 rounded-xl transition-colors ${
+                    highlight 
+                      ? 'bg-white/10 text-white/80 hover:bg-white/20' 
+                      : 'bg-slate-50 text-slate-500 border border-slate-100 hover:bg-slate-100'
+                  }`}>
+                    ₹{p.toLocaleString()}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <p className={`text-[10px] font-black mt-8 uppercase tracking-[0.15em] ${highlight ? 'text-white/30' : 'text-slate-300'}`}>
+          {sub}
+        </p>
+      </div>
+    );
+  };
+
   return (
     <div className="pt-28 pb-20 max-w-7xl mx-auto px-4">
       {/* Header Info */}
@@ -103,19 +157,11 @@ const PropertyDetail: React.FC = () => {
                 <h2 className="text-3xl font-black text-slate-900 tracking-tight">Financial Transparency</h2>
              </div>
              
-             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-               {[
-                 { label: 'Single Occupancy', val: `₹${property.RentSingle.join('/')}`, sub: 'per month' },
-                 { label: 'Double Occupancy', val: `₹${property.RentDouble.join('/')}`, sub: 'per month', highlight: true },
-                 { label: 'Electricity', val: `₹${property.ElectricityCharges}`, sub: 'per unit consumed' },
-                 { label: 'Maintenance', val: `₹${property.Maintenance.toLocaleString()}`, sub: 'one-time fix' }
-               ].map((item, idx) => (
-                 <div key={idx} className={`rounded-[24px] p-6 border transition-all ${item.highlight ? 'bg-indigo-600 border-indigo-600 text-white shadow-xl shadow-indigo-200' : 'bg-white border-slate-100 text-slate-900'}`}>
-                    <p className={`text-[10px] font-black uppercase tracking-widest mb-4 ${item.highlight ? 'text-white/60' : 'text-slate-400'}`}>{item.label}</p>
-                    <p className="text-3xl font-black mb-1">{item.val}</p>
-                    <p className={`text-xs font-bold ${item.highlight ? 'text-white/40' : 'text-slate-300'}`}>{item.sub}</p>
-                 </div>
-               ))}
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+               {renderPriceCard('Single Occupancy', property.RentSingle, 'per month')}
+               {renderPriceCard('Double Occupancy', property.RentDouble, 'per month', true)}
+               {renderPriceCard('Electricity', property.ElectricityCharges, 'per unit consumed')}
+               {renderPriceCard('Maintenance', property.Maintenance, 'one-time fix')}
              </div>
              
              <div className="mt-6 flex flex-col md:flex-row gap-4">

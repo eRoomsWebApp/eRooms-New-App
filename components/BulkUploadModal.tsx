@@ -199,23 +199,25 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
     setIsUploading(true);
     setGeocodingProgress(0);
 
-    const validProperties = stagingData.filter(p => validateProperty(p).length === 0);
-    const total = validProperties.length;
+    const total = stagingData.length;
     
-    // Geocode each property in the background
-    const geocodedProperties = [];
+    // Geocode each property in the background and attach validation issues
+    const processedProperties = [];
     for (let i = 0; i < total; i++) {
-      const p = validProperties[i];
+      const p = stagingData[i];
+      const issues = validateProperty(p);
       const coords = await geocodePlusCode(p.GoogleMapsPlusCode || '');
-      geocodedProperties.push({
+      
+      processedProperties.push({
         ...p,
         lat: coords?.lat,
-        lng: coords?.lng
+        lng: coords?.lng,
+        ValidationIssues: issues.length > 0 ? issues : undefined
       });
       setGeocodingProgress(Math.round(((i + 1) / total) * 100));
     }
 
-    onUpload(geocodedProperties);
+    onUpload(processedProperties);
     setIsUploading(false);
     setGeocodingProgress(0);
     setStagingData([]);
@@ -484,7 +486,7 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
                   Cancel
                 </button>
                 <button 
-                  disabled={stagingData.length === 0 || isProcessing || stats.withErrors > 0 || isUploading}
+                  disabled={stagingData.length === 0 || isProcessing || isUploading}
                   onClick={handleConfirmUpload}
                   className="flex items-center gap-3 bg-slate-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl"
                 >

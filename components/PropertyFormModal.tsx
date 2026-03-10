@@ -37,8 +37,8 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
     Area: initialData?.Area || KOTA_AREAS[0],
     FullAddress: initialData?.FullAddress || '',
     GoogleMapsPlusCode: initialData?.GoogleMapsPlusCode || '',
-    RentSingle: initialData?.RentSingle || 12000,
-    RentDouble: initialData?.RentDouble || 10500,
+    RentSingle: Array.isArray(initialData?.RentSingle) ? initialData.RentSingle : [12000],
+    RentDouble: Array.isArray(initialData?.RentDouble) ? initialData.RentDouble : [10500],
     SecurityTerms: initialData?.SecurityTerms || '1 Month Security Deposit',
     ElectricityCharges: initialData?.ElectricityCharges || 10,
     Maintenance: initialData?.Maintenance || 1000,
@@ -181,6 +181,27 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
 
               <form id="property-form" onSubmit={handleSubmit} className={`space-y-16 ${isSubmitting ? 'opacity-50 pointer-events-none' : ''}`}>
                 
+                  {/* Validation Alerts */}
+                  {initialData?.ValidationIssues && initialData.ValidationIssues.length > 0 && (
+                    <div className="bg-rose-50 border border-rose-100 p-10 rounded-[48px] mb-12">
+                      <div className="flex items-center gap-4 mb-6 text-rose-600">
+                        <ShieldAlert size={28} />
+                        <h4 className="text-xl font-black uppercase tracking-tight">Audit Flags Detected</h4>
+                      </div>
+                      <ul className="space-y-3">
+                        {initialData.ValidationIssues.map((issue, idx) => (
+                          <li key={idx} className="flex items-center gap-3 text-rose-900/70 font-bold text-sm">
+                            <div className="w-1.5 h-1.5 bg-rose-400 rounded-full" />
+                            {issue}
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="mt-8 text-[10px] font-black uppercase tracking-widest text-rose-400">
+                        Please rectify the flagged fields before final verification.
+                      </p>
+                    </div>
+                  )}
+
                 {/* Section 1: Basic Identity */}
                 <section className="space-y-8">
                   <div className="flex items-center gap-4 mb-2">
@@ -190,12 +211,19 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Listing Name</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2 flex justify-between items-center">
+                        Listing Name
+                        {initialData?.ValidationIssues?.some(i => i.toLowerCase().includes('name')) && (
+                          <span className="text-rose-500 flex items-center gap-1"><ShieldAlert size={10} /> Required</span>
+                        )}
+                      </label>
                       <input 
                         required
                         type="text" 
                         placeholder="e.g. Elite Heights"
-                        className="w-full bg-slate-50 border-none rounded-3xl py-5 px-8 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600 transition-all"
+                        className={`w-full bg-slate-50 border-none rounded-3xl py-5 px-8 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600 transition-all ${
+                          initialData?.ValidationIssues?.some(i => i.toLowerCase().includes('name')) ? 'ring-2 ring-rose-200 bg-rose-50/30' : ''
+                        }`}
                         value={formData.ListingName}
                         onChange={e => setFormData({...formData, ListingName: e.target.value})}
                       />
@@ -274,8 +302,11 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                         required
                         type="number" 
                         className="w-full bg-slate-50 border-none rounded-3xl py-5 px-8 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600 transition-all"
-                        value={formData.RentSingle}
-                        onChange={e => setFormData({...formData, RentSingle: parseInt(e.target.value)})}
+                        value={Array.isArray(formData.RentSingle) ? (isNaN(formData.RentSingle[0]) ? '' : formData.RentSingle[0]) : (isNaN(Number(formData.RentSingle)) ? '' : formData.RentSingle)}
+                        onChange={e => {
+                          const val = parseInt(e.target.value);
+                          setFormData({...formData, RentSingle: isNaN(val) ? [] : [val]});
+                        }}
                       />
                     </div>
                     <div className="space-y-3">
@@ -284,8 +315,11 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                         required
                         type="number" 
                         className="w-full bg-slate-50 border-none rounded-3xl py-5 px-8 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600 transition-all"
-                        value={formData.RentDouble}
-                        onChange={e => setFormData({...formData, RentDouble: parseInt(e.target.value)})}
+                        value={Array.isArray(formData.RentDouble) ? (isNaN(formData.RentDouble[0]) ? '' : formData.RentDouble[0]) : (isNaN(Number(formData.RentDouble)) ? '' : formData.RentDouble)}
+                        onChange={e => {
+                          const val = parseInt(e.target.value);
+                          setFormData({...formData, RentDouble: isNaN(val) ? [] : [val]});
+                        }}
                       />
                     </div>
                     <div className="space-y-3">
@@ -294,8 +328,11 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                         required
                         type="number" 
                         className="w-full bg-slate-50 border-none rounded-3xl py-5 px-8 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600 transition-all"
-                        value={formData.ElectricityCharges}
-                        onChange={e => setFormData({...formData, ElectricityCharges: parseInt(e.target.value)})}
+                        value={isNaN(Number(formData.ElectricityCharges)) ? '' : formData.ElectricityCharges}
+                        onChange={e => {
+                          const val = parseInt(e.target.value);
+                          setFormData({...formData, ElectricityCharges: isNaN(val) ? 0 : val});
+                        }}
                       />
                     </div>
                     <div className="space-y-3">
@@ -304,8 +341,11 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                         required
                         type="number" 
                         className="w-full bg-slate-50 border-none rounded-3xl py-5 px-8 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600 transition-all"
-                        value={formData.Maintenance}
-                        onChange={e => setFormData({...formData, Maintenance: parseInt(e.target.value)})}
+                        value={isNaN(Number(formData.Maintenance)) ? '' : formData.Maintenance}
+                        onChange={e => {
+                          const val = parseInt(e.target.value);
+                          setFormData({...formData, Maintenance: isNaN(val) ? 0 : val});
+                        }}
                       />
                     </div>
                   </div>
@@ -317,8 +357,11 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                         required
                         type="number" 
                         className="w-full bg-slate-50 border-none rounded-3xl py-5 px-8 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600 transition-all"
-                        value={formData.ParentsStayCharge}
-                        onChange={e => setFormData({...formData, ParentsStayCharge: parseInt(e.target.value)})}
+                        value={isNaN(Number(formData.ParentsStayCharge)) ? '' : formData.ParentsStayCharge}
+                        onChange={e => {
+                          const val = parseInt(e.target.value);
+                          setFormData({...formData, ParentsStayCharge: isNaN(val) ? 0 : val});
+                        }}
                       />
                     </div>
                     <div className="space-y-3">
@@ -343,9 +386,16 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
 
                   <div className="space-y-6">
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Main Cover Image URL</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2 flex justify-between items-center">
+                        Main Cover Image URL
+                        {initialData?.ValidationIssues?.some(i => i.toLowerCase().includes('photo')) && (
+                          <span className="text-rose-500 flex items-center gap-1"><ShieldAlert size={10} /> Required</span>
+                        )}
+                      </label>
                       <div className="flex gap-4">
-                        <div className="w-24 h-24 rounded-3xl bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-200">
+                        <div className={`w-24 h-24 rounded-3xl bg-slate-100 overflow-hidden flex-shrink-0 border transition-all ${
+                          initialData?.ValidationIssues?.some(i => i.toLowerCase().includes('photo')) ? 'border-rose-200 shadow-lg shadow-rose-50' : 'border-slate-200'
+                        }`}>
                           {formData.PhotoMain ? (
                             <img src={transformDriveUrl(formData.PhotoMain)} className="w-full h-full object-cover" alt="Preview" referrerPolicy="no-referrer" />
                           ) : (
@@ -356,7 +406,9 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                           required
                           type="url" 
                           placeholder="https://images.unsplash.com/..."
-                          className="flex-grow bg-slate-50 border-none rounded-3xl py-5 px-8 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600 transition-all"
+                          className={`flex-grow bg-slate-50 border-none rounded-3xl py-5 px-8 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600 transition-all ${
+                            initialData?.ValidationIssues?.some(i => i.toLowerCase().includes('photo')) ? 'ring-2 ring-rose-200 bg-rose-50/30' : ''
+                          }`}
                           value={formData.PhotoMain}
                           onChange={e => setFormData({...formData, PhotoMain: transformDriveUrl(e.target.value)})}
                         />
@@ -455,8 +507,11 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                               type="number" 
                               step="0.1"
                               className="w-full bg-slate-50 border-none rounded-3xl py-5 px-8 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600 transition-all"
-                              value={item.distance}
-                              onChange={e => handleDistanceChange(index, parseFloat(e.target.value))}
+                              value={isNaN(Number(item.distance)) ? '' : item.distance}
+                              onChange={e => {
+                                const val = parseFloat(e.target.value);
+                                handleDistanceChange(index, isNaN(val) ? 0 : val);
+                              }}
                             />
                             <span className="absolute right-8 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300 uppercase">KM</span>
                           </div>
@@ -498,11 +553,18 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Owner WhatsApp</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2 flex justify-between items-center">
+                        Owner WhatsApp
+                        {initialData?.ValidationIssues?.some(i => i.toLowerCase().includes('phone')) && (
+                          <span className="text-rose-500 flex items-center gap-1"><ShieldAlert size={10} /> Required</span>
+                        )}
+                      </label>
                       <input 
                         required
                         type="text" 
-                        className="w-full bg-slate-50 border-none rounded-3xl py-5 px-8 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600 transition-all"
+                        className={`w-full bg-slate-50 border-none rounded-3xl py-5 px-8 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600 transition-all ${
+                          initialData?.ValidationIssues?.some(i => i.toLowerCase().includes('phone')) ? 'ring-2 ring-rose-200 bg-rose-50/30' : ''
+                        }`}
                         value={formData.OwnerWhatsApp}
                         onChange={e => setFormData({...formData, OwnerWhatsApp: e.target.value})}
                       />

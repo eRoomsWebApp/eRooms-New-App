@@ -15,7 +15,8 @@ import {
   Sparkles, ShieldCheck,
   MousePointer2, Timer, Target, Layers,
   Cpu, Terminal, Command,
-  Edit3, Focus, FileSpreadsheet, TrendingUp
+  Edit3, Focus, FileSpreadsheet, TrendingUp,
+  AlertTriangle, AlertCircle
 } from 'lucide-react';
 import PropertyFormModal from '../components/PropertyFormModal';
 import BulkUploadModal from '../components/BulkUploadModal';
@@ -311,7 +312,14 @@ const AdminDashboard: React.FC = () => {
                               <img src={transformDriveUrl(p.PhotoMain)} className="w-full h-full object-cover" alt="" />
                             </div>
                             <div>
-                              <p className="text-lg font-black text-slate-900 tracking-tight">{p.ListingName}</p>
+                              <p className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                {p.ListingName}
+                                {p.ValidationIssues && p.ValidationIssues.length > 0 && (
+                                  <span className="text-rose-500" title={`${p.ValidationIssues.length} issues found`}>
+                                    <AlertTriangle size={16} />
+                                  </span>
+                                )}
+                              </p>
                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{p.ListingType} • {p.Gender}</p>
                             </div>
                           </div>
@@ -322,12 +330,20 @@ const AdminDashboard: React.FC = () => {
                           <p className="text-[10px] font-black text-slate-300 uppercase mt-1">Base Rental</p>
                         </td>
                         <td className="px-12 py-10">
-                          <span className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest inline-flex items-center gap-3 ${
-                            p.ApprovalStatus === ApprovalStatus.Approved ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
-                          }`}>
-                            <div className={`w-2 h-2 rounded-full ${p.ApprovalStatus === ApprovalStatus.Approved ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`}></div>
-                            {p.ApprovalStatus}
-                          </span>
+                          <div className="flex flex-col gap-2">
+                            <span className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest inline-flex items-center gap-3 ${
+                              p.ApprovalStatus === ApprovalStatus.Approved ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+                            }`}>
+                              <div className={`w-2 h-2 rounded-full ${p.ApprovalStatus === ApprovalStatus.Approved ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`}></div>
+                              {p.ApprovalStatus}
+                            </span>
+                            {p.ValidationIssues && p.ValidationIssues.length > 0 && (
+                              <span className="px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-rose-50 text-rose-700 flex items-center gap-2">
+                                <AlertCircle size={12} />
+                                Issues Detected
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-12 py-10 text-right">
                           <div className="flex items-center justify-end gap-3">
