@@ -47,7 +47,7 @@ const AppContent: React.FC = () => {
   const { isAuthReady, user } = useAuth();
 
   React.useEffect(() => {
-    if (isAuthReady && user?.role === UserRole.Admin) {
+    if (isAuthReady && (user?.role === UserRole.Admin || user?.role === UserRole.SuperAdmin)) {
       migrateLocalStorageToFirestore();
     }
   }, [isAuthReady, user]);

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useProperties } from '../context/PropertyContext';
 import { useAuth } from '../context/AuthContext';
+import { PropertyProfileSkeleton } from '../components/Skeleton';
 import { transformDriveUrl } from '../utils/urlHelper';
 import { Gender } from '../types';
 import { recordPropertyView, saveLead } from '../db';
@@ -157,11 +158,7 @@ const PropertyProfile: React.FC = () => {
     return [...base, ...gallery];
   }, [property]);
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} className="w-12 h-12 border-4 border-slate-900 border-t-transparent rounded-full" />
-    </div>
-  );
+  if (loading) return <PropertyProfileSkeleton />;
 
   if (!property) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
@@ -212,7 +209,13 @@ const PropertyProfile: React.FC = () => {
   };
 
   return (
-    <div className="bg-white min-h-screen pb-40 lg:pb-0 scroll-smooth">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+      className="bg-white min-h-screen pb-40 lg:pb-0 scroll-smooth"
+    >
       {/* Scroll Progress Bar */}
       <motion.div className="fixed top-0 left-0 right-0 h-1 bg-indigo-600 z-[100] origin-left" style={{ scaleX }} />
 
@@ -721,7 +724,7 @@ const PropertyProfile: React.FC = () => {
         )}
       </AnimatePresence>
 
-    </div>
+    </motion.div>
   );
 };
 

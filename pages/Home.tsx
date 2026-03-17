@@ -11,6 +11,7 @@ import { useConfig } from '../context/ConfigContext';
 import { useAuth } from '../context/AuthContext';
 import { Building2, PlusCircle, ArrowRight } from 'lucide-react';
 import { transformDriveUrl } from '../utils/urlHelper';
+import { PropertyCardSkeleton } from '../components/Skeleton';
 
 const Home: React.FC = () => {
   const { filteredProperties, properties, loading, isFiltering, setFilters } = useProperties();
@@ -23,33 +24,52 @@ const Home: React.FC = () => {
       .slice(0, 3);
   }, [properties]);
 
-  if (loading || !config) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <motion.div 
-        animate={{ scale: [1, 1.2, 1], rotate: 360 }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-        className="w-12 h-12 border-4 border-slate-900 border-t-transparent rounded-full"
-      />
-    </div>
-  );
+  if (!config) return null;
 
   return (
-    <div className="pb-20">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="pb-20"
+    >
       {/* Hero Section */}
       <div className="bg-slate-50 pt-20 pb-16 px-4 border-b border-slate-100 relative overflow-hidden">
         <div className="max-w-4xl mx-auto relative z-10 text-center">
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
             className="inline-flex items-center gap-2 bg-white/50 border border-white/80 px-4 py-1.5 rounded-full mb-8 shadow-sm"
           >
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">500+ Properties Live in Kota</span>
           </motion.div>
-          <h1 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 tracking-tighter">{config.tagline}</h1>
-          <p className="text-slate-400 font-bold text-lg mb-12 max-w-xl mx-auto leading-relaxed">{config.heroDescription}</p>
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-4xl md:text-6xl font-black text-slate-900 mb-6 tracking-tighter"
+          >
+            {config.tagline}
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="text-slate-400 font-bold text-lg mb-12 max-w-xl mx-auto leading-relaxed"
+          >
+            {config.heroDescription}
+          </motion.p>
           
-          <SearchBar />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <SearchBar />
+          </motion.div>
         </div>
       </div>
 
@@ -61,13 +81,23 @@ const Home: React.FC = () => {
               <h2 className="text-2xl font-black text-slate-900 tracking-tight">
                 {isFiltering ? 'Matches for your criteria' : 'Discovery Picks'}
               </h2>
-              <span className="bg-slate-900 text-white text-[10px] font-black px-3 py-1 rounded-lg uppercase tracking-widest">
-                {filteredProperties.length} Properties
-              </span>
+              {!loading && (
+                <span className="bg-slate-900 text-white text-[10px] font-black px-3 py-1 rounded-lg uppercase tracking-widest">
+                  {filteredProperties.length} Properties
+                </span>
+              )}
            </div>
            {isFiltering && (
              <button 
-               onClick={() => setFilters({ coaching: 'All', gender: 'All', area: 'All', activePills: [] })}
+               onClick={() => setFilters({ 
+                 coaching: 'All', 
+                 gender: 'All', 
+                 area: 'All', 
+                 activePills: [],
+                 priceRange: [0, 50000],
+                 selectedFacilities: [],
+                 maxDistance: 0
+               })}
                className="text-[11px] font-black uppercase tracking-[0.2em] text-indigo-600 hover:underline"
              >
                Reset Filters
@@ -76,7 +106,11 @@ const Home: React.FC = () => {
         </div>
 
         <AnimatePresence mode="popLayout">
-          {filteredProperties.length > 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+              {[1, 2, 3, 4, 5, 6].map(i => <PropertyCardSkeleton key={i} />)}
+            </div>
+          ) : filteredProperties.length > 0 ? (
             <motion.div 
               layout 
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10"
@@ -110,7 +144,15 @@ const Home: React.FC = () => {
                </div>
 
                <button 
-                 onClick={() => setFilters({ coaching: 'All', gender: 'All', area: 'All', activePills: [] })}
+                 onClick={() => setFilters({ 
+                   coaching: 'All', 
+                   gender: 'All', 
+                   area: 'All', 
+                   activePills: [],
+                   priceRange: [0, 50000],
+                   selectedFacilities: [],
+                   maxDistance: 0
+                 })}
                  className="mt-12 bg-indigo-600 text-white px-8 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all"
                >
                  Clear All Filters
@@ -144,7 +186,7 @@ const Home: React.FC = () => {
            </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -26,6 +26,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
   }
 
   if (requiredRole && user?.role !== requiredRole) {
+    // SuperAdmin can access Admin routes
+    if (user?.role === UserRole.SuperAdmin && requiredRole === UserRole.Admin) {
+      return <>{children}</>;
+    }
+
     // If an owner tries to access /admin, redirect them to their own dashboard
     if (user?.role === UserRole.Owner && requiredRole === UserRole.Admin) {
       return <Navigate to="/owner/dashboard" replace />;

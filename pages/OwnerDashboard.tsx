@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -12,7 +12,8 @@ import { useAuth } from '../context/AuthContext';
 import { useProperties } from '../context/PropertyContext';
 import { ApprovalStatus, Property } from '../types';
 import { transformDriveUrl } from '../utils/urlHelper';
-import { fetchLeads } from '../db';
+import { subscribeToLeads } from '../db';
+import { UserRole, Lead } from '../types';
 import PropertyFormModal from '../components/PropertyFormModal';
 import BulkUploadModal from '../components/BulkUploadModal';
 
@@ -24,24 +25,41 @@ const OwnerDashboard: React.FC = () => {
   const [isBulkUploading, setIsBulkUploading] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   const [activeTab, setActiveTab] = useState<'portfolio' | 'leads'>('portfolio');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const myProperties = useMemo(() => 
     properties.filter(p => p.ownerId === user?.id),
     [properties, user]
   );
 
-  const leads = useMemo(() => {
-    const allLeads = fetchLeads();
-    // Filter leads for properties owned by this user
-    return allLeads.filter(l => myProperties.some(p => p.id === l.propertyId));
-  }, [myProperties]);
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [isLeadsLoading, setIsLeadsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    
+    const unsubscribe = subscribeToLeads(user.id, user.role, (newLeads) => {
+      setLeads(newLeads);
+      setIsLeadsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  const myLeads = useMemo(() => {
+    if (user?.role === UserRole.Admin) return leads;
+    
+    // For owners, filter leads that belong to their properties
+    const propertyIds = new Set(myProperties.map(p => p.id));
+    return leads.filter(l => propertyIds.has(l.propertyId));
+  }, [leads, myProperties, user]);
 
   const portfolioStats = useMemo(() => ({
-    totalRent: myProperties.reduce((acc, p) => acc + p.RentDouble, 0),
-    avgRent: myProperties.length ? Math.round(myProperties.reduce((acc, p) => acc + p.RentDouble, 0) / myProperties.length) : 0,
-    totalLeads: leads.length,
+    totalRent: myProperties.reduce((acc, p) => acc + (Array.isArray(p.RentDouble) ? p.RentDouble[0] : (p.RentDouble || 0)), 0),
+    avgRent: myProperties.length ? Math.round(myProperties.reduce((acc, p) => acc + (Array.isArray(p.RentDouble) ? p.RentDouble[0] : (p.RentDouble || 0)), 0) / myProperties.length) : 0,
+    totalLeads: myLeads.length,
     totalViews: myProperties.reduce((acc, p) => acc + (p.views || 0), 0)
-  }), [myProperties, leads]);
+  }), [myProperties, myLeads]);
 
   if (!user) return null;
 
@@ -195,7 +213,7 @@ const OwnerDashboard: React.FC = () => {
                                   <Edit3 size={14} /> Edit Details
                                 </button>
                                 <button 
-                                  onClick={() => deleteProperty(p.id)} 
+                                  onClick={() => setDeletingId(p.id)} 
                                   className="p-3 bg-red-50 text-red-400 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm"
                                   title="Delete Property"
                                 >
@@ -270,10 +288,10 @@ const OwnerDashboard: React.FC = () => {
           <div className="space-y-12">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               {[
-                { label: 'New Leads', val: leads.filter(l => l.status === 'New').length, icon: AlertTriangle, color: 'text-amber-600' },
-                { label: 'WhatsApp', val: leads.filter(l => l.type === 'WhatsApp').length, icon: MessageCircle, color: 'text-emerald-600' },
-                { label: 'Call Logs', val: leads.filter(l => l.type === 'Call').length, icon: Phone, color: 'text-blue-600' },
-                { label: 'Visit Requests', val: leads.filter(l => l.type === 'VisitRequest').length, icon: Calendar, color: 'text-indigo-600' },
+                { label: 'New Leads', val: myLeads.filter(l => l.status === 'New').length, icon: AlertTriangle, color: 'text-amber-600' },
+                { label: 'WhatsApp', val: myLeads.filter(l => l.type === 'WhatsApp').length, icon: MessageCircle, color: 'text-emerald-600' },
+                { label: 'Call Logs', val: myLeads.filter(l => l.type === 'Call').length, icon: Phone, color: 'text-blue-600' },
+                { label: 'Visit Requests', val: myLeads.filter(l => l.type === 'VisitRequest').length, icon: Calendar, color: 'text-indigo-600' },
               ].map((s, i) => (
                 <div key={i} className="bg-white border border-slate-100 p-8 rounded-[40px] shadow-sm">
                    <s.icon size={20} className={`${s.color} mb-4`} />
@@ -296,7 +314,14 @@ const OwnerDashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
-                    {leads.map(lead => (
+                    {isLeadsLoading ? (
+                      <tr>
+                        <td colSpan={5} className="px-12 py-32 text-center">
+                          <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+                          <p className="text-slate-300 font-black uppercase tracking-[0.4em] text-xs">Synchronizing Leads...</p>
+                        </td>
+                      </tr>
+                    ) : myLeads.map(lead => (
                       <tr key={lead.id} className="hover:bg-slate-50/40 transition-colors group">
                         <td className="px-12 py-10">
                           <div className="flex items-center gap-4">
@@ -327,13 +352,18 @@ const OwnerDashboard: React.FC = () => {
                           {new Date(lead.timestamp).toLocaleDateString()}
                         </td>
                         <td className="px-12 py-10 text-right">
-                          <button className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all">
-                            Mark Contacted
-                          </button>
+                          <a 
+                            href={`https://wa.me/91${lead.studentPhone.replace(/\D/g, '')}?text=Hi ${lead.studentName}, I'm the owner of ${lead.propertyName}. You inquired about it on erooms.in.`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all inline-block"
+                          >
+                            Contact
+                          </a>
                         </td>
                       </tr>
                     ))}
-                    {leads.length === 0 && (
+                    {!isLeadsLoading && myLeads.length === 0 && (
                       <tr>
                         <td colSpan={5} className="px-12 py-32 text-center">
                           <MessageCircle size={60} className="mx-auto text-slate-100 mb-6" />
@@ -370,6 +400,50 @@ const OwnerDashboard: React.FC = () => {
         ownerEmail={user.email}
         ownerPhone={user.phone}
       />
+
+      {/* Deletion Confirmation Modal */}
+      <AnimatePresence>
+        {deletingId && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setDeletingId(null)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="relative bg-white p-12 rounded-[48px] shadow-2xl max-w-md w-full text-center"
+            >
+              <div className="w-20 h-20 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-8">
+                <Trash2 size={32} />
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-4">Decommission Asset?</h3>
+              <p className="text-slate-400 font-bold mb-10 leading-relaxed">
+                This action will permanently remove the property node from the Kota cluster. This cannot be undone.
+              </p>
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setDeletingId(null)}
+                  className="flex-1 py-5 bg-slate-50 text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={async () => {
+                    if (deletingId) {
+                      await deleteProperty(deletingId);
+                      setDeletingId(null);
+                    }
+                  }}
+                  className="flex-1 py-5 bg-red-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-100"
+                >
+                  Confirm Delete
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

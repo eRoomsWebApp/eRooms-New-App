@@ -6,7 +6,7 @@ import {
   signOut 
 } from 'firebase/auth';
 import { auth, googleProvider, db } from '../firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { User, UserRole, UserStatus, SavedSearch } from '../types';
 
 interface AuthContextType {
@@ -19,6 +19,7 @@ interface AuthContextType {
   toggleShortlist: (propertyId: string) => Promise<void>;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
   isOwner: boolean;
   isStudent: boolean;
   isAuthReady: boolean;
@@ -31,27 +32,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isAuthReady, setIsAuthReady] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        // Fetch user profile from Firestore
-        const userRef = doc(db, 'users', firebaseUser.uid);
-        const userSnap = await getDoc(userRef);
+    let unsubscribeUser: (() => void) | undefined;
 
-        if (userSnap.exists()) {
-          setUser(userSnap.data() as User);
-        } else {
-          // User exists in Auth but not in Firestore
-          // This might happen if they closed the tab during the first sign-in
-          // We'll leave them as null for now, the sign-in flow should handle creation
-          setUser(null);
-        }
+    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // Subscribe to user profile from Firestore for real-time sync
+        const userRef = doc(db, 'users', firebaseUser.uid);
+        unsubscribeUser = onSnapshot(userRef, (doc) => {
+          if (doc.exists()) {
+            setUser(doc.data() as User);
+          } else {
+            setUser(null);
+          }
+          setIsAuthReady(true);
+        }, (error) => {
+          console.error("Error syncing user profile:", error);
+          setIsAuthReady(true);
+        });
       } else {
+        if (unsubscribeUser) unsubscribeUser();
         setUser(null);
+        setIsAuthReady(true);
       }
-      setIsAuthReady(true);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeUser) unsubscribeUser();
+    };
   }, []);
 
   const signInWithGoogle = async (preferredRole: UserRole = UserRole.Student) => {
@@ -85,10 +93,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateUserRole = async (role: UserRole) => {
     if (!user) return;
-    const updatedUser = { ...user, role };
     const userRef = doc(db, 'users', user.id);
-    await setDoc(userRef, updatedUser);
-    setUser(updatedUser);
+    await setDoc(userRef, { role }, { merge: true });
   };
 
   const logout = async () => {
@@ -109,27 +115,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       timestamp: new Date().toISOString()
     };
 
-    const updatedUser: User = {
-      ...user,
-      savedSearches: [...(user.savedSearches || []), newSearch]
-    };
-
     const userRef = doc(db, 'users', user.id);
-    await setDoc(userRef, updatedUser);
-    setUser(updatedUser);
+    await setDoc(userRef, { 
+      savedSearches: [...(user.savedSearches || []), newSearch] 
+    }, { merge: true });
   };
 
   const removeSavedSearch = async (searchId: string) => {
     if (!user) return;
 
-    const updatedUser: User = {
-      ...user,
-      savedSearches: (user.savedSearches || []).filter(s => s.id !== searchId)
-    };
-
     const userRef = doc(db, 'users', user.id);
-    await setDoc(userRef, updatedUser);
-    setUser(updatedUser);
+    await setDoc(userRef, { 
+      savedSearches: (user.savedSearches || []).filter(s => s.id !== searchId)
+    }, { merge: true });
   };
 
   const toggleShortlist = async (propertyId: string) => {
@@ -142,14 +140,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       ? shortlist.filter(id => id !== propertyId)
       : [...shortlist, propertyId];
 
-    const updatedUser: User = {
-      ...user,
-      shortlist: updatedShortlist
-    };
-
     const userRef = doc(db, 'users', user.id);
-    await setDoc(userRef, updatedUser);
-    setUser(updatedUser);
+    // We only update Firestore, the onSnapshot will update the local state
+    await setDoc(userRef, { shortlist: updatedShortlist }, { merge: true });
   };
 
   return (
@@ -162,7 +155,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       removeSavedSearch,
       toggleShortlist,
       isAuthenticated: !!user,
-      isAdmin: user?.role === UserRole.Admin,
+      isAdmin: user?.role === UserRole.Admin || user?.role === UserRole.SuperAdmin,
+      isSuperAdmin: user?.role === UserRole.SuperAdmin,
       isOwner: user?.role === UserRole.Owner,
       isStudent: user?.role === UserRole.Student,
       isAuthReady

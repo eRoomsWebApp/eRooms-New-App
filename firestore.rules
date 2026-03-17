@@ -54,7 +54,13 @@ service cloud.firestore {
 
     function isAdmin() {
       return isAuthenticated() &&
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'super_admin'] ||
+          (request.auth.token.email == "kajay5788@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super_admin' ||
           (request.auth.token.email == "kajay5788@gmail.com" && request.auth.token.email_verified == true));
     }
 
@@ -78,7 +84,7 @@ service cloud.firestore {
       return data.keys().hasAll(['id', 'email', 'role']) &&
              data.id == request.auth.uid &&
              isValidEmail(data.email) &&
-             data.role in ['admin', 'owner', 'student'] &&
+             data.role in ['super_admin', 'admin', 'owner', 'student'] &&
              (!('status' in data) || data.status in ['Active', 'Suspended', 'Flagged']) &&
              (!('joinedAt' in data) || isValidDateString(data.joinedAt));
     }
@@ -115,7 +121,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
       allow create: if isOwner(userId) && isValidUser(request.resource.data) && 
-                      (request.resource.data.role != 'admin' || isAdmin());
+                      (request.resource.data.role in ['owner', 'student'] || isAdmin());
       allow update: if (isOwner(userId) && isValidUser(request.resource.data) && 
                         request.resource.data.role == resource.data.role) || isAdmin();
     }

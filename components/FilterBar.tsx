@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useProperties } from '../context/PropertyContext';
 import { useAuth } from '../context/AuthContext';
-import { BookmarkPlus, Check } from 'lucide-react';
+import { BookmarkPlus, Check, SlidersHorizontal } from 'lucide-react';
+import AdvancedFilters from './AdvancedFilters';
 
 const PILLS = [
   { id: 'Luxury', label: '💎 Luxury Hostels', sub: 'Price > 15k' },
@@ -20,6 +21,7 @@ const FilterBar: React.FC = () => {
   const { filters, setFilters, isFiltering } = useProperties();
   const { isStudent, saveSearch } = useAuth();
   const [isSavedLocally, setIsSavedLocally] = useState(false);
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
   const togglePill = (id: string) => {
     setIsSavedLocally(false);
@@ -45,6 +47,19 @@ const FilterBar: React.FC = () => {
       <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-4 -mx-4 px-4 scroll-smooth">
         <div className="flex items-center gap-2">
            <span className="text-[10px] font-black uppercase text-slate-300 tracking-[0.2em] whitespace-nowrap mr-2">Quick Filters:</span>
+           
+           <button 
+             onClick={() => setIsAdvancedOpen(true)}
+             className={`flex items-center gap-2 px-6 py-3.5 rounded-[18px] text-[12px] font-black uppercase tracking-widest transition-all border shadow-lg ${
+               isFiltering 
+               ? 'bg-indigo-600 border-indigo-600 text-white hover:bg-indigo-700' 
+               : 'bg-white border-slate-100 text-slate-600 hover:border-slate-300'
+             }`}
+           >
+             <SlidersHorizontal size={16} />
+             Filters
+           </button>
+
            {isFiltering && isStudent && (
              <motion.button
                initial={{ opacity: 0, scale: 0.9 }}
@@ -89,7 +104,15 @@ const FilterBar: React.FC = () => {
         {isFiltering && (
           <button 
             onClick={() => {
-              setFilters({ coaching: 'All', gender: 'All', area: 'All', activePills: [] });
+              setFilters({ 
+                coaching: 'All', 
+                gender: 'All', 
+                area: 'All', 
+                activePills: [],
+                priceRange: [0, 50000],
+                selectedFacilities: [],
+                maxDistance: 0
+              });
               setIsSavedLocally(false);
             }}
             className="text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-800 transition-colors px-4 py-2"
@@ -98,6 +121,11 @@ const FilterBar: React.FC = () => {
           </button>
         )}
       </div>
+
+      <AdvancedFilters 
+        isOpen={isAdvancedOpen} 
+        onClose={() => setIsAdvancedOpen(false)} 
+      />
     </div>
   );
 };

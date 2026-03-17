@@ -33,7 +33,7 @@ const Navbar: React.FC = () => {
 
   const getDashboardPath = () => {
     if (!user) return '/login';
-    if (user.role === UserRole.Admin) return '/admin/dashboard';
+    if (user.role === UserRole.Admin || user.role === UserRole.SuperAdmin) return '/admin/dashboard';
     if (user.role === UserRole.Owner) return '/owner/dashboard';
     if (user.role === UserRole.Student) return '/student/dashboard';
     return '/';
@@ -41,7 +41,7 @@ const Navbar: React.FC = () => {
 
   const getListPropertyPath = () => {
     if (!isAuthenticated) return '/login';
-    if (user?.role === UserRole.Admin) return '/admin/dashboard?action=add';
+    if (user?.role === UserRole.Admin || user?.role === UserRole.SuperAdmin) return '/admin/dashboard?action=add';
     if (user?.role === UserRole.Owner) return '/owner/dashboard?action=add';
     return '/owner/dashboard'; // Fallback
   };

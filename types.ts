@@ -41,6 +41,7 @@ export interface Review {
 }
 
 export enum UserRole {
+  SuperAdmin = 'super_admin',
   Admin = 'admin',
   Owner = 'owner',
   Student = 'student'

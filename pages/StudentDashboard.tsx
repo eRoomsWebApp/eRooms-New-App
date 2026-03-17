@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useProperties } from '../context/PropertyContext';
@@ -9,15 +9,29 @@ import {
   Sparkles, Timer, Focus, ChevronRight,
   Activity, Bookmark, Trash2, ArrowUpRight,
   ShieldCheck, Cpu, Fingerprint,
-  Zap, BarChart3, Target
+  Zap, BarChart3, Target, MessageCircle, Phone, Calendar
 } from 'lucide-react';
-import { UserRole, SavedSearch } from '../types';
+import { UserRole, SavedSearch, Lead } from '../types';
+import { subscribeToLeads } from '../db';
 
 const StudentDashboard: React.FC = () => {
   const { user, removeSavedSearch } = useAuth();
   const { properties, setFilters } = useProperties();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'dossier' | 'searches' | 'insights' | 'activity'>('dossier');
+  const [activeTab, setActiveTab] = useState<'dossier' | 'searches' | 'leads' | 'insights' | 'activity'>('dossier');
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [isLeadsLoading, setIsLeadsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    
+    const unsubscribe = subscribeToLeads(user.id, user.role, (newLeads) => {
+      setLeads(newLeads);
+      setIsLeadsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
 
   // Behavioral metrics from user object with intelligent defaults
   const metrics = useMemo(() => user?.behavioralMetrics || {
@@ -98,6 +112,7 @@ const StudentDashboard: React.FC = () => {
              {[
                { id: 'dossier', label: 'Identity Hub', icon: ShieldCheck },
                { id: 'searches', label: 'Saved Signals', icon: Bookmark },
+               { id: 'leads', label: 'My Inquiries', icon: Zap },
                { id: 'insights', label: 'Intelligence', icon: BarChart3 },
                { id: 'activity', label: 'Audit Trail', icon: Activity },
              ].map(tab => (
@@ -196,6 +211,72 @@ const StudentDashboard: React.FC = () => {
                              <h3 className="text-2xl font-black text-slate-900 mb-2 uppercase tracking-tighter">No Active Signals</h3>
                              <p className="text-slate-400 font-bold max-w-sm mx-auto leading-relaxed">Use the filter grid on the discovery hub to save your preferred configurations.</p>
                              <button onClick={() => navigate('/')} className="mt-10 px-12 py-5 bg-slate-900 text-white rounded-[24px] font-black text-[11px] uppercase tracking-widest shadow-2xl hover:bg-indigo-600 transition-all">Go Explore</button>
+                          </div>
+                        )}
+                     </div>
+                  </motion.div>
+                )}
+
+                 {activeTab === 'leads' && (
+                  <motion.div key="leads" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                     <div className="flex justify-between items-end mb-16">
+                        <div>
+                           <h2 className="text-4xl font-black text-slate-900 tracking-tighter uppercase mb-2">My Inquiries</h2>
+                           <p className="text-slate-400 font-bold text-sm">Active signals transmitted to property hosts.</p>
+                        </div>
+                     </div>
+
+                     <div className="space-y-8">
+                        {isLeadsLoading ? (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {[...Array(4)].map((_, i) => (
+                              <div key={i} className="bg-white border border-slate-100 p-10 rounded-[48px] animate-pulse">
+                                <div className="flex items-center gap-4 mb-8">
+                                  <div className="w-14 h-14 bg-slate-50 rounded-[22px]" />
+                                  <div className="flex-1 space-y-2">
+                                    <div className="h-5 bg-slate-50 rounded w-3/4" />
+                                    <div className="h-3 bg-slate-50 rounded w-1/4" />
+                                  </div>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <div className="h-3 bg-slate-50 rounded w-20" />
+                                  <div className="h-8 bg-slate-50 rounded-xl w-24" />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : leads.length === 0 ? (
+                          <div className="py-32 text-center bg-slate-50 rounded-[48px] border border-dashed border-slate-200">
+                             <Zap size={60} className="mx-auto text-slate-200 mb-8" />
+                             <h3 className="text-2xl font-black text-slate-900 mb-2 uppercase tracking-tighter">No Active Signals</h3>
+                             <p className="text-slate-400 font-bold max-w-sm mx-auto leading-relaxed">You haven't initiated any inquiries yet. Explore properties to start transmitting signals.</p>
+                             <button onClick={() => navigate('/')} className="mt-10 px-12 py-5 bg-slate-900 text-white rounded-[24px] font-black text-[11px] uppercase tracking-widest shadow-2xl hover:bg-indigo-600 transition-all">Go Explore</button>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {leads.map((lead) => (
+                              <div key={lead.id} className="bg-white border border-slate-100 p-10 rounded-[48px] shadow-sm hover:shadow-xl transition-all group relative overflow-hidden">
+                                 <div className="flex items-center gap-4 mb-8">
+                                    <div className="w-14 h-14 bg-indigo-50 rounded-[22px] flex items-center justify-center text-indigo-600">
+                                       {lead.type === 'WhatsApp' && <MessageCircle size={24} />}
+                                       {lead.type === 'Call' && <Phone size={24} />}
+                                       {lead.type === 'VisitRequest' && <Calendar size={24} />}
+                                    </div>
+                                    <div>
+                                       <h4 className="text-xl font-black text-slate-900 leading-tight">{lead.propertyName}</h4>
+                                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{lead.type} Inquiry</p>
+                                    </div>
+                                 </div>
+                                 <div className="flex justify-between items-center">
+                                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                                       {new Date(lead.timestamp).toLocaleDateString()}
+                                    </span>
+                                    <span className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-[9px] font-black uppercase tracking-widest">
+                                       Transmitted
+                                    </span>
+                                 </div>
+                              </div>
+                            ))}
                           </div>
                         )}
                      </div>

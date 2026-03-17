@@ -9,7 +9,8 @@ import {
   query, 
   where, 
   orderBy,
-  getDocFromServer
+  getDocFromServer,
+  onSnapshot
 } from 'firebase/firestore';
 import { db, auth } from './firebase';
 import { Property, ApprovalStatus, User, UserRole, UserStatus, AppConfig, Lead } from './types';
@@ -132,8 +133,6 @@ export const fetchLeads = async (userId: string, role: string): Promise<Lead[]> 
     if (role === 'admin') {
       q = query(collection(db, path), orderBy('timestamp', 'desc'));
     } else if (role === 'owner') {
-      // Owners see leads for their properties. This requires a more complex query or multiple fetches.
-      // For simplicity in this step, we'll fetch all and filter, but in production, we'd use a better schema.
       q = query(collection(db, path), orderBy('timestamp', 'desc'));
     } else {
       q = query(collection(db, path), where('studentId', '==', userId), orderBy('timestamp', 'desc'));
@@ -144,6 +143,25 @@ export const fetchLeads = async (userId: string, role: string): Promise<Lead[]> 
     handleFirestoreError(error, OperationType.LIST, path);
     return [];
   }
+};
+
+export const subscribeToLeads = (userId: string, role: string, callback: (leads: Lead[]) => void) => {
+  const path = 'leads';
+  let q;
+  if (role === UserRole.Admin || role === UserRole.SuperAdmin) {
+    q = query(collection(db, path), orderBy('timestamp', 'desc'));
+  } else if (role === UserRole.Owner) {
+    q = query(collection(db, path), orderBy('timestamp', 'desc'));
+  } else {
+    q = query(collection(db, path), where('studentId', '==', userId), orderBy('timestamp', 'desc'));
+  }
+
+  return onSnapshot(q, (snapshot) => {
+    const leads = snapshot.docs.map(doc => doc.data() as Lead);
+    callback(leads);
+  }, (error) => {
+    handleFirestoreError(error, OperationType.LIST, path);
+  });
 };
 
 export const saveLead = async (lead: Partial<Lead> & Omit<Lead, 'propertyId' | 'studentId' | 'propertyName' | 'studentName' | 'studentPhone' | 'type'>) => {
@@ -165,11 +183,27 @@ export const saveLead = async (lead: Partial<Lead> & Omit<Lead, 'propertyId' | '
       const currentLeads = propSnap.data().leadsCount || 0;
       await updateDoc(doc(db, propPath), { leadsCount: currentLeads + 1 });
     }
+
+    await saveActivityLog({
+      action: 'Inquiry Captured',
+      importance: 'medium',
+      target: lead.propertyName,
+      metadata: { student: lead.studentName, type: lead.type }
+    });
     
     return newLead;
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, path);
     throw error;
+  }
+};
+
+export const updateLead = async (leadId: string, updates: Partial<Lead>) => {
+  const path = `leads/${leadId}`;
+  try {
+    await updateDoc(doc(db, 'leads', leadId), updates);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.UPDATE, path);
   }
 };
 
@@ -213,7 +247,14 @@ export const fetchAllProperties = async (): Promise<Property[]> => {
 export const saveProperty = async (property: Property) => {
   const path = `properties/${property.id}`;
   try {
+    const isNew = !(await getDoc(doc(db, 'properties', property.id))).exists();
     await setDoc(doc(db, 'properties', property.id), property);
+    await saveActivityLog({
+      action: isNew ? 'Property Registered' : 'Property Updated',
+      importance: isNew ? 'medium' : 'low',
+      target: property.ListingName,
+      metadata: { id: property.id, area: property.Area }
+    });
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, path);
   }
@@ -222,13 +263,55 @@ export const saveProperty = async (property: Property) => {
 export const deleteProperty = async (id: string) => {
   const path = `properties/${id}`;
   try {
-    // In Firestore we'd use deleteDoc, but for now we'll just mark as deleted or actually delete
-    // For this app, let's actually delete
+    const propSnap = await getDoc(doc(db, 'properties', id));
+    const propName = propSnap.exists() ? propSnap.data().ListingName : id;
     const { deleteDoc } = await import('firebase/firestore');
     await deleteDoc(doc(db, 'properties', id));
+    await saveActivityLog({
+      action: 'Property Decommissioned',
+      importance: 'high',
+      target: propName,
+      metadata: { id }
+    });
   } catch (error) {
     handleFirestoreError(error, OperationType.DELETE, path);
   }
+};
+
+export const subscribeToProperties = (
+  userId: string | undefined,
+  role: UserRole | undefined,
+  callback: (properties: Property[]) => void
+) => {
+  const path = 'properties';
+  let q;
+
+  if (role === UserRole.Admin || role === UserRole.SuperAdmin) {
+    // Admin sees everything
+    q = query(collection(db, path), orderBy('ListingName', 'asc'));
+  } else if (role === UserRole.Owner && userId) {
+    // Owner sees their own properties + all approved properties (for context/comparison if needed, but usually just their own for management)
+    // Actually, for the PropertyContext, we want to see ALL approved properties for the public view, 
+    // AND the owner's own properties (even if pending) for the dashboard.
+    // So we might need to fetch all approved OR owned by me.
+    // Firestore doesn't support OR across different fields easily without multiple queries or in-memory filtering.
+    // Let's just fetch all approved properties for everyone, and if owner, also fetch their own.
+    // Or simpler: fetch all properties if admin/owner, and filter in context.
+    // But for performance, let's just fetch all approved for now, and if owner, we'll need their pending ones too.
+    
+    // For now, let's fetch all properties for Admins and Owners, and only Approved for Students.
+    q = query(collection(db, path), orderBy('ListingName', 'asc'));
+  } else {
+    // Students/Guests see only approved
+    q = query(collection(db, path), where('ApprovalStatus', '==', ApprovalStatus.Approved), orderBy('ListingName', 'asc'));
+  }
+
+  return onSnapshot(q, (snapshot) => {
+    const properties = snapshot.docs.map(doc => doc.data() as Property);
+    callback(properties);
+  }, (error) => {
+    handleFirestoreError(error, OperationType.LIST, path);
+  });
 };
 
 export const bulkSaveProperties = async (properties: Property[]) => {
@@ -241,6 +324,12 @@ export const bulkSaveProperties = async (properties: Property[]) => {
   });
   try {
     await batch.commit();
+    await saveActivityLog({
+      action: 'Bulk Asset Import',
+      importance: 'high',
+      target: 'System',
+      metadata: { count: properties.length }
+    });
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, 'properties/bulk');
   }
@@ -262,6 +351,75 @@ export const saveUser = async (user: User) => {
   const path = `users/${user.id}`;
   try {
     await setDoc(doc(db, 'users', user.id), user);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, path);
+  }
+};
+
+export const updateUser = async (userId: string, updates: Partial<User>) => {
+  const path = `users/${userId}`;
+  try {
+    const userSnap = await getDoc(doc(db, 'users', userId));
+    const username = userSnap.exists() ? userSnap.data().username : userId;
+    await updateDoc(doc(db, 'users', userId), updates);
+    await saveActivityLog({
+      action: 'Node Protocol Updated',
+      importance: 'medium',
+      target: username,
+      metadata: { id: userId, updates: Object.keys(updates).join(', ') }
+    });
+  } catch (error) {
+    handleFirestoreError(error, OperationType.UPDATE, path);
+  }
+};
+
+export const subscribeToUsers = (callback: (users: User[]) => void) => {
+  const path = 'users';
+  const q = query(collection(db, path), orderBy('username', 'asc'));
+
+  return onSnapshot(q, (snapshot) => {
+    const users = snapshot.docs.map(doc => doc.data() as User);
+    callback(users);
+  }, (error) => {
+    handleFirestoreError(error, OperationType.LIST, path);
+  });
+};
+
+// --- ACTIVITY LOGS ---
+export const fetchActivityLogs = async (): Promise<ActivityLog[]> => {
+  const path = 'activity_logs';
+  try {
+    const q = query(collection(db, path), orderBy('timestamp', 'desc'));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => doc.data() as ActivityLog);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.LIST, path);
+    return [];
+  }
+};
+
+export const subscribeToActivityLogs = (callback: (logs: ActivityLog[]) => void) => {
+  const path = 'activity_logs';
+  const q = query(collection(db, path), orderBy('timestamp', 'desc'));
+
+  return onSnapshot(q, (snapshot) => {
+    const logs = snapshot.docs.map(doc => doc.data() as ActivityLog);
+    callback(logs);
+  }, (error) => {
+    handleFirestoreError(error, OperationType.LIST, path);
+  });
+};
+
+export const saveActivityLog = async (log: Omit<ActivityLog, 'id' | 'timestamp'>) => {
+  const path = 'activity_logs';
+  const id = `log-${Date.now()}`;
+  const newLog: ActivityLog = {
+    ...log,
+    id,
+    timestamp: new Date().toISOString()
+  };
+  try {
+    await setDoc(doc(db, path, id), newLog);
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, path);
   }
