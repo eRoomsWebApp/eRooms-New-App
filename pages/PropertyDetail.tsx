@@ -43,7 +43,7 @@ const PropertyDetail: React.FC = () => {
           <div className="flex items-baseline gap-1">
             <span className={`text-xl font-black ${highlight ? 'text-white/40' : 'text-slate-300'}`}>₹</span>
             <p className="text-5xl font-black tracking-tighter leading-none">
-              {mainPrice.toLocaleString()}
+              {(mainPrice || 0).toLocaleString()}
             </p>
           </div>
           
@@ -59,7 +59,7 @@ const PropertyDetail: React.FC = () => {
                       ? 'bg-white/10 text-white/80 hover:bg-white/20' 
                       : 'bg-slate-50 text-slate-500 border border-slate-100 hover:bg-slate-100'
                   }`}>
-                    ₹{p.toLocaleString()}
+                    ₹{(p || 0).toLocaleString()}
                   </span>
                 ))}
               </div>

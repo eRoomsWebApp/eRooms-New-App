@@ -39,8 +39,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   const nearest = property.InstituteDistanceMatrix[0];
   const minsWalk = nearest ? Math.ceil((nearest.distance / 1000) * 12) : null;
 
-  const minRent = Math.min(...(property.RentDouble || [0]));
-  const hasMultiplePrices = property.RentDouble.length > 1;
+  const minRent = property.RentDouble && property.RentDouble.length > 0 
+    ? Math.min(...property.RentDouble) 
+    : 0;
+  const hasMultiplePrices = property.RentDouble && property.RentDouble.length > 1;
 
   return (
     <motion.div 

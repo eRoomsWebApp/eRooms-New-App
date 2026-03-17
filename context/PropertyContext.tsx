@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 import { Property, ApprovalStatus, Gender } from '../types';
-import { fetchProperties, syncProperties } from '../db';
+import { fetchProperties, saveProperty, deleteProperty, bulkSaveProperties } from '../db';
 import { INSTITUTES } from '../constants';
 import { generatePropertyKey } from '../utils/normalization';
 
@@ -19,12 +19,12 @@ interface PropertyContextType {
   loading: boolean;
   filters: Filters;
   setFilters: React.Dispatch<React.SetStateAction<Filters>>;
-  addProperty: (property: Property) => void;
-  bulkAddProperties: (properties: Property[]) => void;
-  updateProperty: (id: string, property: Property) => void;
-  deleteProperty: (id: string) => void;
-  approveProperty: (id: string) => void;
-  bulkUpdatePrices: (area: string, amount: number) => void;
+  addProperty: (property: Property) => Promise<void>;
+  bulkAddProperties: (properties: Property[]) => Promise<void>;
+  updateProperty: (id: string, property: Property) => Promise<void>;
+  deleteProperty: (id: string) => Promise<void>;
+  approveProperty: (id: string) => Promise<void>;
+  bulkUpdatePrices: (area: string, amount: number) => Promise<void>;
 }
 
 const PropertyContext = createContext<PropertyContextType | undefined>(undefined);
@@ -87,17 +87,18 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }
     Facilities: Array.isArray(p.Facilities) ? p.Facilities : []
   });
 
-  const addProperty = (property: Property) => {
+  const addProperty = async (property: Property) => {
     const normalized = normalize(property);
     const newList = [...properties, normalized];
     setProperties(newList);
-    syncProperties(newList);
+    await saveProperty(normalized);
   };
 
-  const bulkAddProperties = (newProps: Property[]) => {
+  const bulkAddProperties = async (newProps: Property[]) => {
     const normalizedProps = newProps.map(normalize);
     
     const newList = [...properties];
+    const toSave: Property[] = [];
     
     normalizedProps.forEach(incoming => {
       const incomingKey = generatePropertyKey(incoming.OwnerWhatsApp, incoming.ListingName);
@@ -107,51 +108,61 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }
       
       if (existingIndex >= 0) {
         // Update existing record
-        newList[existingIndex] = { ...newList[existingIndex], ...incoming, id: newList[existingIndex].id };
+        const updated = { ...newList[existingIndex], ...incoming, id: newList[existingIndex].id };
+        newList[existingIndex] = updated;
+        toSave.push(updated);
       } else {
         // Insert new record
         newList.push(incoming);
+        toSave.push(incoming);
       }
     });
 
     setProperties(newList);
-    syncProperties(newList);
+    await bulkSaveProperties(toSave);
   };
 
-  const updateProperty = (id: string, updated: Property) => {
+  const updateProperty = async (id: string, updated: Property) => {
     const normalized = normalize(updated);
     const newList = properties.map(p => p.id === id ? normalized : p);
     setProperties(newList);
-    syncProperties(newList);
+    await saveProperty(normalized);
   };
 
-  const deleteProperty = (id: string) => {
+  const deletePropertyHandler = async (id: string) => {
     const newList = properties.filter(p => p.id !== id);
     setProperties(newList);
-    syncProperties(newList);
+    await deleteProperty(id);
   };
 
-  const approveProperty = (id: string) => {
-    const newList = properties.map(p => 
-      p.id === id ? { ...p, ApprovalStatus: ApprovalStatus.Approved } : p
-    );
-    setProperties(newList);
-    syncProperties(newList);
-  };
-
-  const bulkUpdatePrices = (area: string, amount: number) => {
+  const approveProperty = async (id: string) => {
     const newList = properties.map(p => {
-      if (area === 'All' || p.Area === area) {
-        return {
-          ...p,
-          RentSingle: p.RentSingle.map(r => r + amount),
-          RentDouble: p.RentDouble.map(r => r + amount)
-        };
+      if (p.id === id) {
+        const updated = { ...p, ApprovalStatus: ApprovalStatus.Approved };
+        saveProperty(updated); // Async background save
+        return updated;
       }
       return p;
     });
     setProperties(newList);
-    syncProperties(newList);
+  };
+
+  const bulkUpdatePrices = async (area: string, amount: number) => {
+    const toSave: Property[] = [];
+    const newList = properties.map(p => {
+      if (area === 'All' || p.Area === area) {
+        const updated = {
+          ...p,
+          RentSingle: p.RentSingle.map(r => r + amount),
+          RentDouble: p.RentDouble.map(r => r + amount)
+        };
+        toSave.push(updated);
+        return updated;
+      }
+      return p;
+    });
+    setProperties(newList);
+    await bulkSaveProperties(toSave);
   };
 
   return (
@@ -165,7 +176,7 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }
       addProperty, 
       bulkAddProperties,
       updateProperty, 
-      deleteProperty, 
+      deleteProperty: deletePropertyHandler, 
       approveProperty,
       bulkUpdatePrices
     }}>

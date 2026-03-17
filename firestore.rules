@@ -1,0 +1,166 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Fields:
+    //   - id: string (required)
+    //   - username: string
+    //   - email: string (required, format: email)
+    //   - phone: string
+    //   - role: string (required, enum: ["admin", "owner", "student"])
+    //   - status: string (enum: ["Active", "Suspended", "Flagged"])
+    //   - joinedAt: string (format: date-time)
+    //   - shortlist: array of strings
+    //
+    // Collection: properties
+    // Fields:
+    //   - id: string (required)
+    //   - ownerId: string (required)
+    //   - ListingName: string (required)
+    //   - ListingType: string (required, enum: ["Hostel", "PG", "Flat", "Mess"])
+    //   - Gender: string (required, enum: ["Boys", "Girls", "Unisex"])
+    //   - Area: string (required)
+    //   - ApprovalStatus: string (required, enum: ["Pending", "Approved", "Rejected"])
+    //   - views: number
+    //   - leadsCount: number
+    //
+    // Collection: leads
+    // Fields:
+    //   - id: string (required)
+    //   - propertyId: string (required)
+    //   - studentId: string (required)
+    //   - type: string (required, enum: ["WhatsApp", "Call", "VisitRequest"])
+    //   - status: string (required, enum: ["New", "Contacted", "Closed"])
+    //   - timestamp: string (required, format: date-time)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "kajay5788@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isPropertyOwner(propertyId) {
+      return isAuthenticated() && get(/databases/$(database)/documents/properties/$(propertyId)).data.ownerId == request.auth.uid;
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidDateString(dateStr) {
+      return dateStr is string && dateStr.matches("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z?$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['id', 'email', 'role']) &&
+             data.id == request.auth.uid &&
+             isValidEmail(data.email) &&
+             data.role in ['admin', 'owner', 'student'] &&
+             (!('status' in data) || data.status in ['Active', 'Suspended', 'Flagged']) &&
+             (!('joinedAt' in data) || isValidDateString(data.joinedAt));
+    }
+
+    function isValidProperty(data) {
+      return data.keys().hasAll(['id', 'ownerId', 'ListingName', 'ListingType', 'Gender', 'Area', 'ApprovalStatus']) &&
+             data.ownerId is string &&
+             data.ListingName is string && data.ListingName.size() > 0 && data.ListingName.size() < 100 &&
+             data.ListingType in ['Hostel', 'PG', 'Flat', 'Mess'] &&
+             data.Gender in ['Boys', 'Girls', 'Unisex'] &&
+             data.Area is string &&
+             data.ApprovalStatus in ['Pending', 'Approved', 'Rejected'];
+    }
+
+    function isValidLead(data) {
+      return data.keys().hasAll(['id', 'propertyId', 'studentId', 'type', 'status', 'timestamp']) &&
+             data.propertyId is string &&
+             data.studentId == request.auth.uid &&
+             data.type in ['WhatsApp', 'Call', 'VisitRequest'] &&
+             data.status in ['New', 'Contacted', 'Closed'] &&
+             isValidDateString(data.timestamp);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    // Global deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) && 
+                      (request.resource.data.role != 'admin' || isAdmin());
+      allow update: if (isOwner(userId) && isValidUser(request.resource.data) && 
+                        request.resource.data.role == resource.data.role) || isAdmin();
+    }
+
+    // Property listings
+    match /properties/{propertyId} {
+      allow read: if isAdmin() || 
+                    resource.data.ApprovalStatus == 'Approved' || 
+                    (isAuthenticated() && resource.data.ownerId == request.auth.uid);
+      
+      allow create: if isAuthenticated() && isValidProperty(request.resource.data) && 
+                      (request.resource.data.ownerId == request.auth.uid || isAdmin()) &&
+                      (request.resource.data.ApprovalStatus == 'Pending' || isAdmin());
+      
+      allow update: if isAdmin() || 
+                      (isAuthenticated() && resource.data.ownerId == request.auth.uid && 
+                       isValidProperty(request.resource.data) &&
+                       request.resource.data.ownerId == resource.data.ownerId &&
+                       (request.resource.data.ApprovalStatus == resource.data.ApprovalStatus || isAdmin()));
+      
+      allow delete: if isAdmin();
+    }
+
+    // Lead inquiries
+    match /leads/{leadId} {
+      allow read: if isAdmin() || 
+                    (isAuthenticated() && resource.data.studentId == request.auth.uid) ||
+                    (isAuthenticated() && isPropertyOwner(resource.data.propertyId));
+      
+      allow create: if isAuthenticated() && isValidLead(request.resource.data);
+      
+      allow update: if isAdmin() || 
+                      (isAuthenticated() && isPropertyOwner(resource.data.propertyId) && 
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']));
+    }
+
+    // Global configuration
+    match /config/global {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Test connection
+    match /test/connection {
+      allow read: if true;
+    }
+  }
+}

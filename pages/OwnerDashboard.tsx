@@ -226,12 +226,12 @@ const OwnerDashboard: React.FC = () => {
                  <h3 className="text-[10px] font-black uppercase text-indigo-400 tracking-[0.5em] mb-12">Revenue Intelligence</h3>
                  <div className="mb-14">
                     <p className="text-[11px] font-bold text-white/30 uppercase tracking-widest mb-3">Est. Portfolio Monthly Flow</p>
-                    <p className="text-6xl font-black tracking-tighter">₹{portfolioStats.totalRent.toLocaleString()}<span className="text-lg font-bold text-white/10 ml-1">/mo</span></p>
+                    <p className="text-6xl font-black tracking-tighter">₹{(portfolioStats.totalRent || 0).toLocaleString()}<span className="text-lg font-bold text-white/10 ml-1">/mo</span></p>
                  </div>
                  <div className="p-7 bg-white/5 rounded-[32px] border border-white/10 flex items-center justify-between backdrop-blur-md">
                     <div>
                        <p className="text-[9px] font-black uppercase text-white/20 tracking-widest mb-1">Mean Asset Yield</p>
-                       <p className="text-2xl font-black">₹{portfolioStats.avgRent.toLocaleString()}</p>
+                       <p className="text-2xl font-black">₹{(portfolioStats.avgRent || 0).toLocaleString()}</p>
                     </div>
                     <div className="w-14 h-14 bg-indigo-500 text-white rounded-2xl flex items-center justify-center shadow-lg"><Wallet size={24} /></div>
                  </div>

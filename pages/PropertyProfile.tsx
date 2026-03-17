@@ -309,7 +309,7 @@ const PropertyProfile: React.FC = () => {
           <div className="hidden lg:flex items-center gap-8 py-4">
              <div className="text-right">
                 <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Starting at</p>
-                <p className="text-xl font-black text-slate-900 leading-none">₹{(Array.isArray(property.RentDouble) ? property.RentDouble[0] : property.RentDouble).toLocaleString()}<span className="text-[10px] font-bold text-slate-400">/mo</span></p>
+                <p className="text-xl font-black text-slate-900 leading-none">₹{((Array.isArray(property.RentDouble) ? property.RentDouble[0] : property.RentDouble) || 0).toLocaleString()}<span className="text-[10px] font-bold text-slate-400">/mo</span></p>
              </div>
              <button onClick={() => scrollToSection('management')} className="bg-slate-900 text-white px-8 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-xl hover:bg-indigo-600 transition-all active:scale-95">Book Free Visit</button>
           </div>
@@ -426,10 +426,10 @@ const PropertyProfile: React.FC = () => {
                          <div className="flex items-baseline gap-2 lg:gap-3">
                             <span className="text-2xl lg:text-3xl font-black text-slate-200">₹</span>
                             <span className="text-6xl sm:text-8xl lg:text-[140px] font-black tracking-tighter text-slate-900 leading-none">
-                               {(activeRentType === 'Single' 
+                               {((activeRentType === 'Single' 
                                  ? (Array.isArray(property.RentSingle) ? property.RentSingle[0] : property.RentSingle)
                                  : (Array.isArray(property.RentDouble) ? property.RentDouble[0] : property.RentDouble)
-                               ).toLocaleString()}
+                               ) || 0).toLocaleString()}
                              </span>
                             <span className="text-xl lg:text-2xl font-bold text-slate-300">/mo</span>
                           </div>
@@ -441,12 +441,11 @@ const PropertyProfile: React.FC = () => {
                               {((activeRentType === 'Single' ? property.RentSingle : property.RentDouble) as number[]).slice(1).map((price, idx) => (
                                 <div key={idx} className="bg-white border border-slate-200 px-5 py-2.5 rounded-2xl shadow-sm flex items-center gap-2 group hover:border-indigo-600 transition-all">
                                   <span className="text-[10px] font-black text-slate-300">₹</span>
-                                  <span className="text-sm font-black text-slate-900">{price.toLocaleString()}</span>
+                                  <span className="text-sm font-black text-slate-900">{(price || 0).toLocaleString()}</span>
                                 </div>
                               ))}
                             </div>
                           )}
-                         </div>
                          {(activeRentType === 'Single' ? property.RentSingleDetails : property.RentDoubleDetails) && (
                            <p className="text-sm lg:text-base font-black text-indigo-600 uppercase tracking-widest mt-4 bg-indigo-50 px-6 py-3 rounded-2xl border border-indigo-100 w-fit">
                              {activeRentType === 'Single' ? property.RentSingleDetails : property.RentDoubleDetails}
@@ -589,7 +588,7 @@ const PropertyProfile: React.FC = () => {
                          </div>
                          <div className="flex items-baseline gap-2">
                             <span className="text-xl font-black text-slate-300">₹</span>
-                            <span className="text-5xl font-black text-slate-900 tracking-tighter leading-none">{(Array.isArray(property.RentDouble) ? property.RentDouble[0] : property.RentDouble).toLocaleString()}</span>
+                            <span className="text-5xl font-black text-slate-900 tracking-tighter leading-none">{((Array.isArray(property.RentDouble) ? property.RentDouble[0] : property.RentDouble) || 0).toLocaleString()}</span>
                             <span className="text-sm font-bold text-slate-400">/mo</span>
                          </div>
                       </div>
@@ -651,7 +650,7 @@ const PropertyProfile: React.FC = () => {
          <div className="bg-slate-900/95 backdrop-blur-3xl rounded-[32px] p-2 flex items-center gap-2 border border-white/10 shadow-[0_40px_80px_-16px_rgba(0,0,0,0.5)]">
             <div className="px-4 border-r border-white/10">
                 <p className="text-[8px] font-black uppercase text-white/40 tracking-widest mb-0.5">Rent</p>
-                <p className="text-lg font-black text-white leading-none">₹{(Array.isArray(property.RentDouble) ? property.RentDouble[0] : property.RentDouble).toLocaleString()}</p>
+                <p className="text-lg font-black text-white leading-none">₹{((Array.isArray(property.RentDouble) ? property.RentDouble[0] : property.RentDouble) || 0).toLocaleString()}</p>
             </div>
             <button onClick={() => handleLead('WhatsApp')} className="flex-grow h-14 bg-indigo-600 text-white rounded-[24px] flex items-center justify-center gap-3 font-black uppercase tracking-widest text-[10px] shadow-xl">
                <MousePointer2 size={16} /> Visit Now

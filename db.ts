@@ -1,36 +1,87 @@
 
-import { Property, ListingType, Gender, ApprovalStatus, User, AppConfig, Lead } from './types';
+import { 
+  collection, 
+  doc, 
+  getDoc, 
+  getDocs, 
+  setDoc, 
+  updateDoc, 
+  query, 
+  where, 
+  orderBy,
+  getDocFromServer
+} from 'firebase/firestore';
+import { db, auth } from './firebase';
+import { Property, ApprovalStatus, User, UserRole, UserStatus, AppConfig, Lead } from './types';
 import { KOTA_AREAS, INSTITUTES, FACILITY_OPTIONS } from './constants';
-import { normalizePhone, parseRent } from './utils/normalization';
-import { transformDriveUrl } from './utils/urlHelper';
-
-const STORAGE_KEY = 'erooms_atlas_v3_cluster';
-const BACKUP_KEY = 'erooms_atlas_v3_cluster_backup';
-const USERS_STORAGE_KEY = 'erooms_atlas_users';
-const CONFIG_STORAGE_KEY = 'erooms_atlas_config';
-const LEADS_STORAGE_KEY = 'erooms_atlas_leads';
-const DRAFT_PROPERTY_KEY = 'erooms_atlas_property_draft';
 
 export const CONFIG_UPDATED_EVENT = 'erooms_config_sync';
 
-// --- DRAFT MANAGEMENT ---
-export const savePropertyDraft = (data: Partial<Property>) => {
-  localStorage.setItem(DRAFT_PROPERTY_KEY, JSON.stringify(data));
-};
+// --- ERROR HANDLING ---
+export enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
 
-export const getPropertyDraft = (): Partial<Property> | null => {
-  const stored = localStorage.getItem(DRAFT_PROPERTY_KEY);
-  try {
-    return stored ? JSON.parse(stored) : null;
-  } catch {
-    return null;
+interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId: string | undefined;
+    email: string | null | undefined;
+    emailVerified: boolean | undefined;
+    isAnonymous: boolean | undefined;
+    tenantId: string | null | undefined;
+    providerInfo: {
+      providerId: string;
+      displayName: string | null;
+      email: string | null;
+      photoUrl: string | null;
+    }[];
   }
-};
+}
 
-export const clearPropertyDraft = () => {
-  localStorage.removeItem(DRAFT_PROPERTY_KEY);
-};
+export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: auth.currentUser?.uid,
+      email: auth.currentUser?.email,
+      emailVerified: auth.currentUser?.emailVerified,
+      isAnonymous: auth.currentUser?.isAnonymous,
+      tenantId: auth.currentUser?.tenantId,
+      providerInfo: auth.currentUser?.providerData.map(provider => ({
+        providerId: provider.providerId,
+        displayName: provider.displayName,
+        email: provider.email,
+        photoUrl: provider.photoURL
+      })) || []
+    },
+    operationType,
+    path
+  }
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  throw new Error(JSON.stringify(errInfo));
+}
 
+// --- CONNECTION TEST ---
+async function testConnection() {
+  try {
+    await getDocFromServer(doc(db, 'test', 'connection'));
+  } catch (error) {
+    if(error instanceof Error && error.message.includes('the client is offline')) {
+      console.error("Please check your Firebase configuration. ");
+    }
+  }
+}
+testConnection();
+
+// --- APP CONFIG ---
 export const DEFAULT_CONFIG: AppConfig = {
   siteName: 'erooms.in',
   tagline: 'Premium Kota Student Living',
@@ -52,163 +103,265 @@ export const DEFAULT_CONFIG: AppConfig = {
   lastUpdated: new Date().toISOString()
 };
 
-// --- LEADS MANAGEMENT ---
-export const fetchLeads = (): Lead[] => {
-  const stored = localStorage.getItem(LEADS_STORAGE_KEY);
-  return stored ? JSON.parse(stored) : [];
-};
-
-export const saveLead = (lead: Omit<Lead, 'id' | 'timestamp' | 'status'>) => {
-  const leads = fetchLeads();
-  const newLead: Lead = {
-    ...lead,
-    id: `lead-${Date.now()}`,
-    timestamp: new Date().toISOString(),
-    status: 'New'
-  };
-  leads.push(newLead);
-  localStorage.setItem(LEADS_STORAGE_KEY, JSON.stringify(leads));
-  
-  // Update property lead count
-  const properties: Property[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  const propIndex = properties.findIndex((p: Property) => p.id === lead.propertyId);
-  if (propIndex !== -1) {
-    properties[propIndex].leadsCount = (properties[propIndex].leadsCount || 0) + 1;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(properties));
-  }
-  
-  return newLead;
-};
-
-export const recordPropertyView = (propertyId: string) => {
-  const properties: Property[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  const propIndex = properties.findIndex((p: Property) => p.id === propertyId);
-  if (propIndex !== -1) {
-    properties[propIndex].views = (properties[propIndex].views || 0) + 1;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(properties));
-  }
-};
-
-// --- DATA INTEGRITY SHIELD ---
-const normalizeProperty = (p: Record<string, unknown>): Property => ({
-  id: (p.id as string) || `node-${Math.random().toString(36).substr(2, 5)}`,
-  ownerId: (p.ownerId as string) || 'system-auto',
-  ListingName: (p.ListingName as string) || 'Unlabeled Asset',
-  ListingType: (p.ListingType as ListingType) || ListingType.Hostel,
-  Gender: (p.Gender as Gender) || Gender.Boys,
-  OwnerName: (p.OwnerName as string) || 'Unknown Host',
-  OwnerWhatsApp: normalizePhone((p.OwnerWhatsApp as string) || '919351099947'),
-  WardenName: (p.WardenName as string) || 'On-Call Security',
-  EmergencyContact: normalizePhone((p.EmergencyContact as string) || '911'),
-  OwnerEmail: (p.OwnerEmail as string) || 'contact@erooms.in',
-  Area: (p.Area as string) || KOTA_AREAS[0],
-  FullAddress: (p.FullAddress as string) || 'Address Pending',
-  GoogleMapsPlusCode: (p.GoogleMapsPlusCode as string) || 'N/A',
-  InstituteDistanceMatrix: Array.isArray(p.InstituteDistanceMatrix) ? (p.InstituteDistanceMatrix as { name: string; distance: number }[]) : INSTITUTES.map(name => ({ name, distance: 0.5 + Math.random() })),
-  RentSingle: parseRent(p.RentSingle),
-  RentDouble: parseRent(p.RentDouble),
-  SecurityTerms: (p.SecurityTerms as string) || 'Terms pending review.',
-  ElectricityCharges: Number(p.ElectricityCharges) || 10,
-  Maintenance: Number(p.Maintenance) || 1000,
-  ParentsStayCharge: Number(p.ParentsStayCharge) || 500,
-  Facilities: Array.isArray(p.Facilities) ? (p.Facilities as string[]) : ['AC', 'WiFi', 'Mess Facility', 'RO Water', 'Laundry'],
-  PhotoMain: transformDriveUrl((p.PhotoMain as string) || 'https://images.unsplash.com/photo-1512917774-50ad913ee29a?auto=format&fit=crop&q=80&w=2000'),
-  PhotoRoom: transformDriveUrl((p.PhotoRoom as string) || 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=2000'),
-  PhotoWashroom: transformDriveUrl((p.PhotoWashroom || 'https://images.unsplash.com/photo-1584622650-61f8c508fe54?auto=format&fit=crop&q=80&w=2000') as string),
-  ApprovalStatus: (p.ApprovalStatus as ApprovalStatus) || ApprovalStatus.Pending
-});
-
-export const fetchProperties = async (): Promise<Property[]> => {
-  await new Promise(r => setTimeout(r, 100)); // Simulating network latency
-  
-  let stored = localStorage.getItem(STORAGE_KEY);
-  
-  // If main storage is empty, try backup
-  if (!stored) {
-    stored = localStorage.getItem(BACKUP_KEY);
-    if (stored) {
-      console.log('Restored from backup');
-      localStorage.setItem(STORAGE_KEY, stored);
-    }
-  }
-
-  if (!stored) {
-    const initial = generateInitialProperties();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
-    localStorage.setItem(BACKUP_KEY, JSON.stringify(initial));
-    return initial;
-  }
-
+export const getAppConfig = async (): Promise<AppConfig> => {
+  const path = 'config/global';
   try {
-    const data = JSON.parse(stored);
-    if (!Array.isArray(data)) throw new Error('Invalid data format');
-    return data.map(normalizeProperty);
-  } catch (err) {
-    console.error('Data corruption detected, attempting recovery...', err);
-    // Try backup as last resort
-    const backup = localStorage.getItem(BACKUP_KEY);
-    if (backup) {
-      try {
-        const backupData = JSON.parse(backup);
-        return backupData.map(normalizeProperty);
-      } catch {
-        return [];
-      }
+    const docSnap = await getDoc(doc(db, path));
+    return docSnap.exists() ? docSnap.data() as AppConfig : DEFAULT_CONFIG;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.GET, path);
+    return DEFAULT_CONFIG;
+  }
+};
+
+export const saveAppConfig = async (config: AppConfig) => {
+  const path = 'config/global';
+  try {
+    await setDoc(doc(db, path), config);
+    window.dispatchEvent(new CustomEvent(CONFIG_UPDATED_EVENT, { detail: config }));
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, path);
+  }
+};
+
+// --- LEADS ---
+export const fetchLeads = async (userId: string, role: string): Promise<Lead[]> => {
+  const path = 'leads';
+  try {
+    let q;
+    if (role === 'admin') {
+      q = query(collection(db, path), orderBy('timestamp', 'desc'));
+    } else if (role === 'owner') {
+      // Owners see leads for their properties. This requires a more complex query or multiple fetches.
+      // For simplicity in this step, we'll fetch all and filter, but in production, we'd use a better schema.
+      q = query(collection(db, path), orderBy('timestamp', 'desc'));
+    } else {
+      q = query(collection(db, path), where('studentId', '==', userId), orderBy('timestamp', 'desc'));
     }
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => doc.data() as Lead);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.LIST, path);
     return [];
   }
 };
 
-export const syncProperties = async (properties: Property[]): Promise<void> => {
-  if (!properties || !Array.isArray(properties)) return;
-  
-  const data = JSON.stringify(properties);
-  localStorage.setItem(STORAGE_KEY, data);
-  
-  // Also update backup if not empty
-  if (properties.length > 0) {
-    localStorage.setItem(BACKUP_KEY, data);
+export const saveLead = async (lead: Partial<Lead> & Omit<Lead, 'propertyId' | 'studentId' | 'propertyName' | 'studentName' | 'studentPhone' | 'type'>) => {
+  const path = 'leads';
+  const id = lead.id || `lead-${Date.now()}`;
+  const newLead: Lead = {
+    status: 'New',
+    timestamp: new Date().toISOString(),
+    ...lead,
+    id,
+  } as Lead;
+  try {
+    await setDoc(doc(db, path, id), newLead);
+    
+    // Increment property lead count
+    const propPath = `properties/${lead.propertyId}`;
+    const propSnap = await getDoc(doc(db, propPath));
+    if (propSnap.exists()) {
+      const currentLeads = propSnap.data().leadsCount || 0;
+      await updateDoc(doc(db, propPath), { leadsCount: currentLeads + 1 });
+    }
+    
+    return newLead;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, path);
+    throw error;
   }
 };
 
-export const getAppConfig = (): AppConfig => {
-  const stored = localStorage.getItem(CONFIG_STORAGE_KEY);
-  return stored ? JSON.parse(stored) : DEFAULT_CONFIG;
+// --- PROPERTIES ---
+export const recordPropertyView = async (propertyId: string) => {
+  const path = `properties/${propertyId}`;
+  try {
+    const propSnap = await getDoc(doc(db, path));
+    if (propSnap.exists()) {
+      const currentViews = propSnap.data().views || 0;
+      await updateDoc(doc(db, path), { views: currentViews + 1 });
+    }
+  } catch (error) {
+    handleFirestoreError(error, OperationType.UPDATE, path);
+  }
 };
 
-export const saveAppConfig = (config: AppConfig) => {
-  localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
-  window.dispatchEvent(new CustomEvent(CONFIG_UPDATED_EVENT, { detail: config }));
+export const fetchProperties = async (): Promise<Property[]> => {
+  const path = 'properties';
+  try {
+    const q = query(collection(db, path), where('ApprovalStatus', '==', ApprovalStatus.Approved));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => doc.data() as Property);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.LIST, path);
+    return [];
+  }
 };
 
-const generateInitialProperties = (): Property[] => {
-  const eliteNames = [
-    { name: 'Royal Zenith', area: KOTA_AREAS[0], price: 18500, type: ListingType.Hostel },
-    { name: 'Elite Oasis', area: KOTA_AREAS[1], price: 16000, type: ListingType.Hostel },
-    { name: 'Aura Premium', area: KOTA_AREAS[2], price: 14500, type: ListingType.PG },
-    { name: 'Sigma Heights', area: KOTA_AREAS[3], price: 12500, type: ListingType.Hostel },
-    { name: 'Radiant Living', area: KOTA_AREAS[4], price: 11000, type: ListingType.PG },
-    { name: 'Prism Residency', area: KOTA_AREAS[0], price: 17000, type: ListingType.Hostel },
-    { name: 'Summit Suites', area: KOTA_AREAS[1], price: 19500, type: ListingType.Hostel },
-    { name: 'Krishna Classic', area: KOTA_AREAS[6], price: 9500, type: ListingType.PG },
-    { name: 'Vedic Villa', area: KOTA_AREAS[5], price: 13000, type: ListingType.Flat },
-    { name: 'Aaryans Den', area: KOTA_AREAS[0], price: 15500, type: ListingType.Hostel }
-  ];
+export const fetchAllProperties = async (): Promise<Property[]> => {
+  const path = 'properties';
+  try {
+    const querySnapshot = await getDocs(collection(db, path));
+    return querySnapshot.docs.map(doc => doc.data() as Property);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.LIST, path);
+    return [];
+  }
+};
 
-  return eliteNames.map((item, i) => normalizeProperty({
-    id: `p-${i + 1}`,
-    ownerId: 'emu-owner', // Linked to the emulated owner
-    ListingName: item.name,
-    RentDouble: item.price,
-    RentSingle: item.price + 3000,
-    Area: item.area,
-    ListingType: item.type,
-    ApprovalStatus: ApprovalStatus.Approved,
-    Facilities: ['AC', 'WiFi', 'Mess Facility', 'Laundry', 'Biometric Entry', 'RO Water']
-  }));
+export const saveProperty = async (property: Property) => {
+  const path = `properties/${property.id}`;
+  try {
+    await setDoc(doc(db, 'properties', property.id), property);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, path);
+  }
+};
+
+export const deleteProperty = async (id: string) => {
+  const path = `properties/${id}`;
+  try {
+    // In Firestore we'd use deleteDoc, but for now we'll just mark as deleted or actually delete
+    // For this app, let's actually delete
+    const { deleteDoc } = await import('firebase/firestore');
+    await deleteDoc(doc(db, 'properties', id));
+  } catch (error) {
+    handleFirestoreError(error, OperationType.DELETE, path);
+  }
+};
+
+export const bulkSaveProperties = async (properties: Property[]) => {
+  // In a real app, use writeBatch
+  const { writeBatch } = await import('firebase/firestore');
+  const batch = writeBatch(db);
+  properties.forEach(p => {
+    const ref = doc(db, 'properties', p.id);
+    batch.set(ref, p);
+  });
+  try {
+    await batch.commit();
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, 'properties/bulk');
+  }
+};
+
+// --- USERS ---
+export const fetchUser = async (userId: string): Promise<User | null> => {
+  const path = `users/${userId}`;
+  try {
+    const docSnap = await getDoc(doc(db, path));
+    return docSnap.exists() ? docSnap.data() as User : null;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.GET, path);
+    return null;
+  }
+};
+
+export const saveUser = async (user: User) => {
+  const path = `users/${user.id}`;
+  try {
+    await setDoc(doc(db, 'users', user.id), user);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, path);
+  }
+};
+
+// --- DRAFTS ---
+export const savePropertyDraft = (property: Partial<Property>) => {
+  localStorage.setItem('erooms_property_draft', JSON.stringify(property));
+};
+
+export const getPropertyDraft = (): Partial<Property> | null => {
+  const draft = localStorage.getItem('erooms_property_draft');
+  return draft ? JSON.parse(draft) : null;
+};
+
+export const clearPropertyDraft = () => {
+  localStorage.removeItem('erooms_property_draft');
 };
 
 export const getMockUsers = (): User[] => {
-  const stored = localStorage.getItem(USERS_STORAGE_KEY);
-  return stored ? JSON.parse(stored) : [];
+  return [
+    {
+      id: 'admin-1',
+      username: 'Admin User',
+      email: 'kajay5788@gmail.com',
+      role: UserRole.Admin,
+      status: UserStatus.Active,
+      joinedAt: new Date().toISOString()
+    },
+    {
+      id: 'owner-1',
+      username: 'Rajesh Kumar',
+      email: 'owner@example.com',
+      role: UserRole.Owner,
+      status: UserStatus.Active,
+      joinedAt: new Date().toISOString()
+    }
+  ];
+};
+
+export const migrateLocalStorageToFirestore = async () => {
+  console.log('Starting migration from localStorage to Firestore...');
+  
+  // 1. Migrate Config
+  const localConfig = localStorage.getItem('erooms_config');
+  if (localConfig) {
+    try {
+      const config = JSON.parse(localConfig) as AppConfig;
+      await saveAppConfig(config);
+      localStorage.removeItem('erooms_config');
+      console.log('Config migrated successfully');
+    } catch (e) {
+      console.error('Failed to migrate config:', e);
+    }
+  }
+
+  // 2. Migrate Properties
+  const localProperties = localStorage.getItem('erooms_properties');
+  if (localProperties) {
+    try {
+      const properties = JSON.parse(localProperties) as Property[];
+      if (properties.length > 0) {
+        await bulkSaveProperties(properties);
+        localStorage.removeItem('erooms_properties');
+        console.log(`${properties.length} properties migrated successfully`);
+      }
+    } catch (e) {
+      console.error('Failed to migrate properties:', e);
+    }
+  }
+
+  // 3. Migrate Leads
+  const localLeads = localStorage.getItem('erooms_leads');
+  if (localLeads) {
+    try {
+      const leads = JSON.parse(localLeads) as Lead[];
+      for (const lead of leads) {
+        await saveLead(lead);
+      }
+      localStorage.removeItem('erooms_leads');
+      console.log(`${leads.length} leads migrated successfully`);
+    } catch (e) {
+      console.error('Failed to migrate leads:', e);
+    }
+  }
+
+  // 4. Migrate Users
+  const localUsers = localStorage.getItem('erooms_users');
+  if (localUsers) {
+    try {
+      const users = JSON.parse(localUsers) as User[];
+      for (const user of users) {
+        await saveUser(user);
+      }
+      localStorage.removeItem('erooms_users');
+      console.log(`${users.length} users migrated successfully`);
+    } catch (e) {
+      console.error('Failed to migrate users:', e);
+    }
+  }
+  
+  console.log('Migration completed.');
 };

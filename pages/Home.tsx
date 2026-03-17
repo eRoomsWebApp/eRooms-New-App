@@ -1,5 +1,5 @@
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useProperties } from '../context/PropertyContext';
@@ -7,7 +7,7 @@ import PropertyCard from '../components/PropertyCard';
 import SearchBar from '../components/SearchBar';
 import FilterBar from '../components/FilterBar';
 import { ApprovalStatus, UserRole } from '../types';
-import { getAppConfig, CONFIG_UPDATED_EVENT } from '../db';
+import { useConfig } from '../context/ConfigContext';
 import { useAuth } from '../context/AuthContext';
 import { Building2, PlusCircle, ArrowRight } from 'lucide-react';
 import { transformDriveUrl } from '../utils/urlHelper';
@@ -15,15 +15,7 @@ import { transformDriveUrl } from '../utils/urlHelper';
 const Home: React.FC = () => {
   const { filteredProperties, properties, loading, isFiltering, setFilters } = useProperties();
   const { user } = useAuth();
-  const [config, setConfig] = useState(getAppConfig());
-
-  useEffect(() => {
-    const handleSync = (e: Event) => {
-      setConfig((e as CustomEvent).detail);
-    };
-    window.addEventListener(CONFIG_UPDATED_EVENT, handleSync);
-    return () => window.removeEventListener(CONFIG_UPDATED_EVENT, handleSync);
-  }, []);
+  const { config } = useConfig();
 
   const recommendations = useMemo(() => {
     return properties
@@ -31,7 +23,7 @@ const Home: React.FC = () => {
       .slice(0, 3);
   }, [properties]);
 
-  if (loading) return (
+  if (loading || !config) return (
     <div className="min-h-screen flex items-center justify-center">
       <motion.div 
         animate={{ scale: [1, 1.2, 1], rotate: 360 }}

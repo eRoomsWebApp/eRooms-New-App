@@ -1,0 +1,88 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "username": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "owner", "student"] },
+        "status": { "type": "string", "enum": ["Active", "Suspended", "Flagged"] },
+        "joinedAt": { "type": "string", "format": "date-time" },
+        "shortlist": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["id", "email", "role"]
+    },
+    "Property": {
+      "title": "Property",
+      "description": "Hostel/PG/Flat listing",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "ListingName": { "type": "string" },
+        "ListingType": { "type": "string", "enum": ["Hostel", "PG", "Flat", "Mess"] },
+        "Gender": { "type": "string", "enum": ["Boys", "Girls", "Unisex"] },
+        "Area": { "type": "string" },
+        "RentSingle": { "type": "array", "items": { "type": "number" } },
+        "RentDouble": { "type": "array", "items": { "type": "number" } },
+        "ApprovalStatus": { "type": "string", "enum": ["Pending", "Approved", "Rejected"] },
+        "views": { "type": "number" },
+        "leadsCount": { "type": "number" }
+      },
+      "required": ["id", "ownerId", "ListingName", "ListingType", "Gender", "Area", "ApprovalStatus"]
+    },
+    "Lead": {
+      "title": "Lead",
+      "description": "Student inquiry for a property",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "propertyName": { "type": "string" },
+        "studentId": { "type": "string" },
+        "studentName": { "type": "string" },
+        "studentPhone": { "type": "string" },
+        "type": { "type": "string", "enum": ["WhatsApp", "Call", "VisitRequest"] },
+        "status": { "type": "string", "enum": ["New", "Contacted", "Closed"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "propertyId", "studentId", "type", "status", "timestamp"]
+    },
+    "AppConfig": {
+      "title": "AppConfig",
+      "description": "Global application configuration",
+      "type": "object",
+      "properties": {
+        "siteName": { "type": "string" },
+        "maintenanceMode": { "type": "boolean" },
+        "lastUpdated": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User documents"
+    },
+    "/properties/{propertyId}": {
+      "schema": "Property",
+      "description": "Property listings"
+    },
+    "/leads/{leadId}": {
+      "schema": "Lead",
+      "description": "Lead inquiries"
+    },
+    "/config/global": {
+      "schema": "AppConfig",
+      "description": "Global settings"
+    },
+    "/test/connection": {
+      "schema": { "type": "object" },
+      "description": "Test connection document"
+    }
+  }
+}

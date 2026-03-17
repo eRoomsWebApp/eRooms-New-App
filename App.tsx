@@ -1,9 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { PropertyProvider } from './context/PropertyContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { ConfigProvider, useConfig } from './context/ConfigContext';
 import Navbar from './components/Navbar';
 import TopBar from './components/TopBar';
 import Home from './pages/Home';
@@ -14,8 +15,8 @@ import StudentDashboard from './pages/StudentDashboard';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import { UserRole } from './types';
-import { getAppConfig, CONFIG_UPDATED_EVENT } from './db';
 import { Instagram, Twitter, Linkedin } from 'lucide-react';
+import { migrateLocalStorageToFirestore } from './db';
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -41,56 +42,68 @@ const AnimatedRoutes = () => {
   );
 };
 
-const App: React.FC = () => {
-  const [config, setConfig] = useState(getAppConfig());
+const AppContent: React.FC = () => {
+  const { config, loading: configLoading } = useConfig();
+  const { isAuthReady, user } = useAuth();
 
-  useEffect(() => {
-    const handleSync = (e: Event) => {
-      const detail = (e as CustomEvent).detail;
-      if (detail) {
-        setConfig(detail);
-      }
-    };
-    window.addEventListener(CONFIG_UPDATED_EVENT, handleSync);
-    return () => window.removeEventListener(CONFIG_UPDATED_EVENT, handleSync);
-  }, []);
+  React.useEffect(() => {
+    if (isAuthReady && user?.role === UserRole.Admin) {
+      migrateLocalStorageToFirestore();
+    }
+  }, [isAuthReady, user]);
+
+  if (configLoading || !config || !isAuthReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="w-12 h-12 border-4 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
-    <AuthProvider>
-      <PropertyProvider>
-        <Router>
-          <div className="min-h-screen flex flex-col selection:bg-indigo-100 selection:text-indigo-900">
-            <TopBar />
-            <Navbar />
-            <main className="flex-grow">
-              <AnimatedRoutes />
-            </main>
-            
-            <footer className="bg-white border-t border-slate-100 py-20 mt-20 relative overflow-hidden">
-              <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
-                <div>
-                  <p className="font-black text-slate-900 text-3xl mb-4 tracking-tighter">{config.siteName}</p>
-                  <p className="text-slate-400 text-sm font-bold leading-relaxed max-w-xs mx-auto md:mx-0">{config.footerText}</p>
-                </div>
-                <div className="flex flex-col gap-3">
-                  <p className="text-[10px] font-black uppercase text-slate-900 tracking-widest mb-4">Support</p>
-                  <a href={`mailto:${config.supportEmail}`} className="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Official Email</a>
-                  <a href="#" className="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Help Center</a>
-                </div>
-                <div className="flex flex-col gap-3">
-                  <p className="text-[10px] font-black uppercase text-slate-900 tracking-widest mb-4">Connect</p>
-                  <div className="flex gap-4 justify-center md:justify-start">
-                    <a href={config.socialLinks.instagram} target="_blank" className="text-slate-400 hover:text-pink-600 transition-all"><Instagram size={20} /></a>
-                    <a href={config.socialLinks.twitter} target="_blank" className="text-slate-400 hover:text-blue-400 transition-all"><Twitter size={20} /></a>
-                    <a href={config.socialLinks.linkedin} target="_blank" className="text-slate-400 hover:text-blue-700 transition-all"><Linkedin size={20} /></a>
-                  </div>
-                </div>
-              </div>
-            </footer>
+    <div className="min-h-screen flex flex-col selection:bg-indigo-100 selection:text-indigo-900">
+      <TopBar />
+      <Navbar />
+      <main className="flex-grow">
+        <AnimatedRoutes />
+      </main>
+      
+      <footer className="bg-white border-t border-slate-100 py-20 mt-20 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
+          <div>
+            <p className="font-black text-slate-900 text-3xl mb-4 tracking-tighter">{config.siteName}</p>
+            <p className="text-slate-400 text-sm font-bold leading-relaxed max-w-xs mx-auto md:mx-0">{config.footerText}</p>
           </div>
-        </Router>
-      </PropertyProvider>
-    </AuthProvider>
+          <div className="flex flex-col gap-3">
+            <p className="text-[10px] font-black uppercase text-slate-900 tracking-widest mb-4">Support</p>
+            <a href={`mailto:${config.supportEmail}`} className="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Official Email</a>
+            <a href="#" className="text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors">Help Center</a>
+          </div>
+          <div className="flex flex-col gap-3">
+            <p className="text-[10px] font-black uppercase text-slate-900 tracking-widest mb-4">Connect</p>
+            <div className="flex gap-4 justify-center md:justify-start">
+              <a href={config.socialLinks.instagram} target="_blank" className="text-slate-400 hover:text-pink-600 transition-all"><Instagram size={20} /></a>
+              <a href={config.socialLinks.twitter} target="_blank" className="text-slate-400 hover:text-blue-400 transition-all"><Twitter size={20} /></a>
+              <a href={config.socialLinks.linkedin} target="_blank" className="text-slate-400 hover:text-blue-700 transition-all"><Linkedin size={20} /></a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <ConfigProvider>
+      <AuthProvider>
+        <PropertyProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </PropertyProvider>
+      </AuthProvider>
+    </ConfigProvider>
   );
 };
 

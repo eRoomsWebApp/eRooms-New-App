@@ -111,7 +111,7 @@ export const generatePropertyKey = (phone: string, name: string): string => {
  * Example: 12000 -> "12,000/-"
  */
 export const formatRentDisplay = (rent: number): string => {
-  return `${rent.toLocaleString('en-IN')}/-`;
+  return `${(rent || 0).toLocaleString('en-IN')}/-`;
 };
 
 /**

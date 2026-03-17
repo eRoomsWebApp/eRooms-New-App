@@ -1,17 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
-import { getAppConfig, CONFIG_UPDATED_EVENT } from '../db';
+import React from 'react';
+import { useConfig } from '../context/ConfigContext';
 
 const TopBar: React.FC = () => {
-  const [config, setConfig] = useState(getAppConfig());
+  const { config } = useConfig();
 
-  useEffect(() => {
-    const handleSync = (e: Event) => {
-      setConfig((e as CustomEvent).detail);
-    };
-    window.addEventListener(CONFIG_UPDATED_EVENT, handleSync);
-    return () => window.removeEventListener(CONFIG_UPDATED_EVENT, handleSync);
-  }, []);
+  if (!config) return null;
 
   return (
     <div className="bg-slate-900 text-white py-2.5 px-4 overflow-hidden hidden md:block border-b border-slate-800">

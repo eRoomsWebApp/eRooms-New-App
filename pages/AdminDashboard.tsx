@@ -3,7 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { useProperties } from '../context/PropertyContext';
 import { useAuth } from '../context/AuthContext';
 import { ApprovalStatus, UserRole, User, UserStatus, AppConfig, Property } from '../types';
-import { getAppConfig, saveAppConfig, getMockUsers } from '../db';
+import { saveAppConfig, getMockUsers } from '../db';
+import { useConfig } from '../context/ConfigContext';
 import { transformDriveUrl } from '../utils/urlHelper';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -25,6 +26,7 @@ import BulkPriceUpdateModal from '../components/BulkPriceUpdateModal';
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const { properties, addProperty, bulkAddProperties, approveProperty, updateProperty, deleteProperty, bulkUpdatePrices } = useProperties();
+  const { config } = useConfig();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<'overview' | 'listings' | 'users' | 'config' | 'logs'>(
     searchParams.get('action') === 'add' ? 'listings' : 'overview'
@@ -39,33 +41,22 @@ const AdminDashboard: React.FC = () => {
   const [isBulkUploading, setIsBulkUploading] = useState(false);
   const [isBulkPriceUpdating, setIsBulkPriceUpdating] = useState(false);
   
-  // Global Kernel State
-  const [config, setConfig] = useState<AppConfig>(getAppConfig());
-
   useEffect(() => {
     const loadUsers = () => {
-      const users = JSON.parse(localStorage.getItem('erooms_atlas_users') || '[]');
       const mocks = getMockUsers();
-      const uniqueUsers = [...users];
-      mocks.forEach(m => {
-        if (!uniqueUsers.find(u => u.email === m.email)) uniqueUsers.push(m);
-      });
-      setRegisteredUsers(uniqueUsers);
+      setRegisteredUsers(mocks);
     };
     loadUsers();
   }, [activeTab]);
 
-  const handleUpdateConfig = (updates: Partial<AppConfig>) => {
+  const handleUpdateConfig = async (updates: Partial<AppConfig>) => {
+    if (!config) return;
     setIsSyncing(true);
     const newConfig = { ...config, ...updates };
-    setConfig(newConfig);
-    saveAppConfig(newConfig);
+    await saveAppConfig(newConfig);
     
-    // Simulate node synchronization delay
-    setTimeout(() => {
-      setIsSyncing(false);
-      setLastSaved(new Date().toLocaleTimeString());
-    }, 800);
+    setIsSyncing(false);
+    setLastSaved(new Date().toLocaleTimeString());
   };
 
   const stats = useMemo(() => ({
@@ -77,6 +68,8 @@ const AdminDashboard: React.FC = () => {
     scholars: registeredUsers.filter(u => u.role === UserRole.Student).length,
     approvalRate: properties.length > 0 ? ((properties.filter(p => p.ApprovalStatus === ApprovalStatus.Approved).length / properties.length) * 100).toFixed(0) : 0
   }), [properties, registeredUsers]);
+
+  if (!config) return null;
 
   const filteredListings = properties.filter(p => 
     p.ListingName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -326,7 +319,7 @@ const AdminDashboard: React.FC = () => {
                         </td>
                         <td className="px-12 py-10 text-sm font-bold text-slate-600">{p.Area}</td>
                         <td className="px-12 py-10">
-                          <p className="text-lg font-black text-slate-900">₹{p.RentDouble.toLocaleString()}</p>
+                          <p className="text-lg font-black text-slate-900">₹{(Array.isArray(p.RentDouble) ? p.RentDouble[0] : p.RentDouble || 0).toLocaleString()}</p>
                           <p className="text-[10px] font-black text-slate-300 uppercase mt-1">Base Rental</p>
                         </td>
                         <td className="px-12 py-10">

@@ -1,9 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
-import { getAppConfig, CONFIG_UPDATED_EVENT } from '../db';
+import { useConfig } from '../context/ConfigContext';
 import { Menu, X, ChevronRight, User, PlusCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -11,25 +11,17 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout, isAuthenticated } = useAuth();
-  const [siteName, setSiteName] = useState(getAppConfig().siteName);
+  const { config } = useConfig();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleSync = (e: Event) => {
-      const detail = (e as CustomEvent).detail;
-      if (detail && detail.siteName) {
-        setSiteName(detail.siteName);
-      }
-    };
-    window.addEventListener(CONFIG_UPDATED_EVENT, handleSync);
-    return () => window.removeEventListener(CONFIG_UPDATED_EVENT, handleSync);
-  }, []);
-
   const [prevPath, setPrevPath] = useState(location.pathname);
+
   if (location.pathname !== prevPath) {
     setPrevPath(location.pathname);
     setIsMobileMenuOpen(false);
   }
+
+  if (!config) return null;
+  const siteName = config.siteName;
 
   const navItems = [
     { label: 'Home', path: '/' },
@@ -107,18 +99,18 @@ const Navbar: React.FC = () => {
               ))}
               <div className="pt-4 border-t border-slate-50 flex flex-col gap-3">
                 <div className="flex flex-col gap-2 px-2 mb-2">
-                  <a href={`tel:${getAppConfig().supportPhone}`} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl text-[11px] font-black uppercase tracking-widest text-slate-600">
+                  <a href={`tel:${config.supportPhone}`} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl text-[11px] font-black uppercase tracking-widest text-slate-600">
                     Call Us
-                    <span className="text-slate-900">{getAppConfig().supportPhone}</span>
+                    <span className="text-slate-900">{config.supportPhone}</span>
                   </a>
                   <a 
-                    href={`https://wa.me/${getAppConfig().supportWhatsApp}?text=${encodeURIComponent('नमस्ते, मैं रूम देख रहा था, मुझे रूम की जरूरत है।')}`}
+                    href={`https://wa.me/${config.supportWhatsApp}?text=${encodeURIComponent('नमस्ते, मैं रूम देख रहा था, मुझे रूम की जरूरत है।')}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-between p-4 bg-emerald-50 rounded-2xl text-[11px] font-black uppercase tracking-widest text-emerald-600"
                   >
                     WhatsApp
-                    <span className="text-emerald-700">+{getAppConfig().supportWhatsApp}</span>
+                    <span className="text-emerald-700">+{config.supportWhatsApp}</span>
                   </a>
                 </div>
                 <Link 
