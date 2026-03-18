@@ -6,6 +6,7 @@ import { PropertyProvider } from './context/PropertyContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ConfigProvider, useConfig } from './context/ConfigContext';
 import Navbar from './components/Navbar';
+import MobileNav from './components/MobileNav';
 import TopBar from './components/TopBar';
 import Home from './pages/Home';
 import PropertyProfile from './pages/PropertyProfile';
@@ -14,6 +15,8 @@ import OwnerDashboard from './pages/OwnerDashboard';
 import StudentDashboard from './pages/StudentDashboard';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
+import { HelmetProvider } from 'react-helmet-async';
+import FriendlyErrorBoundary from './components/FriendlyErrorBoundary';
 import { UserRole } from './types';
 import { Instagram, Twitter, Linkedin } from 'lucide-react';
 import { migrateLocalStorageToFirestore } from './db';
@@ -67,6 +70,7 @@ const AppContent: React.FC = () => {
       <main className="flex-grow">
         <AnimatedRoutes />
       </main>
+      <MobileNav />
       
       <footer className="bg-white border-t border-slate-100 py-20 mt-20 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
@@ -95,15 +99,19 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <ConfigProvider>
-      <AuthProvider>
-        <PropertyProvider>
-          <Router>
-            <AppContent />
-          </Router>
-        </PropertyProvider>
-      </AuthProvider>
-    </ConfigProvider>
+    <HelmetProvider>
+      <Router>
+        <FriendlyErrorBoundary>
+          <ConfigProvider>
+            <AuthProvider>
+              <PropertyProvider>
+                <AppContent />
+              </PropertyProvider>
+            </AuthProvider>
+          </ConfigProvider>
+        </FriendlyErrorBoundary>
+      </Router>
+    </HelmetProvider>
   );
 };
 

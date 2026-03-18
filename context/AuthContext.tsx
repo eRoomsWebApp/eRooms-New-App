@@ -38,9 +38,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (firebaseUser) {
         // Subscribe to user profile from Firestore for real-time sync
         const userRef = doc(db, 'users', firebaseUser.uid);
-        unsubscribeUser = onSnapshot(userRef, (doc) => {
-          if (doc.exists()) {
-            setUser(doc.data() as User);
+        unsubscribeUser = onSnapshot(userRef, async (docSnap) => {
+          if (docSnap.exists()) {
+            const userData = docSnap.data() as User;
+            
+            // Auto-upgrade to SuperAdmin if email matches and role is not SuperAdmin
+            if (userData.email === 'kajay5788@gmail.com' && userData.role !== UserRole.SuperAdmin) {
+              await setDoc(userRef, { role: UserRole.SuperAdmin }, { merge: true });
+              // The next snapshot will have the updated role
+              return;
+            }
+            
+            setUser(userData);
           } else {
             setUser(null);
           }
@@ -71,11 +80,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const userSnap = await getDoc(userRef);
 
       if (!userSnap.exists()) {
+        const finalRole = firebaseUser.email === 'kajay5788@gmail.com' ? UserRole.SuperAdmin : preferredRole;
+        
         const newUser: User = {
           id: firebaseUser.uid,
           username: firebaseUser.displayName || 'Anonymous User',
           email: firebaseUser.email || '',
-          role: preferredRole,
+          role: finalRole,
           status: UserStatus.Active,
           joinedAt: new Date().toISOString(),
           avatar: firebaseUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${firebaseUser.uid}`,
@@ -155,8 +166,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       removeSavedSearch,
       toggleShortlist,
       isAuthenticated: !!user,
-      isAdmin: user?.role === UserRole.Admin || user?.role === UserRole.SuperAdmin,
-      isSuperAdmin: user?.role === UserRole.SuperAdmin,
+      isAdmin: user?.role === UserRole.Admin || user?.role === UserRole.SuperAdmin || user?.email === 'kajay5788@gmail.com',
+      isSuperAdmin: user?.role === UserRole.SuperAdmin || user?.email === 'kajay5788@gmail.com',
       isOwner: user?.role === UserRole.Owner,
       isStudent: user?.role === UserRole.Student,
       isAuthReady

@@ -260,6 +260,15 @@ export const saveProperty = async (property: Property) => {
   }
 };
 
+export const updateProperty = async (id: string, updates: Partial<Property>) => {
+  const path = `properties/${id}`;
+  try {
+    await updateDoc(doc(db, 'properties', id), updates);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.UPDATE, path);
+  }
+};
+
 export const deleteProperty = async (id: string) => {
   const path = `properties/${id}`;
   try {
@@ -370,6 +379,21 @@ export const updateUser = async (userId: string, updates: Partial<User>) => {
     });
   } catch (error) {
     handleFirestoreError(error, OperationType.UPDATE, path);
+  }
+};
+
+export const deleteUser = async (userId: string) => {
+  const path = `users/${userId}`;
+  try {
+    await deleteDoc(doc(db, 'users', userId));
+    await saveActivityLog({
+      action: 'User Account Purged',
+      importance: 'high',
+      target: userId,
+      metadata: { id: userId }
+    });
+  } catch (error) {
+    handleFirestoreError(error, OperationType.DELETE, path);
   }
 };
 

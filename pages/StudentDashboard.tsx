@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useProperties } from '../context/PropertyContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropertyCard from '../components/PropertyCard';
+import OptimizedImage from '../components/OptimizedImage';
 import { 
   Sparkles, Timer, Focus, ChevronRight,
   Activity, Bookmark, Trash2, ArrowUpRight,
@@ -68,10 +69,10 @@ const StudentDashboard: React.FC = () => {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-10 relative z-10">
            <div className="space-y-6">
               <div className="flex items-center gap-6">
-                 <div className="w-24 h-24 rounded-[38px] bg-indigo-600 p-1 shadow-2xl shadow-indigo-500/20">
-                    <img 
+                 <div className="w-24 h-24 rounded-[38px] bg-indigo-600 p-1 shadow-2xl shadow-indigo-500/20 overflow-hidden">
+                    <OptimizedImage 
                       src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} 
-                      className="w-full h-full object-cover rounded-[36px]" 
+                      className="w-full h-full rounded-[36px]" 
                       alt="Avatar" 
                     />
                  </div>

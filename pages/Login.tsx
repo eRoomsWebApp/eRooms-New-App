@@ -13,7 +13,7 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     if (isAuthReady && user) {
-      if (user.role === UserRole.Admin) navigate('/admin/dashboard');
+      if (user.role === UserRole.Admin || user.role === UserRole.SuperAdmin) navigate('/admin/dashboard');
       else if (user.role === UserRole.Owner) navigate('/owner/dashboard');
       else navigate('/student/dashboard');
     }

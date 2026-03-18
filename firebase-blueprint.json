@@ -9,10 +9,26 @@
         "username": { "type": "string" },
         "email": { "type": "string", "format": "email" },
         "phone": { "type": "string" },
-        "role": { "type": "string", "enum": ["admin", "owner", "student"] },
+        "role": { "type": "string", "enum": ["super_admin", "admin", "owner", "student"] },
         "status": { "type": "string", "enum": ["Active", "Suspended", "Flagged"] },
+        "isVerified": { "type": "boolean" },
         "joinedAt": { "type": "string", "format": "date-time" },
-        "shortlist": { "type": "array", "items": { "type": "string" } }
+        "shortlist": { "type": "array", "items": { "type": "string" } },
+        "verificationDocs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "type": { "type": "string", "enum": ["Aadhar", "GST", "Other"] },
+              "url": { "type": "string" },
+              "status": { "type": "string", "enum": ["Pending", "Approved", "Rejected"] },
+              "uploadedAt": { "type": "string", "format": "date-time" },
+              "reviewedAt": { "type": "string", "format": "date-time" },
+              "rejectionReason": { "type": "string" }
+            }
+          }
+        }
       },
       "required": ["id", "email", "role"]
     },
@@ -58,7 +74,27 @@
       "type": "object",
       "properties": {
         "siteName": { "type": "string" },
+        "tagline": { "type": "string" },
+        "heroDescription": { "type": "string" },
+        "heroImages": { "type": "array", "items": { "type": "string" } },
+        "announcements": { 
+          "type": "array", 
+          "items": { 
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "text": { "type": "string" },
+              "link": { "type": "string" },
+              "active": { "type": "boolean" }
+            }
+          }
+        },
+        "footerText": { "type": "string" },
         "maintenanceMode": { "type": "boolean" },
+        "allowNewRegistrations": { "type": "boolean" },
+        "supportWhatsApp": { "type": "string" },
+        "supportPhone": { "type": "string" },
+        "supportEmail": { "type": "string" },
         "lastUpdated": { "type": "string", "format": "date-time" }
       }
     }

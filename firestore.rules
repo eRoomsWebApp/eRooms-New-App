@@ -54,13 +54,15 @@ service cloud.firestore {
 
     function isAdmin() {
       return isAuthenticated() &&
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'super_admin'] ||
+        ((exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'super_admin']) ||
           (request.auth.token.email == "kajay5788@gmail.com" && request.auth.token.email_verified == true));
     }
 
     function isSuperAdmin() {
       return isAuthenticated() &&
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super_admin' ||
+        ((exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super_admin') ||
           (request.auth.token.email == "kajay5788@gmail.com" && request.auth.token.email_verified == true));
     }
 
@@ -96,7 +98,9 @@ service cloud.firestore {
              data.ListingType in ['Hostel', 'PG', 'Flat', 'Mess'] &&
              data.Gender in ['Boys', 'Girls', 'Unisex'] &&
              data.Area is string &&
-             data.ApprovalStatus in ['Pending', 'Approved', 'Rejected'];
+             data.ApprovalStatus in ['Pending', 'Approved', 'Rejected'] &&
+             (!('isFeatured' in data) || data.isFeatured is bool) &&
+             (!('priorityScore' in data) || data.priorityScore is number);
     }
 
     function isValidLead(data) {
@@ -162,6 +166,13 @@ service cloud.firestore {
     match /config/global {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    // Activity logs
+    match /activity_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
     }
 
     // Test connection

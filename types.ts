@@ -57,6 +57,8 @@ export interface AppConfig {
   siteName: string;
   tagline: string;
   heroDescription: string;
+  heroImages: string[];
+  announcements: { id: string; text: string; link?: string; active: boolean }[];
   footerText: string;
   maintenanceMode: boolean;
   allowNewRegistrations: boolean;
@@ -108,6 +110,7 @@ export interface User {
   phone?: string;
   role: UserRole;
   status?: UserStatus;
+  isVerified?: boolean;
   joinedAt?: string;
   address?: string;
   avatar?: string;
@@ -122,6 +125,17 @@ export interface User {
   activityLog?: ActivityLog[];
   savedSearches?: SavedSearch[];
   shortlist?: string[]; // Array of property IDs
+  verificationDocs?: VerificationDoc[];
+}
+
+export interface VerificationDoc {
+  id: string;
+  type: 'Aadhar' | 'GST' | 'Other';
+  url: string;
+  status: ApprovalStatus;
+  uploadedAt: string;
+  reviewedAt?: string;
+  rejectionReason?: string;
 }
 
 export interface Property {
@@ -160,4 +174,6 @@ export interface Property {
   views?: number;
   leadsCount?: number;
   rating?: number;
+  isFeatured?: boolean;
+  priorityScore?: number; // Higher is more priority
 }

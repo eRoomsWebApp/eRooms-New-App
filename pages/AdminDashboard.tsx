@@ -3,9 +3,10 @@ import { useSearchParams } from 'react-router-dom';
 import { useProperties } from '../context/PropertyContext';
 import { useAuth } from '../context/AuthContext';
 import { ApprovalStatus, UserRole, User, UserStatus, AppConfig, Property, Lead, ActivityLog } from '../types';
-import { subscribeToLeads, saveAppConfig, subscribeToUsers, updateUser, subscribeToActivityLogs, updateLead } from '../db';
+import { subscribeToLeads, saveAppConfig, subscribeToUsers, updateUser, deleteUser, subscribeToActivityLogs, updateLead } from '../db';
 import { useConfig } from '../context/ConfigContext';
 import { transformDriveUrl } from '../utils/urlHelper';
+import OptimizedImage from '../components/OptimizedImage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Shield, X, 
@@ -13,11 +14,11 @@ import {
   Users, Activity, Globe, Database,
   UserPlus, Zap, Server,
   MapPin, MessageCircle, Phone, Calendar,
-  Sparkles, ShieldCheck,
+  Sparkles, ShieldCheck, GraduationCap, Briefcase,
   MousePointer2, Timer, Target, Layers,
   Cpu, Terminal, Command,
   Edit3, Focus, FileSpreadsheet, TrendingUp,
-  AlertTriangle, AlertCircle
+  AlertTriangle, AlertCircle, FileCheck, Star, ArrowUp
 } from 'lucide-react';
 import PropertyFormModal from '../components/PropertyFormModal';
 import BulkUploadModal from '../components/BulkUploadModal';
@@ -43,7 +44,7 @@ const AdminDashboard: React.FC = () => {
   const { properties, addProperty, bulkAddProperties, approveProperty, updateProperty, deleteProperty, bulkUpdatePrices, loading: propertiesLoading } = useProperties();
   const { config } = useConfig();
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<'overview' | 'listings' | 'users' | 'leads' | 'config' | 'logs'>(
+  const [activeTab, setActiveTab] = useState<'overview' | 'listings' | 'users' | 'leads' | 'config' | 'logs' | 'docs'>(
     searchParams.get('action') === 'add' ? 'listings' : 'overview'
   );
   const [searchTerm, setSearchTerm] = useState('');
@@ -108,22 +109,84 @@ const AdminDashboard: React.FC = () => {
     approvalRate: properties.length > 0 ? ((properties.filter(p => p.ApprovalStatus === ApprovalStatus.Approved).length / properties.length) * 100).toFixed(0) : 0
   }), [properties, registeredUsers]);
 
+  const systemLogs = useMemo(() => {
+    return activityLogs.map(log => ({
+      id: log.id,
+      event: log.action,
+      detail: log.target || 'System protocol',
+      time: new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      icon: log.importance === 'high' ? AlertCircle : (log.importance === 'medium' ? Target : Activity),
+      color: log.importance === 'high' ? 'text-rose-500' : (log.importance === 'medium' ? 'text-amber-500' : 'text-indigo-500')
+    }));
+  }, [activityLogs]);
+
   if (!config) return null;
 
-  const filteredListings = properties.filter(p => 
-    p.ListingName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.Area.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredListings = properties
+    .filter(p => 
+      p.ListingName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.Area.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      // First sort by isFeatured
+      if (a.isFeatured && !b.isFeatured) return -1;
+      if (!a.isFeatured && b.isFeatured) return 1;
+      
+      // Then by priorityScore
+      const scoreA = a.priorityScore || 0;
+      const scoreB = b.priorityScore || 0;
+      if (scoreA !== scoreB) return scoreB - scoreA;
+      
+      // Finally by name
+      return a.ListingName.localeCompare(b.ListingName);
+    });
 
   const filteredUsers = registeredUsers.filter(u => 
     u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const filteredLeads = leads.filter(l => 
+    l.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    l.propertyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    l.studentPhone.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleExportLeads = () => {
+    if (filteredLeads.length === 0) return;
+    
+    const headers = ['ID', 'Student Name', 'Phone', 'Property', 'Type', 'Status', 'Timestamp'];
+    const rows = filteredLeads.map(l => [
+      l.id,
+      l.studentName,
+      l.studentPhone,
+      l.propertyName,
+      l.type,
+      l.status,
+      new Date(l.timestamp).toLocaleString()
+    ]);
+    
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `erooms_leads_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const navItems = [
     { id: 'overview', label: 'Command Hub', icon: Command },
     { id: 'listings', label: 'Asset Registry', icon: Building2 },
     { id: 'users', label: 'Node Directory', icon: Users },
+    { id: 'docs', label: 'Document Audit', icon: FileCheck },
     { id: 'leads', label: 'Inquiry Stream', icon: MessageCircle },
     { id: 'config', label: 'Kernel Control', icon: Cpu },
     { id: 'logs', label: 'Audit Trail', icon: Terminal },
@@ -140,7 +203,21 @@ const AdminDashboard: React.FC = () => {
           </div>
           <div>
             <p className="font-black text-white text-lg tracking-tighter uppercase leading-none">Kernel</p>
-            <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mt-1">Super Admin v2.1</p>
+            <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mt-1">
+              {user?.role === UserRole.SuperAdmin ? 'Super Admin' : 'Admin'} v2.1
+            </p>
+          </div>
+        </div>
+
+        <div className="hidden lg:block mb-10 px-4 py-6 bg-white/5 rounded-3xl border border-white/5">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10">
+              <OptimizedImage src={user?.avatar || ''} className="w-full h-full" alt="" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-black text-white truncate">{user?.username}</p>
+              <p className="text-[9px] font-black text-white/30 uppercase tracking-widest truncate">{user?.email}</p>
+            </div>
           </div>
         </div>
 
@@ -197,6 +274,17 @@ const AdminDashboard: React.FC = () => {
                  </motion.div>
                )}
             </AnimatePresence>
+            
+            {activeTab === 'leads' && (
+              <button 
+                onClick={handleExportLeads}
+                className="flex items-center gap-3 bg-slate-900 text-white px-8 py-5 rounded-[28px] font-black text-[11px] uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-xl"
+              >
+                <FileSpreadsheet size={18} />
+                Export CSV
+              </button>
+            )}
+
             <div className="relative group w-full md:w-auto">
               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" size={20} />
               <input 
@@ -326,8 +414,10 @@ const AdminDashboard: React.FC = () => {
                     <thead className="bg-slate-50/50 border-b border-slate-100">
                       <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                         <th className="px-12 py-8">Asset Narrative</th>
+                        <th className="px-12 py-8">Owner</th>
                         <th className="px-12 py-8">Cluster</th>
                         <th className="px-12 py-8">Monthly Value</th>
+                        <th className="px-12 py-8">Priority</th>
                         <th className="px-12 py-8">Audit Status</th>
                         <th className="px-12 py-8 text-right">Command</th>
                       </tr>
@@ -338,7 +428,7 @@ const AdminDashboard: React.FC = () => {
                           <td className="px-12 py-10">
                             <div className="flex items-center gap-6">
                               <div className="w-20 h-20 rounded-3xl overflow-hidden border border-slate-100 shadow-sm flex-shrink-0 group-hover:scale-110 transition-transform duration-500">
-                                <img src={transformDriveUrl(p.PhotoMain)} className="w-full h-full object-cover" alt="" />
+                                <OptimizedImage src={transformDriveUrl(p.PhotoMain)} className="w-full h-full" alt="" />
                               </div>
                               <div>
                                 <p className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
@@ -353,10 +443,34 @@ const AdminDashboard: React.FC = () => {
                               </div>
                             </div>
                           </td>
+                          <td className="px-12 py-10">
+                            <p className="text-sm font-bold text-slate-900">{p.OwnerName || 'Unknown'}</p>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">ID: {p.ownerId?.slice(0, 8)}...</p>
+                          </td>
                           <td className="px-12 py-10 text-sm font-bold text-slate-600">{p.Area}</td>
                           <td className="px-12 py-10">
                             <p className="text-lg font-black text-slate-900">₹{(Array.isArray(p.RentDouble) ? p.RentDouble[0] : p.RentDouble || 0).toLocaleString()}</p>
                             <p className="text-[10px] font-black text-slate-300 uppercase mt-1">Base Rental</p>
+                          </td>
+                          <td className="px-12 py-10">
+                            <div className="flex items-center gap-4">
+                              <button 
+                                onClick={() => updateProperty(p.id, { isFeatured: !p.isFeatured })}
+                                className={`p-3 rounded-xl transition-all ${p.isFeatured ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-400 hover:text-slate-600'}`}
+                                title={p.isFeatured ? 'Featured' : 'Mark as Featured'}
+                              >
+                                <Star size={18} fill={p.isFeatured ? 'currentColor' : 'none'} />
+                              </button>
+                              <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-100">
+                                <ArrowUp size={14} className="text-indigo-500" />
+                                <input 
+                                  type="number" 
+                                  value={p.priorityScore || 0}
+                                  onChange={(e) => updateProperty(p.id, { priorityScore: parseInt(e.target.value) || 0 })}
+                                  className="w-12 bg-transparent font-black text-xs outline-none"
+                                />
+                              </div>
+                            </div>
                           </td>
                           <td className="px-12 py-10">
                             <div className="flex flex-col gap-2">
@@ -433,10 +547,17 @@ const AdminDashboard: React.FC = () => {
                           <td className="px-12 py-10">
                             <div className="flex items-center gap-6">
                               <div className="w-16 h-16 bg-slate-100 rounded-[24px] overflow-hidden border border-slate-100 flex-shrink-0">
-                                 <img src={u.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${u.username}`} alt="" className="w-full h-full object-cover" />
+                                 <OptimizedImage src={u.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${u.username}`} alt="" className="w-full h-full" />
                               </div>
                               <div>
-                                <p className="text-lg font-black text-slate-900 leading-tight">{u.username}</p>
+                                <p className="text-lg font-black text-slate-900 leading-tight flex items-center gap-2">
+                                  {u.username}
+                                  {u.isVerified && (
+                                    <span className="text-indigo-600" title="Verified Node">
+                                      <ShieldCheck size={16} />
+                                    </span>
+                                  )}
+                                </p>
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{u.email}</p>
                               </div>
                             </div>
@@ -489,7 +610,7 @@ const AdminDashboard: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                      {leads.map(lead => (
+                      {filteredLeads.map(lead => (
                         <tr key={lead.id} className="hover:bg-slate-50/40 transition-colors group">
                           <td className="px-12 py-10">
                             <div className="flex items-center gap-4">
@@ -543,11 +664,125 @@ const AdminDashboard: React.FC = () => {
                           </td>
                         </tr>
                       ))}
-                      {leads.length === 0 && (
+                      {filteredLeads.length === 0 && (
                         <tr>
                           <td colSpan={5} className="px-12 py-32 text-center">
                             <MessageCircle size={60} className="mx-auto text-slate-100 mb-6" />
-                            <p className="text-slate-300 font-black uppercase tracking-[0.4em] text-xs">No leads captured yet.</p>
+                            <p className="text-slate-300 font-black uppercase tracking-[0.4em] text-xs">No leads matching your search.</p>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                 </div>
+               )}
+            </motion.div>
+          )}
+
+          {/* DOCUMENT AUDIT (Verification Docs) */}
+          {activeTab === 'docs' && (
+            <motion.div key="docs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white border border-slate-200 rounded-[48px] shadow-sm overflow-hidden">
+               {loadingUsers ? (
+                 <TableSkeleton />
+               ) : (
+                 <div className="overflow-x-auto">
+                  <table className="w-full text-left min-w-[1000px]">
+                    <thead className="bg-slate-50/50 border-b border-slate-100">
+                      <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                        <th className="px-12 py-8">Owner Identity</th>
+                        <th className="px-12 py-8">Document Type</th>
+                        <th className="px-12 py-8">Submission Date</th>
+                        <th className="px-12 py-8">Audit Status</th>
+                        <th className="px-12 py-8 text-right">Command</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {registeredUsers.filter(u => u.role === UserRole.Owner && u.verificationDocs && u.verificationDocs.length > 0).flatMap(u => 
+                        (u.verificationDocs || []).map(doc => ({ user: u, doc }))
+                      ).sort((a, b) => new Date(b.doc.uploadedAt).getTime() - new Date(a.doc.uploadedAt).getTime()).map(({ user: u, doc }) => (
+                        <tr key={doc.id} className="hover:bg-slate-50/30 transition-colors group">
+                          <td className="px-12 py-10">
+                            <div className="flex items-center gap-6">
+                              <div className="w-12 h-12 bg-slate-100 rounded-2xl overflow-hidden border border-slate-100 flex-shrink-0">
+                                 <OptimizedImage src={u.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${u.username}`} alt="" className="w-full h-full" />
+                              </div>
+                              <div>
+                                <p className="text-lg font-black text-slate-900 leading-tight">{u.username}</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{u.email}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-12 py-10">
+                             <span className="px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-600">
+                               {doc.type}
+                             </span>
+                          </td>
+                          <td className="px-12 py-10 text-sm font-bold text-slate-500">
+                             {new Date(doc.uploadedAt).toLocaleDateString('en-IN', { month: 'short', year: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </td>
+                          <td className="px-12 py-10">
+                             <span className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest inline-flex items-center gap-3 ${
+                               doc.status === ApprovalStatus.Approved ? 'bg-emerald-50 text-emerald-700' : 
+                               doc.status === ApprovalStatus.Rejected ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'
+                             }`}>
+                               <div className={`w-2 h-2 rounded-full ${
+                                 doc.status === ApprovalStatus.Approved ? 'bg-emerald-500' : 
+                                 doc.status === ApprovalStatus.Rejected ? 'bg-rose-500' : 'bg-amber-500 animate-pulse'
+                               }`}></div>
+                               {doc.status}
+                             </span>
+                          </td>
+                          <td className="px-12 py-10 text-right">
+                             <div className="flex items-center justify-end gap-3">
+                                <a 
+                                  href={doc.url} 
+                                  target="_blank" 
+                                  rel="noreferrer"
+                                  className="p-3 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-900 hover:text-white transition-all"
+                                  title="View Document"
+                                >
+                                   <Globe size={16} />
+                                </a>
+                                {doc.status === ApprovalStatus.Pending && (
+                                  <>
+                                    <button 
+                                      onClick={async () => {
+                                        const updatedDocs = (u.verificationDocs || []).map(d => 
+                                          d.id === doc.id ? { ...d, status: ApprovalStatus.Approved, reviewedAt: new Date().toISOString() } : d
+                                        );
+                                        // If all docs are approved, mark user as verified
+                                        const allApproved = updatedDocs.every(d => d.status === ApprovalStatus.Approved);
+                                        await updateUser(u.id, { verificationDocs: updatedDocs, isVerified: allApproved });
+                                      }}
+                                      className="bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg"
+                                    >
+                                      Approve
+                                    </button>
+                                    <button 
+                                      onClick={async () => {
+                                        const reason = window.prompt('Enter rejection reason:');
+                                        if (reason) {
+                                          const updatedDocs = (u.verificationDocs || []).map(d => 
+                                            d.id === doc.id ? { ...d, status: ApprovalStatus.Rejected, reviewedAt: new Date().toISOString(), rejectionReason: reason } : d
+                                          );
+                                          await updateUser(u.id, { verificationDocs: updatedDocs, isVerified: false });
+                                        }
+                                      }}
+                                      className="bg-rose-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-700 transition-all shadow-lg"
+                                    >
+                                      Reject
+                                    </button>
+                                  </>
+                                )}
+                             </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {registeredUsers.filter(u => u.role === UserRole.Owner && u.verificationDocs && u.verificationDocs.length > 0).length === 0 && (
+                        <tr>
+                          <td colSpan={5} className="px-12 py-32 text-center">
+                            <FileCheck size={60} className="mx-auto text-slate-100 mb-6" />
+                            <p className="text-slate-300 font-black uppercase tracking-[0.4em] text-xs">No documents pending audit.</p>
                           </td>
                         </tr>
                       )}
@@ -639,6 +874,132 @@ const AdminDashboard: React.FC = () => {
                   </div>
                </section>
 
+               {/* Hero Imagery CMS */}
+               <section className="bg-white border border-slate-200 rounded-[56px] p-12 lg:p-16 shadow-sm">
+                  <h3 className="text-3xl font-black text-slate-900 mb-12 flex items-center gap-6">
+                     <Building2 size={28} className="text-indigo-500" /> Hero Imagery CMS
+                     <div className="h-px flex-grow bg-slate-100"></div>
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                     {(config.heroImages || []).map((img, idx) => (
+                        <div key={idx} className="relative group rounded-[40px] overflow-hidden aspect-video border border-slate-100 shadow-sm">
+                           <OptimizedImage src={img} className="w-full h-full object-cover" alt="" />
+                           <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                              <button 
+                                onClick={() => {
+                                  const newImages = [...(config.heroImages || [])];
+                                  newImages.splice(idx, 1);
+                                  handleUpdateConfig({ heroImages: newImages });
+                                }}
+                                className="p-4 bg-red-500 text-white rounded-2xl hover:bg-red-600 transition-colors"
+                              >
+                                 <Trash2 size={20} />
+                              </button>
+                           </div>
+                        </div>
+                     ))}
+                     <button 
+                       onClick={() => {
+                         const url = window.prompt('Enter Hero Image URL:');
+                         if (url) {
+                           handleUpdateConfig({ heroImages: [...(config.heroImages || []), url] });
+                         }
+                       }}
+                       className="border-4 border-dashed border-slate-100 rounded-[40px] aspect-video flex flex-col items-center justify-center text-slate-300 hover:text-indigo-500 hover:border-indigo-100 transition-all group"
+                     >
+                        <Plus size={48} className="mb-4 group-hover:scale-110 transition-transform" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Add Hero Asset</span>
+                     </button>
+                  </div>
+               </section>
+
+               {/* Announcement Stream */}
+               <section className="bg-white border border-slate-200 rounded-[56px] p-12 lg:p-16 shadow-sm">
+                  <h3 className="text-3xl font-black text-slate-900 mb-12 flex items-center gap-6">
+                     <Zap size={28} className="text-emerald-500" /> Announcement Stream
+                     <div className="h-px flex-grow bg-slate-100"></div>
+                  </h3>
+                  <div className="space-y-6">
+                     {(config.announcements || []).map((ann, idx) => (
+                        <div key={ann.id} className="flex items-center gap-8 p-8 bg-slate-50 rounded-[32px] border border-slate-100">
+                           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${ann.active ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-200 text-slate-400'}`}>
+                              <Zap size={20} />
+                           </div>
+                           <div className="flex-grow">
+                              <input 
+                                type="text"
+                                className="w-full bg-transparent border-none outline-none font-bold text-slate-900 mb-1"
+                                value={ann.text}
+                                onChange={(e) => {
+                                  const newAnn = [...(config.announcements || [])];
+                                  newAnn[idx].text = e.target.value;
+                                  handleUpdateConfig({ announcements: newAnn });
+                                }}
+                              />
+                              <input 
+                                type="text"
+                                placeholder="Optional Link URL"
+                                className="w-full bg-transparent border-none outline-none text-[10px] font-black uppercase text-slate-400 tracking-widest"
+                                value={ann.link || ''}
+                                onChange={(e) => {
+                                  const newAnn = [...(config.announcements || [])];
+                                  newAnn[idx].link = e.target.value;
+                                  handleUpdateConfig({ announcements: newAnn });
+                                }}
+                              />
+                           </div>
+                           <div className="flex items-center gap-4">
+                              <div 
+                                className={`w-12 h-7 rounded-full relative cursor-pointer transition-colors ${ann.active ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                                onClick={() => {
+                                  const newAnn = [...(config.announcements || [])];
+                                  newAnn[idx].active = !newAnn[idx].active;
+                                  handleUpdateConfig({ announcements: newAnn });
+                                }}
+                              >
+                                 <motion.div animate={{ x: ann.active ? 22 : 4 }} className="absolute top-1 w-5 h-5 bg-white rounded-full shadow-sm" />
+                              </div>
+                              <button 
+                                onClick={() => {
+                                  const newAnn = [...(config.announcements || [])];
+                                  newAnn.splice(idx, 1);
+                                  handleUpdateConfig({ announcements: newAnn });
+                                }}
+                                className="p-3 text-red-400 hover:text-red-600 transition-colors"
+                              >
+                                 <Trash2 size={18} />
+                              </button>
+                           </div>
+                        </div>
+                     ))}
+                     <button 
+                       onClick={() => {
+                         const newAnn = [...(config.announcements || []), { id: `ann-${Date.now()}`, text: 'New Announcement', active: true }];
+                         handleUpdateConfig({ announcements: newAnn });
+                       }}
+                       className="w-full py-6 border-2 border-dashed border-slate-200 rounded-[32px] text-slate-400 font-black uppercase tracking-widest text-[11px] hover:border-indigo-500 hover:text-indigo-500 transition-all"
+                     >
+                        + Initialize New Announcement Node
+                     </button>
+                  </div>
+               </section>
+
+               {/* Footer Narrative */}
+               <section className="bg-white border border-slate-200 rounded-[56px] p-12 lg:p-16 shadow-sm">
+                  <h3 className="text-3xl font-black text-slate-900 mb-12 flex items-center gap-6">
+                     <Globe size={28} className="text-slate-900" /> Footer Narrative
+                     <div className="h-px flex-grow bg-slate-100"></div>
+                  </h3>
+                  <div className="space-y-4">
+                     <label className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] ml-2">Global Footer Text</label>
+                     <textarea 
+                        className="w-full px-8 py-6 rounded-[32px] border border-slate-100 bg-slate-50 focus:bg-white outline-none transition-all font-bold text-slate-900 h-32"
+                        value={config.footerText}
+                        onChange={(e) => handleUpdateConfig({ footerText: e.target.value })}
+                     />
+                  </div>
+               </section>
+
                {/* Cluster Configuration */}
                <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <div className="bg-white border border-slate-200 rounded-[48px] p-12 shadow-sm">
@@ -672,6 +1033,24 @@ const AdminDashboard: React.FC = () => {
                           <div key={f} className="bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 flex items-center gap-4 group">
                              <span className="text-[11px] font-black text-slate-600 uppercase tracking-widest">{f}</span>
                              <button onClick={() => handleUpdateConfig({ facilities: config.facilities.filter(x => x !== f) })} className="text-slate-300 hover:text-red-500 transition-colors"><X size={14} /></button>
+                          </div>
+                        ))}
+                     </div>
+                  </div>
+
+                  <div className="bg-white border border-slate-200 rounded-[48px] p-12 shadow-sm">
+                     <div className="flex justify-between items-center mb-10">
+                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Coaching Matrix</h3>
+                        <button onClick={() => {
+                           const name = prompt('New Coaching Institute:');
+                           if(name) handleUpdateConfig({ institutes: [...config.institutes, name] });
+                        }} className="p-4 bg-slate-900 text-white rounded-2xl hover:bg-indigo-600 transition-all shadow-xl"><Plus size={20} /></button>
+                     </div>
+                     <div className="flex flex-wrap gap-3">
+                        {config.institutes.map(i => (
+                          <div key={i} className="bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 flex items-center gap-4 group">
+                             <span className="text-[11px] font-black text-slate-600 uppercase tracking-widest">{i}</span>
+                             <button onClick={() => handleUpdateConfig({ institutes: config.institutes.filter(x => x !== i) })} className="text-slate-300 hover:text-red-500 transition-colors"><X size={14} /></button>
                           </div>
                         ))}
                      </div>
@@ -755,7 +1134,7 @@ const AdminDashboard: React.FC = () => {
                {/* Dossier Meta Sidebar */}
                <div className="lg:w-96 bg-neutral-50 p-12 border-r border-slate-100 flex flex-col items-center overflow-y-auto no-scrollbar">
                   <div className="w-48 h-48 rounded-[56px] overflow-hidden border-8 border-white shadow-2xl mb-10">
-                     <img src={selectedUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedUser.username}`} className="w-full h-full object-cover" alt="" />
+                     <OptimizedImage src={selectedUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedUser.username}`} className="w-full h-full" alt="" />
                   </div>
                   <h3 className="text-3xl font-black text-slate-900 text-center mb-1 leading-tight">{selectedUser.username}</h3>
                   <p className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-600 mb-12 flex items-center gap-2">
@@ -764,7 +1143,16 @@ const AdminDashboard: React.FC = () => {
                   
                   <div className="w-full space-y-4 mb-16">
                      <div className="p-6 bg-white rounded-[32px] border border-slate-100 shadow-sm">
-                        <p className="text-[10px] font-black uppercase text-slate-300 mb-2">Node Compliance</p>
+                        <div className="flex justify-between items-center mb-2">
+                           <p className="text-[10px] font-black uppercase text-slate-300">Node Compliance</p>
+                           <div 
+                             onClick={() => setSelectedUser({ ...selectedUser, isVerified: !selectedUser.isVerified })}
+                             className={`flex items-center gap-2 px-3 py-1 rounded-full cursor-pointer transition-all ${selectedUser.isVerified ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400'}`}
+                           >
+                             <ShieldCheck size={12} />
+                             <span className="text-[9px] font-black uppercase tracking-widest">{selectedUser.isVerified ? 'Verified' : 'Unverified'}</span>
+                           </div>
+                        </div>
                         <div className="flex items-center gap-3">
                            <div className={`w-3 h-3 rounded-full ${selectedUser.status === UserStatus.Suspended ? 'bg-red-500' : 'bg-emerald-500'}`}></div>
                            <span className="text-lg font-black text-slate-900">{selectedUser.status || 'Active'}</span>
@@ -777,38 +1165,89 @@ const AdminDashboard: React.FC = () => {
                   </div>
 
                   <div className="mt-auto w-full space-y-4">
-                     <div className="grid grid-cols-2 gap-4 mb-4">
+                     <div className="grid grid-cols-1 gap-4 mb-4">
                         <div className="space-y-2">
-                          <label className="text-[9px] font-black uppercase text-slate-400 ml-2">Role Registry</label>
-                          <select 
-                            value={selectedUser.role}
-                            onChange={(e) => updateUser(selectedUser.id, { role: e.target.value as UserRole })}
-                            className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 font-black text-[10px] uppercase outline-none"
-                          >
-                            {Object.values(UserRole).map(role => (
-                              <option key={role} value={role}>{role}</option>
-                            ))}
-                          </select>
+                          <label className="text-[9px] font-black uppercase text-slate-400 ml-2">Username</label>
+                          <input 
+                            type="text"
+                            value={selectedUser.username}
+                            onChange={(e) => setSelectedUser({ ...selectedUser, username: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                          />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[9px] font-black uppercase text-slate-400 ml-2">Compliance Status</label>
-                          <select 
-                            value={selectedUser.status}
-                            onChange={(e) => updateUser(selectedUser.id, { status: e.target.value as UserStatus })}
-                            className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 font-black text-[10px] uppercase outline-none"
-                          >
-                            {Object.values(UserStatus).map(status => (
-                              <option key={status} value={status}>{status}</option>
-                            ))}
-                          </select>
+                          <label className="text-[9px] font-black uppercase text-slate-400 ml-2">Email Address</label>
+                          <input 
+                            type="email"
+                            value={selectedUser.email}
+                            onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-black uppercase text-slate-400 ml-2">Phone Number</label>
+                          <input 
+                            type="text"
+                            value={selectedUser.phone || ''}
+                            onChange={(e) => setSelectedUser({ ...selectedUser, phone: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-[9px] font-black uppercase text-slate-400 ml-2">Role Registry</label>
+                            <select 
+                              value={selectedUser.role}
+                              onChange={(e) => setSelectedUser({ ...selectedUser, role: e.target.value as UserRole })}
+                              className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 font-black text-[10px] uppercase outline-none"
+                            >
+                              {Object.values(UserRole).map(role => (
+                                <option key={role} value={role}>{role}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[9px] font-black uppercase text-slate-400 ml-2">Compliance</label>
+                            <select 
+                              value={selectedUser.status}
+                              onChange={(e) => setSelectedUser({ ...selectedUser, status: e.target.value as UserStatus })}
+                              className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 font-black text-[10px] uppercase outline-none"
+                            >
+                              {Object.values(UserStatus).map(status => (
+                                <option key={status} value={status}>{status}</option>
+                              ))}
+                            </select>
+                          </div>
                         </div>
                      </div>
-                     <button className="w-full py-6 bg-slate-900 text-white rounded-[28px] text-[11px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-xl">Transmit Signal</button>
                      <button 
-                        onClick={() => updateUser(selectedUser.id, { status: UserStatus.Suspended })}
+                        onClick={async () => {
+                          await updateUser(selectedUser.id, selectedUser);
+                          setSelectedUser(null);
+                        }}
+                        className="w-full py-6 bg-slate-900 text-white rounded-[28px] text-[11px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-xl"
+                      >
+                        Commit Changes
+                      </button>
+                     <button 
+                        onClick={async () => {
+                          await updateUser(selectedUser.id, { status: UserStatus.Suspended });
+                          setSelectedUser(null);
+                        }}
+                        className="w-full py-6 bg-red-600 text-white rounded-[28px] text-[11px] font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-xl"
+                      >
+                        Instant Suspend
+                      </button>
+                     <button 
+                        onClick={async () => {
+                          if (window.confirm('Are you sure you want to permanently delete this user? This action is irreversible.')) {
+                            await deleteUser(selectedUser.id);
+                            setSelectedUser(null);
+                          }
+                        }}
                         className="w-full py-6 border border-red-100 text-red-500 rounded-[28px] text-[11px] font-black uppercase tracking-widest hover:bg-red-50 transition-all"
                      >
-                        Revoke Access
+                        Purge Node
                      </button>
                   </div>
                </div>
@@ -822,6 +1261,62 @@ const AdminDashboard: React.FC = () => {
                      </div>
                      <button onClick={() => setSelectedUser(null)} className="p-5 bg-slate-50 rounded-full hover:bg-slate-200 transition-colors shadow-sm"><X size={28} /></button>
                   </div>
+
+                  {selectedUser.role === UserRole.Student && (
+                    <section className="bg-white border border-slate-100 p-12 rounded-[56px] shadow-sm mb-12">
+                      <h5 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400 mb-10 flex items-center gap-3"><GraduationCap size={16} /> Academic Credentials</h5>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-black uppercase text-slate-400 ml-2">College/Institute</label>
+                          <input 
+                            type="text"
+                            value={selectedUser.college || ''}
+                            onChange={(e) => setSelectedUser({ ...selectedUser, college: e.target.value })}
+                            className="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 font-bold text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500"
+                            placeholder="e.g. Allen Career Institute"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-black uppercase text-slate-400 ml-2">Course/Batch</label>
+                          <input 
+                            type="text"
+                            value={selectedUser.course || ''}
+                            onChange={(e) => setSelectedUser({ ...selectedUser, course: e.target.value })}
+                            className="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 font-bold text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500"
+                            placeholder="e.g. JEE Advanced 2026"
+                          />
+                        </div>
+                      </div>
+                    </section>
+                  )}
+
+                  {selectedUser.role === UserRole.Owner && (
+                    <section className="bg-white border border-slate-100 p-12 rounded-[56px] shadow-sm mb-12">
+                      <h5 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400 mb-10 flex items-center gap-3"><Briefcase size={16} /> Business Identity</h5>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-black uppercase text-slate-400 ml-2">Business Name</label>
+                          <input 
+                            type="text"
+                            value={selectedUser.businessName || ''}
+                            onChange={(e) => setSelectedUser({ ...selectedUser, businessName: e.target.value })}
+                            className="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 font-bold text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500"
+                            placeholder="e.g. Sharma Residency Group"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-black uppercase text-slate-400 ml-2">GST Number (Optional)</label>
+                          <input 
+                            type="text"
+                            value={selectedUser.gstNumber || ''}
+                            onChange={(e) => setSelectedUser({ ...selectedUser, gstNumber: e.target.value })}
+                            className="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 font-bold text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500"
+                            placeholder="22AAAAA0000A1Z5"
+                          />
+                        </div>
+                      </div>
+                    </section>
+                  )}
 
                   {selectedUser.role === UserRole.Student && selectedUser.behavioralMetrics ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">

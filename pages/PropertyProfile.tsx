@@ -16,6 +16,8 @@ import { useProperties } from '../context/PropertyContext';
 import { useAuth } from '../context/AuthContext';
 import { PropertyProfileSkeleton } from '../components/Skeleton';
 import { transformDriveUrl } from '../utils/urlHelper';
+import { Helmet } from 'react-helmet-async';
+import OptimizedImage from '../components/OptimizedImage';
 import { Gender } from '../types';
 import { recordPropertyView, saveLead } from '../db';
 import { AnimatePresence } from 'framer-motion';
@@ -219,20 +221,29 @@ const PropertyProfile: React.FC = () => {
       {/* Scroll Progress Bar */}
       <motion.div className="fixed top-0 left-0 right-0 h-1 bg-indigo-600 z-[100] origin-left" style={{ scaleX }} />
 
+      <Helmet>
+        <title>{property.ListingName} in {property.Area} | {property.ListingType} for {property.Gender}</title>
+        <meta name="description" content={`Premium ${property.ListingType} for ${property.Gender} in ${property.Area}, Kota. Starting at ₹${((Array.isArray(property.RentDouble) ? property.RentDouble[0] : property.RentDouble) || 0).toLocaleString()}/mo. Book your visit now!`} />
+        <meta property="og:title" content={`${property.ListingName} - ${property.Area}`} />
+        <meta property="og:description" content={`Verified ${property.ListingType} for ${property.Gender} with ${property.Facilities.join(', ')}.`} />
+        <meta property="og:image" content={transformDriveUrl(property.PhotoMain)} />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       {/* 1. Immersive Hero Gallery */}
       <section id="overview" ref={overviewRef} className="relative h-[65vh] lg:h-[85vh] overflow-hidden">
         <div className="absolute inset-0 grid grid-cols-1 lg:grid-cols-12 gap-1 lg:gap-2">
            <div className="lg:col-span-8 h-full relative group cursor-zoom-in" onClick={() => setLightboxIndex(0)}>
-              <img src={transformDriveUrl(property.PhotoMain)} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Main" referrerPolicy="no-referrer" />
+              <OptimizedImage src={transformDriveUrl(property.PhotoMain)} className="w-full h-full transition-transform duration-1000 group-hover:scale-105" alt="Main" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/10 to-transparent"></div>
            </div>
            <div className="hidden lg:grid lg:col-span-4 grid-rows-2 gap-2 h-full">
               <div className="relative overflow-hidden group cursor-zoom-in" onClick={() => setLightboxIndex(1)}>
-                 <img src={transformDriveUrl(property.PhotoRoom)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Room" referrerPolicy="no-referrer" />
+                 <OptimizedImage src={transformDriveUrl(property.PhotoRoom)} className="w-full h-full transition-transform duration-700 group-hover:scale-110" alt="Room" />
                  <div className="absolute inset-0 bg-black/20"></div>
               </div>
               <div className="relative overflow-hidden group cursor-zoom-in" onClick={() => setLightboxIndex(2)}>
-                 <img src={transformDriveUrl(property.PhotoWashroom)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Washroom" referrerPolicy="no-referrer" />
+                 <OptimizedImage src={transformDriveUrl(property.PhotoWashroom)} className="w-full h-full transition-transform duration-700 group-hover:scale-110" alt="Washroom" />
                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <span className="text-white font-black uppercase text-xs tracking-widest border border-white/40 px-6 py-3 rounded-xl backdrop-blur-md">View All Photos</span>
                  </div>
@@ -692,12 +703,10 @@ const PropertyProfile: React.FC = () => {
                 <ChevronLeft size={48} />
               </button>
 
-              <motion.img 
+              <OptimizedImage 
                 key={lightboxIndex}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
                 src={transformDriveUrl(allPhotos[lightboxIndex])} 
-                className="w-full h-full object-contain rounded-3xl shadow-2xl"
+                className="w-full h-full rounded-3xl shadow-2xl"
                 alt="Full View"
               />
 

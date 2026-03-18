@@ -1,24 +1,16 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
 import { useConfig } from '../context/ConfigContext';
-import { Menu, X, ChevronRight, User, PlusCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { PlusCircle } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout, isAuthenticated } = useAuth();
   const { config } = useConfig();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [prevPath, setPrevPath] = useState(location.pathname);
-
-  if (location.pathname !== prevPath) {
-    setPrevPath(location.pathname);
-    setIsMobileMenuOpen(false);
-  }
 
   if (!config) return null;
   const siteName = config.siteName;
@@ -74,66 +66,12 @@ const Navbar: React.FC = () => {
             <button onClick={() => navigate('/login')} className="text-[11px] font-black uppercase tracking-widest bg-slate-100 text-slate-900 px-6 py-3 rounded-xl border border-slate-200 hover:bg-slate-200 transition-all">Login</button>
           )}
         </div>
-        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">{isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}</button>
+        <button onClick={() => window.open(`tel:${config.supportPhone}`)} className="lg:hidden p-3 bg-slate-50 text-slate-900 rounded-xl hover:bg-slate-100 transition-colors flex items-center gap-2">
+          <span className="text-[10px] font-black uppercase tracking-widest">Support</span>
+        </button>
       </div>
 
-      {/* Mobile Menu Drawer */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-white border-t border-slate-100 overflow-hidden"
-          >
-            <div className="px-4 py-6 flex flex-col gap-4">
-              {navItems.map((item) => (
-                <Link 
-                  key={item.label} 
-                  to={item.path} 
-                  className={`flex items-center justify-between p-4 rounded-2xl text-[12px] font-black uppercase tracking-widest ${location.pathname === item.path ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'}`}
-                >
-                  {item.label}
-                  <ChevronRight size={16} />
-                </Link>
-              ))}
-              <div className="pt-4 border-t border-slate-50 flex flex-col gap-3">
-                <div className="flex flex-col gap-2 px-2 mb-2">
-                  <a href={`tel:${config.supportPhone}`} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl text-[11px] font-black uppercase tracking-widest text-slate-600">
-                    Call Us
-                    <span className="text-slate-900">{config.supportPhone}</span>
-                  </a>
-                  <a 
-                    href={`https://wa.me/${config.supportWhatsApp}?text=${encodeURIComponent('नमस्ते, मैं रूम देख रहा था, मुझे रूम की जरूरत है।')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between p-4 bg-emerald-50 rounded-2xl text-[11px] font-black uppercase tracking-widest text-emerald-600"
-                  >
-                    WhatsApp
-                    <span className="text-emerald-700">+{config.supportWhatsApp}</span>
-                  </a>
-                </div>
-                <Link 
-                  to={getListPropertyPath()} 
-                  className="flex items-center justify-center gap-2 w-full bg-indigo-50 text-indigo-600 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest border border-indigo-100"
-                >
-                  <PlusCircle size={16} /> List Your Property
-                </Link>
-                {isAuthenticated ? (
-                  <>
-                    <Link to={getDashboardPath()} className="flex items-center justify-center gap-2 w-full bg-slate-900 text-white py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-lg">
-                      <User size={16} /> Dashboard
-                    </Link>
-                    <button onClick={() => { logout(); navigate('/'); }} className="w-full py-4 text-[11px] font-black uppercase tracking-widest text-red-500">Logout</button>
-                  </>
-                ) : (
-                  <button onClick={() => navigate('/login')} className="w-full bg-slate-100 text-slate-900 py-4 rounded-2xl border border-slate-200 text-[11px] font-black uppercase tracking-widest">Login</button>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Mobile Menu Drawer Removed - Replaced by MobileNav and Category Scroll */}
     </nav>
   );
 };

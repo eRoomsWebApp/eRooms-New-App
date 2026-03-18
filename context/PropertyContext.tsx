@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 import { Property, ApprovalStatus, Gender } from '../types';
 import { subscribeToProperties, saveProperty, deleteProperty, bulkSaveProperties } from '../db';
-import { INSTITUTES } from '../constants';
+import { useConfig } from './ConfigContext';
 import { useAuth } from './AuthContext';
 
 export interface Filters {
@@ -25,7 +25,7 @@ interface PropertyContextType {
   setFilters: React.Dispatch<React.SetStateAction<Filters>>;
   addProperty: (property: Property) => Promise<void>;
   bulkAddProperties: (properties: Property[]) => Promise<void>;
-  updateProperty: (id: string, property: Property) => Promise<void>;
+  updateProperty: (id: string, updates: Partial<Property>) => Promise<void>;
   deleteProperty: (id: string) => Promise<void>;
   approveProperty: (id: string) => Promise<void>;
   bulkUpdatePrices: (area: string, amount: number) => Promise<void>;
@@ -35,6 +35,7 @@ const PropertyContext = createContext<PropertyContextType | undefined>(undefined
 
 export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user } = useAuth();
+  const { config } = useConfig();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<Filters>({
@@ -47,6 +48,8 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }
     maxDistance: 0,
     roomTypes: []
   });
+
+  const institutes = config?.institutes || [];
 
   useEffect(() => {
     const unsubscribe = subscribeToProperties(user?.id, user?.role, (data) => {
@@ -112,6 +115,19 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }
         }
 
         return matchesCoaching && matchesGender && matchesArea && matchesPills && matchesPrice && matchesFacilities && matchesDistance && matchesRoomType;
+      })
+      .sort((a, b) => {
+        // 1. Featured properties first
+        if (a.isFeatured && !b.isFeatured) return -1;
+        if (!a.isFeatured && b.isFeatured) return 1;
+        
+        // 2. Higher priority score first
+        const priorityA = a.priorityScore || 0;
+        const priorityB = b.priorityScore || 0;
+        if (priorityA !== priorityB) return priorityB - priorityA;
+        
+        // 3. Alphabetical as fallback
+        return a.ListingName.localeCompare(b.ListingName);
       });
   }, [properties, filters]);
 
@@ -127,7 +143,7 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const normalize = (p: Property): Property => ({
     ...p,
-    InstituteDistanceMatrix: Array.isArray(p.InstituteDistanceMatrix) ? p.InstituteDistanceMatrix : INSTITUTES.map(name => ({ name, distance: 1.0 })),
+    InstituteDistanceMatrix: Array.isArray(p.InstituteDistanceMatrix) ? p.InstituteDistanceMatrix : (config?.institutes || []).map(name => ({ name, distance: 1.0 })),
     Facilities: Array.isArray(p.Facilities) ? p.Facilities : []
   });
 
@@ -141,9 +157,11 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }
     await bulkSaveProperties(normalizedProps);
   };
 
-  const updateProperty = async (id: string, updated: Property) => {
-    const normalized = normalize(updated);
-    await saveProperty(normalized);
+  const updateProperty = async (id: string, updates: Partial<Property>) => {
+    // If it's a full property, normalize it. If it's a partial, we can't easily normalize it without the full object.
+    // But since normalize just ensures arrays exist, we can skip it for partial updates.
+    const { updateProperty: dbUpdateProperty } = await import('../db');
+    await dbUpdateProperty(id, updates);
   };
 
   const deletePropertyHandler = async (id: string) => {

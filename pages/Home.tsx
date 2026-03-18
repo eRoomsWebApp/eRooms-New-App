@@ -9,9 +9,11 @@ import FilterBar from '../components/FilterBar';
 import { ApprovalStatus, UserRole } from '../types';
 import { useConfig } from '../context/ConfigContext';
 import { useAuth } from '../context/AuthContext';
-import { Building2, PlusCircle, ArrowRight } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
+import { Building2, PlusCircle, ArrowRight, Zap } from 'lucide-react';
 import { transformDriveUrl } from '../utils/urlHelper';
 import { PropertyCardSkeleton } from '../components/Skeleton';
+import OptimizedImage from '../components/OptimizedImage';
 
 const Home: React.FC = () => {
   const { filteredProperties, properties, loading, isFiltering, setFilters } = useProperties();
@@ -34,8 +36,66 @@ const Home: React.FC = () => {
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="pb-20"
     >
+      <Helmet>
+        <title>{config.siteName} | {config.tagline}</title>
+        <meta name="description" content={config.heroDescription} />
+        <meta property="og:title" content={`${config.siteName} - ${config.tagline}`} />
+        <meta property="og:description" content={config.heroDescription} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Helmet>
+      {/* Announcement Bar */}
+      <AnimatePresence>
+        {config.announcements?.filter(a => a.active).map((ann) => (
+          <motion.div 
+            key={ann.id}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="bg-indigo-600 text-white py-3 px-4 text-center relative z-50 overflow-hidden"
+          >
+            <div className="max-w-7xl mx-auto flex items-center justify-center gap-4">
+              <Zap size={14} className="animate-pulse" />
+              <p className="text-[11px] font-black uppercase tracking-widest">
+                {ann.text}
+                {ann.link && (
+                  <a href={ann.link} target="_blank" rel="noopener noreferrer" className="ml-4 underline hover:text-indigo-200 transition-colors">
+                    Learn More
+                  </a>
+                )}
+              </p>
+            </div>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+
       {/* Hero Section */}
-      <div className="bg-slate-50 pt-20 pb-16 px-4 border-b border-slate-100 relative overflow-hidden">
+      <div className="bg-slate-50 pt-20 pb-16 px-4 border-b border-slate-100 relative overflow-hidden min-h-[600px] flex items-center">
+        {/* Dynamic Background */}
+        <div className="absolute inset-0 z-0">
+          <AnimatePresence mode="wait">
+            {config.heroImages && config.heroImages.length > 0 ? (
+              <motion.div
+                key="hero-bg"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1 }}
+                className="absolute inset-0"
+              >
+                <OptimizedImage 
+                  src={config.heroImages[0]} 
+                  className="w-full h-full object-cover opacity-10 grayscale" 
+                  alt="" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-slate-50/80 via-slate-50/40 to-slate-50"></div>
+              </motion.div>
+            ) : (
+              <div className="absolute inset-0 bg-slate-50"></div>
+            )}
+          </AnimatePresence>
+        </div>
+
         <div className="max-w-4xl mx-auto relative z-10 text-center">
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
@@ -69,6 +129,30 @@ const Home: React.FC = () => {
             transition={{ delay: 0.5 }}
           >
             <SearchBar />
+          </motion.div>
+
+          {/* Category Quick Links - Mobile Optimized */}
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="mt-12 flex items-center gap-4 overflow-x-auto pb-4 no-scrollbar -mx-4 px-4 lg:justify-center lg:overflow-visible"
+          >
+            {[
+              { label: 'Hostels', type: 'Hostel', icon: '🏢' },
+              { label: 'PGs', type: 'PG', icon: '🏠' },
+              { label: 'Flats', type: 'Flat', icon: '🏙️' },
+              { label: 'Mess', type: 'Mess', icon: '🍱' },
+            ].map((cat) => (
+              <button
+                key={cat.label}
+                onClick={() => setFilters({ ...filteredProperties, activePills: [cat.type] })}
+                className="flex-shrink-0 flex items-center gap-3 bg-white border border-slate-100 px-6 py-3.5 rounded-2xl shadow-sm hover:shadow-md hover:border-indigo-100 transition-all group"
+              >
+                <span className="text-xl group-hover:scale-125 transition-transform">{cat.icon}</span>
+                <span className="text-[11px] font-black uppercase tracking-widest text-slate-600 group-hover:text-indigo-600">{cat.label}</span>
+              </button>
+            ))}
           </motion.div>
         </div>
       </div>
@@ -135,7 +219,7 @@ const Home: React.FC = () => {
                     {recommendations.map(p => (
                       <Link key={p.id} to={`/property/${p.id}`} className="group block">
                         <div className="aspect-square rounded-2xl overflow-hidden mb-2 border border-slate-100">
-                           <img src={transformDriveUrl(p.PhotoMain)} className="w-full h-full object-cover group-hover:scale-110 transition-transform" alt={p.ListingName} />
+                           <OptimizedImage src={transformDriveUrl(p.PhotoMain)} className="w-full h-full group-hover:scale-110 transition-transform" alt={p.ListingName} />
                         </div>
                         <p className="text-xs font-black text-slate-900 truncate">{p.ListingName}</p>
                       </Link>
@@ -178,7 +262,7 @@ const Home: React.FC = () => {
                  Join Kota's most elite student housing network. List your PG, Hostel, or Flat for free and connect directly with thousands of scholars. Zero commission, 100% transparency.
               </p>
               <Link 
-                to={!user ? '/login' : (user.role === UserRole.Admin ? '/admin/dashboard?action=add' : '/owner/dashboard?action=add')} 
+                to={!user ? '/login' : (user.role === UserRole.Admin || user.role === UserRole.SuperAdmin ? '/admin/dashboard?action=add' : '/owner/dashboard?action=add')} 
                 className="inline-flex items-center gap-4 bg-white text-slate-900 px-10 py-6 rounded-[32px] font-black uppercase tracking-widest text-xs shadow-2xl hover:bg-indigo-500 hover:text-white transition-all group"
               >
                 List Your Property Now <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />

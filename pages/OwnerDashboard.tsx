@@ -6,12 +6,13 @@ import {
   Trash2, UserCheck,
   MessageCircle, Phone, Calendar, User,
   Edit3, AlertTriangle, Wallet, ExternalLink,
-  ShieldAlert
+  ShieldAlert, FileText, Upload, CheckCircle2, XCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useProperties } from '../context/PropertyContext';
-import { ApprovalStatus, Property } from '../types';
+import { ApprovalStatus, Property, VerificationDoc } from '../types';
 import { transformDriveUrl } from '../utils/urlHelper';
+import OptimizedImage from '../components/OptimizedImage';
 import { subscribeToLeads } from '../db';
 import { UserRole, Lead } from '../types';
 import PropertyFormModal from '../components/PropertyFormModal';
@@ -24,7 +25,7 @@ const OwnerDashboard: React.FC = () => {
   const [isAdding, setIsAdding] = useState(searchParams.get('action') === 'add');
   const [isBulkUploading, setIsBulkUploading] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
-  const [activeTab, setActiveTab] = useState<'portfolio' | 'leads'>('portfolio');
+  const [activeTab, setActiveTab] = useState<'portfolio' | 'leads' | 'verification'>('portfolio');
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const myProperties = useMemo(() => 
@@ -47,7 +48,7 @@ const OwnerDashboard: React.FC = () => {
   }, [user]);
 
   const myLeads = useMemo(() => {
-    if (user?.role === UserRole.Admin) return leads;
+    if (user?.role === UserRole.Admin || user?.role === UserRole.SuperAdmin) return leads;
     
     // For owners, filter leads that belong to their properties
     const propertyIds = new Set(myProperties.map(p => p.id));
@@ -142,6 +143,13 @@ const OwnerDashboard: React.FC = () => {
             <span className="ml-2 bg-indigo-600 text-white px-2 py-0.5 rounded-full text-[9px]">{leads.length}</span>
             {activeTab === 'leads' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-1 bg-slate-900 rounded-full" />}
           </button>
+          <button 
+            onClick={() => setActiveTab('verification')}
+            className={`pb-6 text-[11px] font-black uppercase tracking-[0.3em] transition-all relative ${activeTab === 'verification' ? 'text-slate-900' : 'text-slate-300 hover:text-slate-500'}`}
+          >
+            Verification Audit
+            {activeTab === 'verification' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-1 bg-slate-900 rounded-full" />}
+          </button>
         </div>
 
         {activeTab === 'portfolio' ? (
@@ -179,7 +187,7 @@ const OwnerDashboard: React.FC = () => {
                           <td className="px-12 py-10">
                             <div className="flex items-center gap-6">
                                <div className="w-16 h-16 rounded-[22px] overflow-hidden border border-slate-100 shadow-sm flex-shrink-0 group-hover:scale-110 transition-transform">
-                                  <img src={transformDriveUrl(p.PhotoMain)} className="w-full h-full object-cover" alt="" />
+                                  <OptimizedImage src={transformDriveUrl(p.PhotoMain)} className="w-full h-full" alt="" />
                                </div>
                                <div>
                                   <p className="font-black text-slate-900 text-xl tracking-tight leading-none mb-2">{p.ListingName}</p>
@@ -375,6 +383,91 @@ const OwnerDashboard: React.FC = () => {
                 </table>
               </div>
             </div>
+          </div>
+        )}
+
+        {activeTab === 'verification' && (
+          <div className="max-w-4xl mx-auto space-y-12">
+             <div className="bg-slate-900 text-white p-12 rounded-[56px] shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-12 opacity-5 -rotate-12"><ShieldAlert size={200} /></div>
+                <div className="relative z-10">
+                   <h2 className="text-4xl font-black tracking-tighter uppercase mb-4">Host Verification Protocol</h2>
+                   <p className="text-white/60 font-bold text-lg leading-relaxed max-w-2xl">
+                      To maintain the elite status of erooms.in, all hosts must verify their identity. Upload your Aadhar Card and GST (if applicable) for audit.
+                   </p>
+                </div>
+             </div>
+
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {['Aadhar', 'GST'].map((type) => {
+                   const doc = user.verificationDocs?.find(d => d.type === type);
+                   return (
+                      <div key={type} className="bg-white border border-slate-100 p-10 rounded-[48px] shadow-sm flex flex-col">
+                         <div className="flex justify-between items-start mb-8">
+                            <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400">
+                               <FileText size={28} />
+                            </div>
+                            {doc ? (
+                               <span className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 ${
+                                  doc.status === ApprovalStatus.Approved ? 'bg-emerald-50 text-emerald-700' : 
+                                  doc.status === ApprovalStatus.Rejected ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'
+                               }`}>
+                                  {doc.status === ApprovalStatus.Approved ? <CheckCircle2 size={12} /> : 
+                                   doc.status === ApprovalStatus.Rejected ? <XCircle size={12} /> : <AlertTriangle size={12} />}
+                                  {doc.status}
+                               </span>
+                            ) : (
+                               <span className="px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest bg-slate-100 text-slate-400">Not Uploaded</span>
+                            )}
+                         </div>
+                         <h3 className="text-2xl font-black text-slate-900 mb-2">{type} Document</h3>
+                         <p className="text-xs font-bold text-slate-400 mb-10">
+                            {type === 'Aadhar' ? 'Government issued identity proof.' : 'Business registration certificate.'}
+                         </p>
+                         
+                         {doc?.status === ApprovalStatus.Rejected && (
+                            <div className="p-4 bg-rose-50 rounded-2xl border border-rose-100 mb-8">
+                               <p className="text-[10px] font-black uppercase text-rose-400 tracking-widest mb-1">Rejection Reason</p>
+                               <p className="text-xs font-bold text-rose-700">{doc.rejectionReason}</p>
+                            </div>
+                         )}
+
+                         <div className="mt-auto">
+                            {doc ? (
+                               <a 
+                                 href={doc.url} 
+                                 target="_blank" 
+                                 rel="noreferrer"
+                                 className="w-full py-4 bg-slate-50 text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all text-center block"
+                               >
+                                  View Uploaded Asset
+                               </a>
+                            ) : (
+                               <button 
+                                 onClick={async () => {
+                                   const url = window.prompt(`Enter ${type} Document URL (PDF/Image):`);
+                                   if (url) {
+                                     const newDoc: VerificationDoc = {
+                                       id: `doc-${Date.now()}`,
+                                       type: type as VerificationDoc['type'],
+                                       url,
+                                       status: ApprovalStatus.Pending,
+                                       uploadedAt: new Date().toISOString()
+                                     };
+                                     const updatedDocs = [...(user.verificationDocs || []), newDoc];
+                                     await updateUser(user.id, { verificationDocs: updatedDocs });
+                                   }
+                                 }}
+                                 className="w-full py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all flex items-center justify-center gap-3 shadow-xl"
+                               >
+                                  <Upload size={14} /> Upload Document
+                               </button>
+                            )}
+                         </div>
+                      </div>
+                   );
+                })}
+             </div>
           </div>
         )}
       </div>

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Building2, IndianRupee, MapPin, 
@@ -7,7 +7,7 @@ import {
   Sparkles, Loader2
 } from 'lucide-react';
 import { Property, ListingType, Gender, ApprovalStatus } from '../types';
-import { KOTA_AREAS, INSTITUTES, FACILITY_OPTIONS } from '../constants';
+import { useConfig } from '../context/ConfigContext';
 import { transformDriveUrl } from '../utils/urlHelper';
 import { normalizePhone, parseRent } from '../utils/normalization';
 import { savePropertyDraft, getPropertyDraft, clearPropertyDraft } from '../db';
@@ -27,14 +27,19 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
   isOpen, onClose, onSubmit, initialData, 
   ownerId, ownerName, ownerEmail, ownerPhone 
 }) => {
+  const { config } = useConfig();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  const areas = config?.areas || [];
+  const institutes = config?.institutes || [];
+  const facilityOptions = config?.facilities || [];
 
   const [formData, setFormData] = useState<Partial<Property>>({
     ListingName: initialData?.ListingName || '',
     ListingType: initialData?.ListingType || ListingType.Hostel,
     Gender: initialData?.Gender || Gender.Boys,
-    Area: initialData?.Area || KOTA_AREAS[0],
+    Area: initialData?.Area || areas[0] || '',
     FullAddress: initialData?.FullAddress || '',
     GoogleMapsPlusCode: initialData?.GoogleMapsPlusCode || '',
     RentSingle: Array.isArray(initialData?.RentSingle) ? initialData.RentSingle : [12000],
@@ -47,7 +52,7 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
     PhotoMain: initialData?.PhotoMain || '',
     PhotoRoom: initialData?.PhotoRoom || '',
     PhotoWashroom: initialData?.PhotoWashroom || '',
-    InstituteDistanceMatrix: initialData?.InstituteDistanceMatrix || INSTITUTES.map(name => ({ name, distance: 1.0 })),
+    InstituteDistanceMatrix: initialData?.InstituteDistanceMatrix || institutes.map(name => ({ name, distance: 1.0 })),
     WardenName: initialData?.WardenName || '',
     EmergencyContact: initialData?.EmergencyContact || '',
     OwnerWhatsApp: initialData?.OwnerWhatsApp || ownerPhone || '',
@@ -57,6 +62,20 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
     views: initialData?.views || 0,
     leadsCount: initialData?.leadsCount || 0
   });
+
+  // Update default Area if config loads and no initialData
+  useEffect(() => {
+    if (!initialData && areas.length > 0 && !formData.Area) {
+      setFormData(prev => ({ ...prev, Area: areas[0] }));
+    }
+  }, [areas, initialData]);
+
+  // Update default InstituteDistanceMatrix if config loads and no initialData
+  useEffect(() => {
+    if (!initialData && institutes.length > 0 && (!formData.InstituteDistanceMatrix || formData.InstituteDistanceMatrix.length === 0)) {
+      setFormData(prev => ({ ...prev, InstituteDistanceMatrix: institutes.map(name => ({ name, distance: 1.0 })) }));
+    }
+  }, [institutes, initialData]);
 
   // Load draft on mount if creating new
   React.useEffect(() => {
@@ -90,9 +109,14 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
     }
   };
 
-  const handleDistanceChange = (index: number, distance: number) => {
+  const handleDistanceChange = (name: string, distance: number) => {
     const matrix = [...(formData.InstituteDistanceMatrix || [])];
-    matrix[index] = { ...matrix[index], distance };
+    const index = matrix.findIndex(i => i.name === name);
+    if (index >= 0) {
+      matrix[index] = { ...matrix[index], distance };
+    } else {
+      matrix.push({ name, distance, unit: 'km' });
+    }
     setFormData({ ...formData, InstituteDistanceMatrix: matrix });
   };
 
@@ -116,7 +140,9 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
       PhotoWashroom: transformDriveUrl(formData.PhotoWashroom || ''),
       ApprovalStatus: initialData?.ApprovalStatus || ApprovalStatus.Approved, // Auto-approve for now
       views: initialData?.views || 0,
-      leadsCount: initialData?.leadsCount || 0
+      leadsCount: initialData?.leadsCount || 0,
+      isFeatured: initialData?.isFeatured || false,
+      priorityScore: initialData?.priorityScore || 0
     };
     
     onSubmit(property);
@@ -260,7 +286,7 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                         value={formData.Area}
                         onChange={e => setFormData({...formData, Area: e.target.value})}
                       >
-                        {KOTA_AREAS.map(a => <option key={a} value={a}>{a}</option>)}
+                        {areas.map(a => <option key={a} value={a}>{a}</option>)}
                       </select>
                     </div>
                     <div className="space-y-3">
@@ -467,7 +493,7 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {FACILITY_OPTIONS.map(facility => (
+                    {facilityOptions.map(facility => (
                       <button
                         key={facility}
                         type="button"
@@ -497,7 +523,7 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {INSTITUTES.map((name, index) => {
+                    {institutes.map((name, index) => {
                       const item = formData.InstituteDistanceMatrix?.find(i => i.name === name) || { name, distance: 1.0 };
                       return (
                         <div key={name} className="space-y-3">
@@ -510,7 +536,7 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                               value={isNaN(Number(item.distance)) ? '' : item.distance}
                               onChange={e => {
                                 const val = parseFloat(e.target.value);
-                                handleDistanceChange(index, isNaN(val) ? 0 : val);
+                                handleDistanceChange(name, isNaN(val) ? 0 : val);
                               }}
                             />
                             <span className="absolute right-8 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300 uppercase">KM</span>

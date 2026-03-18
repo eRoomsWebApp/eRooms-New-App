@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Upload, FileSpreadsheet, Download, 
@@ -17,7 +17,7 @@ import {
   standardizeArea
 } from '../utils/normalization';
 import { transformDriveUrl } from '../utils/urlHelper';
-import { getAppConfig } from '../db';
+import { useConfig } from '../context/ConfigContext';
 
 interface BulkUploadModalProps {
   isOpen: boolean;
@@ -26,7 +26,7 @@ interface BulkUploadModalProps {
 }
 
 const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUpload }) => {
-  const config = getAppConfig();
+  const { config } = useConfig();
   const [stagingData, setStagingData] = useState<Omit<Property, 'id'>[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -136,7 +136,9 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
             ApprovalStatus: ApprovalStatus.Approved,
             views: 0,
             leadsCount: 0,
-            rating: 5
+            rating: 5,
+            isFeatured: false,
+            priorityScore: 0
           };
         });
 

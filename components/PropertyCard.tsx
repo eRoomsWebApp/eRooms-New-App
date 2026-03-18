@@ -9,6 +9,7 @@ import {
 import { Property, Gender } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { transformDriveUrl } from '../utils/urlHelper';
+import OptimizedImage from './OptimizedImage';
 
 interface PropertyCardProps {
   property: Property;
@@ -52,11 +53,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
     >
       <Link to={`/property/${property.id}`} className="block overflow-hidden bg-white rounded-[24px] border border-[#e2e8f0] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-500">
         <div className="relative aspect-[4/3] overflow-hidden">
-          <img 
+          <OptimizedImage 
             src={transformDriveUrl(property.PhotoMain)} 
             alt={property.ListingName} 
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-            referrerPolicy="no-referrer"
+            className="w-full h-full group-hover:scale-110 transition-transform duration-700 ease-out"
           />
           
           <div className="absolute top-4 left-4 flex gap-2">
@@ -100,36 +100,36 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
           </div>
         </div>
         
-        <div className="p-6">
-          <div className="flex justify-between items-start mb-3">
-            <h3 className="font-extrabold text-xl text-slate-900 tracking-tight line-clamp-1">{property.ListingName}</h3>
+        <div className="p-4 md:p-6">
+          <div className="flex justify-between items-start mb-2 md:mb-3">
+            <h3 className="font-extrabold text-lg md:text-xl text-slate-900 tracking-tight line-clamp-1">{property.ListingName}</h3>
           </div>
           
-          <div className="flex flex-wrap gap-2 mb-6">
+          <div className="flex flex-wrap gap-1.5 md:gap-2 mb-4 md:mb-6">
             {property.Facilities.slice(0, 3).map(f => {
               const Icon = facilityIconMap[f] || Star;
               return (
-                <div key={f} className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-100 px-2 py-1.5 rounded-lg">
-                  <Icon size={12} className="text-indigo-500" />
+                <div key={f} className="flex items-center gap-1.5 text-[9px] md:text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-100 px-2 py-1 md:py-1.5 rounded-lg">
+                  <Icon size={10} className="text-indigo-500 md:w-[12px] md:h-[12px]" />
                   {f}
                 </div>
               );
             })}
-            {property.Facilities.length > 3 && <span className="text-[10px] font-bold text-slate-400 px-2 py-1">+{property.Facilities.length - 3}</span>}
+            {property.Facilities.length > 3 && <span className="text-[9px] md:text-[10px] font-bold text-slate-400 px-1 py-1">+{property.Facilities.length - 3}</span>}
           </div>
 
-          <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+          <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-slate-50">
             <div>
-              <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.15em] mb-1">
+              <p className="text-[9px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.15em] mb-0.5 md:mb-1">
                 {hasMultiplePrices ? 'Starting From' : 'Monthly Rental'}
               </p>
-              <p className="text-2xl font-black text-indigo-600 tracking-tighter">
+              <p className="text-xl md:text-2xl font-black text-indigo-600 tracking-tighter">
                 ₹{minRent.toLocaleString()}
-                <span className="text-xs font-bold text-slate-400 ml-1">/mo</span>
+                <span className="text-[10px] md:text-xs font-bold text-slate-400 ml-1">/mo</span>
               </p>
             </div>
-            <div className="bg-slate-50 group-hover:bg-slate-900 group-hover:text-white p-3 rounded-2xl transition-all duration-300">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="bg-slate-50 group-hover:bg-slate-900 group-hover:text-white p-2.5 md:p-3 rounded-2xl transition-all duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
             </div>
