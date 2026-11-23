@@ -1,0 +1,5640 @@
+[
+ {
+  "id": "EH0159",
+  "ownerId": "erooms-static",
+  "ListingName": "Sandhya Residency",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Coral Park",
+  "SubArea": "Coral Park",
+  "Address": "PLOT NO-4, GATE NO.2, CORAL PARK, NAYA NOHRA, KOTA",
+  "GoogleMapsPlusCode": "7JQQ5WGC+HV6 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Supath",
+    "distance": 210,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 210,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   11000
+  ],
+  "RentDouble": [
+   9000
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Gym"
+  ],
+  "PhotoMain": "/hostels/media/sandhya-residency-coral-park-0159/cover.webp",
+  "PhotoRoom": "/hostels/media/sandhya-residency-coral-park-0159/02.webp",
+  "PhotoWashroom": "/hostels/media/sandhya-residency-coral-park-0159/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/sandhya-residency-coral-park-0159/04.webp",
+   "/hostels/media/sandhya-residency-coral-park-0159/05.webp",
+   "/hostels/media/sandhya-residency-coral-park-0159/06.webp",
+   "/hostels/media/sandhya-residency-coral-park-0159/07.webp",
+   "/hostels/media/sandhya-residency-coral-park-0159/08.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.176412,
+  "lng": 75.922141,
+  "updatedAt": "2025-03-02"
+ },
+ {
+  "id": "EH0072",
+  "ownerId": "erooms-static",
+  "ListingName": "Swarn Residency",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Coral Park",
+  "SubArea": "Coral Park",
+  "Address": "D-8, CORAL PARK, NAYA NOHRA, KOTA",
+  "GoogleMapsPlusCode": "7JQQ5WF9+HRW Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Supath",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 450,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   10000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping"
+  ],
+  "PhotoMain": "/hostels/media/swarn-residency-coral-park-0072/cover.webp",
+  "PhotoRoom": "/hostels/media/swarn-residency-coral-park-0072/01.webp",
+  "PhotoWashroom": "/hostels/media/swarn-residency-coral-park-0072/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/swarn-residency-coral-park-0072/03.webp",
+   "/hostels/media/swarn-residency-coral-park-0072/04.webp",
+   "/hostels/media/swarn-residency-coral-park-0072/05.webp",
+   "/hostels/media/swarn-residency-coral-park-0072/06.webp",
+   "/hostels/media/swarn-residency-coral-park-0072/07.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.173987,
+  "lng": 75.919578,
+  "updatedAt": "2025-03-02"
+ },
+ {
+  "id": "EH0165",
+  "ownerId": "erooms-static",
+  "ListingName": "Agarwal Residency",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Coral Park",
+  "SubArea": "Coral Park",
+  "Address": "B-20, NEAR CORAL PARK OFFICE, GATE NO.1, CORAL PARK, NAYA NOHRA, KOTA",
+  "GoogleMapsPlusCode": "7JQQ5WFC+446 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Supath",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 600,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   9000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Game Zone"
+  ],
+  "PhotoMain": "/hostels/media/agarwal-residency-coral-park-0165/cover.webp",
+  "PhotoRoom": "/hostels/media/agarwal-residency-coral-park-0165/02.webp",
+  "PhotoWashroom": "/hostels/media/agarwal-residency-coral-park-0165/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/agarwal-residency-coral-park-0165/04.webp",
+   "/hostels/media/agarwal-residency-coral-park-0165/05.webp",
+   "/hostels/media/agarwal-residency-coral-park-0165/06.webp",
+   "/hostels/media/agarwal-residency-coral-park-0165/07.webp",
+   "/hostels/media/agarwal-residency-coral-park-0165/08.webp",
+   "/hostels/media/agarwal-residency-coral-park-0165/09.webp",
+   "/hostels/media/agarwal-residency-coral-park-0165/10.webp",
+   "/hostels/media/agarwal-residency-coral-park-0165/11.webp",
+   "/hostels/media/agarwal-residency-coral-park-0165/12.webp",
+   "/hostels/media/agarwal-residency-coral-park-0165/13.webp",
+   "/hostels/media/agarwal-residency-coral-park-0165/14.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.172787,
+  "lng": 75.920266,
+  "updatedAt": "2025-03-01"
+ },
+ {
+  "id": "EH0059",
+  "ownerId": "erooms-static",
+  "ListingName": "Pratap Heights",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Coral Park",
+  "SubArea": "Coral Park",
+  "Address": "A-31, CORAL PARK, GATE NO.1, NAYA NOHRA, KOTA",
+  "GoogleMapsPlusCode": "7JQQ5WGC+26W Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Supath",
+    "distance": 350,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 350,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   7000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping"
+  ],
+  "PhotoMain": "/hostels/media/pratap-heights-coral-park-0059/cover.webp",
+  "PhotoRoom": "/hostels/media/pratap-heights-coral-park-0059/01.webp",
+  "PhotoWashroom": "/hostels/media/pratap-heights-coral-park-0059/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/pratap-heights-coral-park-0059/03.webp",
+   "/hostels/media/pratap-heights-coral-park-0059/04.webp",
+   "/hostels/media/pratap-heights-coral-park-0059/05.webp",
+   "/hostels/media/pratap-heights-coral-park-0059/06.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.175113,
+  "lng": 75.920578,
+  "updatedAt": "2025-03-01"
+ },
+ {
+  "id": "EH0077",
+  "ownerId": "erooms-static",
+  "ListingName": "Jupiter Homes",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Coral Park",
+  "SubArea": "Coral Park",
+  "Address": "PLOT NO.18, NIRMAL PARK, GATE NO.1, NAYA NOHRA",
+  "GoogleMapsPlusCode": "7JQQ5WF9+C74 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Supath",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 600,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   8000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Study Table",
+   "Library"
+  ],
+  "PhotoMain": "/hostels/media/jupiter-homes-coral-park-0077/cover.webp",
+  "PhotoRoom": "/hostels/media/jupiter-homes-coral-park-0077/01.webp",
+  "PhotoWashroom": "/hostels/media/jupiter-homes-coral-park-0077/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/jupiter-homes-coral-park-0077/03.webp",
+   "/hostels/media/jupiter-homes-coral-park-0077/04.webp",
+   "/hostels/media/jupiter-homes-coral-park-0077/05.webp",
+   "/hostels/media/jupiter-homes-coral-park-0077/06.webp",
+   "/hostels/media/jupiter-homes-coral-park-0077/07.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.173513,
+  "lng": 75.918203,
+  "updatedAt": "2025-03-02"
+ },
+ {
+  "id": "EH0053",
+  "ownerId": "erooms-static",
+  "ListingName": "Dwarika Prime",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Coral Park",
+  "SubArea": "Coral Park",
+  "Address": "A-3, CORAL PARK, NEAR ALLEN, NAYA NOHRA, KOTA",
+  "GoogleMapsPlusCode": "7JQQ5WF9+VXW Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Supath",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 400,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   8500
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping"
+  ],
+  "PhotoMain": "/hostels/media/dwarika-prime-coral-park-0053/cover.webp",
+  "PhotoRoom": "/hostels/media/dwarika-prime-coral-park-0053/01.webp",
+  "PhotoWashroom": "/hostels/media/dwarika-prime-coral-park-0053/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/dwarika-prime-coral-park-0053/03.webp",
+   "/hostels/media/dwarika-prime-coral-park-0053/04.webp",
+   "/hostels/media/dwarika-prime-coral-park-0053/05.webp",
+   "/hostels/media/dwarika-prime-coral-park-0053/06.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.174737,
+  "lng": 75.919953,
+  "updatedAt": "2025-03-03"
+ },
+ {
+  "id": "EH0069",
+  "ownerId": "erooms-static",
+  "ListingName": "Keshav Residency",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Coral Park",
+  "SubArea": "Coral Park",
+  "Address": "54-55, DEEPAK RESIDENCY, NEAR ALLEN SUPATH, CORAL PARK, NAYA NOHRA, KOTA",
+  "GoogleMapsPlusCode": "7JQQ5WGF+JFM Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Supath",
+    "distance": 270,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 270,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   8000
+  ],
+  "RentDouble": [
+   8000
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping"
+  ],
+  "PhotoMain": "/hostels/media/keshav-residency-coral-park-0069/cover.webp",
+  "PhotoRoom": "/hostels/media/keshav-residency-coral-park-0069/02.webp",
+  "PhotoWashroom": "/hostels/media/keshav-residency-coral-park-0069/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/keshav-residency-coral-park-0069/04.webp",
+   "/hostels/media/keshav-residency-coral-park-0069/05.webp",
+   "/hostels/media/keshav-residency-coral-park-0069/06.webp",
+   "/hostels/media/keshav-residency-coral-park-0069/07.webp",
+   "/hostels/media/keshav-residency-coral-park-0069/08.webp",
+   "/hostels/media/keshav-residency-coral-park-0069/09.webp",
+   "/hostels/media/keshav-residency-coral-park-0069/10.webp",
+   "/hostels/media/keshav-residency-coral-park-0069/11.webp",
+   "/hostels/media/keshav-residency-coral-park-0069/12.webp",
+   "/hostels/media/keshav-residency-coral-park-0069/13.webp",
+   "/hostels/media/keshav-residency-coral-park-0069/14.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.176588,
+  "lng": 75.923672,
+  "updatedAt": "2025-03-03"
+ },
+ {
+  "id": "EH0057",
+  "ownerId": "erooms-static",
+  "ListingName": "Galaxy Sky Residency",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Coral Park",
+  "SubArea": "Coral Park",
+  "Address": "D-59, CORAL PARK, GATE NO.01, NAYA NOHRA, KOTA",
+  "GoogleMapsPlusCode": "7JQQ5WF9+8M4 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Supath",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 600,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   8000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Library"
+  ],
+  "PhotoMain": "/hostels/media/galaxy-sky-residency-coral-park-0057/cover.webp",
+  "PhotoRoom": "/hostels/media/galaxy-sky-residency-coral-park-0057/01.webp",
+  "PhotoWashroom": "/hostels/media/galaxy-sky-residency-coral-park-0057/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/galaxy-sky-residency-coral-park-0057/03.webp",
+   "/hostels/media/galaxy-sky-residency-coral-park-0057/04.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.173262,
+  "lng": 75.919203,
+  "updatedAt": "2025-03-03"
+ },
+ {
+  "id": "EP0090",
+  "ownerId": "erooms-static",
+  "ListingName": "Dream Residency",
+  "ListingType": "PG",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Coral Park",
+  "SubArea": "Coral Park",
+  "Address": "G-27, GATE NO.2, CORAL PARK, NAYA NOHRA, KOTA",
+  "GoogleMapsPlusCode": "7JQQ5WGF+53V Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Supath",
+    "distance": 300,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 300,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   2500
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Housekeeping",
+   "Study Table"
+  ],
+  "PhotoMain": "/hostels/media/dream-residency-coral-park-0090/cover.webp",
+  "PhotoRoom": "/hostels/media/dream-residency-coral-park-0090/01.webp",
+  "PhotoWashroom": "/hostels/media/dream-residency-coral-park-0090/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/dream-residency-coral-park-0090/03.webp",
+   "/hostels/media/dream-residency-coral-park-0090/04.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.175487,
+  "lng": 75.922672,
+  "updatedAt": "2025-03-04"
+ },
+ {
+  "id": "EH0277",
+  "ownerId": "erooms-static",
+  "ListingName": "Pushpa Residency",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Jawahar Nagar",
+  "SubArea": "Jawar Nagar",
+  "Address": "259-260, District Centre, Jawahar Nagar, Kota",
+  "GoogleMapsPlusCode": "7JQQ5R3Q+5P5 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Satyarth",
+    "distance": 240,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sammunnat",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarokar",
+    "distance": 270,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samanvaya (Pncf)",
+    "distance": 500,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE SHEELA CHOUDHARY ROAD TALWANDI",
+    "distance": 500,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 240,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 500,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   12000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Study Table"
+  ],
+  "PhotoMain": "/hostels/media/pushpa-residency-jawar-nagar-0277/cover.webp",
+  "PhotoRoom": "/hostels/media/pushpa-residency-jawar-nagar-0277/02.webp",
+  "PhotoWashroom": "/hostels/media/pushpa-residency-jawar-nagar-0277/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/pushpa-residency-jawar-nagar-0277/04.webp",
+   "/hostels/media/pushpa-residency-jawar-nagar-0277/05.webp",
+   "/hostels/media/pushpa-residency-jawar-nagar-0277/06.webp",
+   "/hostels/media/pushpa-residency-jawar-nagar-0277/07.webp",
+   "/hostels/media/pushpa-residency-jawar-nagar-0277/08.webp",
+   "/hostels/media/pushpa-residency-jawar-nagar-0277/09.webp",
+   "/hostels/media/pushpa-residency-jawar-nagar-0277/10.webp",
+   "/hostels/media/pushpa-residency-jawar-nagar-0277/11.webp",
+   "/hostels/media/pushpa-residency-jawar-nagar-0277/12.webp",
+   "/hostels/media/pushpa-residency-jawar-nagar-0277/13.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.152887,
+  "lng": 75.839359,
+  "updatedAt": "2025-03-08"
+ },
+ {
+  "id": "EH0279",
+  "ownerId": "erooms-static",
+  "ListingName": "Ganesh Boys Residency",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Jawahar Nagar",
+  "SubArea": "Jawar Nagar",
+  "Address": "Plot No-96 District Center Jawahar Nagar kota",
+  "GoogleMapsPlusCode": "7JQQ5R3P+6R7 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Satyarth",
+    "distance": 120,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sammunnat",
+    "distance": 170,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarokar",
+    "distance": 130,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samanvaya (Pncf)",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 120,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   13000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/ganesh-boys-residency-jawar-nagar-0279/cover.webp",
+  "PhotoRoom": "/hostels/media/ganesh-boys-residency-jawar-nagar-0279/02.webp",
+  "PhotoWashroom": "/hostels/media/ganesh-boys-residency-jawar-nagar-0279/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/ganesh-boys-residency-jawar-nagar-0279/04.webp",
+   "/hostels/media/ganesh-boys-residency-jawar-nagar-0279/05.webp",
+   "/hostels/media/ganesh-boys-residency-jawar-nagar-0279/06.webp",
+   "/hostels/media/ganesh-boys-residency-jawar-nagar-0279/07.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.153037,
+  "lng": 75.837047,
+  "updatedAt": "2025-03-08"
+ },
+ {
+  "id": "EH0288",
+  "ownerId": "erooms-static",
+  "ListingName": "Birla Orchid Boys Hostel",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Jawahar Nagar",
+  "SubArea": "Jawar Nagar",
+  "Address": "Plot No-C-349 Talwandi In Front Of Resonance Building Kota",
+  "GoogleMapsPlusCode": "7JQQ5R3V+F8Q Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Satyarth",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sammunnat",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarokar",
+    "distance": 190,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samanvaya (Pncf)",
+    "distance": 230,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 190,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   8000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping"
+  ],
+  "PhotoMain": "/hostels/media/birla-orchid-boys-hostel-jawar-nagar-0288/cover.webp",
+  "PhotoRoom": "/hostels/media/birla-orchid-boys-hostel-jawar-nagar-0288/02.webp",
+  "PhotoWashroom": "/hostels/media/birla-orchid-boys-hostel-jawar-nagar-0288/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/birla-orchid-boys-hostel-jawar-nagar-0288/04.webp",
+   "/hostels/media/birla-orchid-boys-hostel-jawar-nagar-0288/05.webp",
+   "/hostels/media/birla-orchid-boys-hostel-jawar-nagar-0288/06.webp",
+   "/hostels/media/birla-orchid-boys-hostel-jawar-nagar-0288/07.webp",
+   "/hostels/media/birla-orchid-boys-hostel-jawar-nagar-0288/08.webp",
+   "/hostels/media/birla-orchid-boys-hostel-jawar-nagar-0288/09.webp",
+   "/hostels/media/birla-orchid-boys-hostel-jawar-nagar-0288/10.webp",
+   "/hostels/media/birla-orchid-boys-hostel-jawar-nagar-0288/11.webp",
+   "/hostels/media/birla-orchid-boys-hostel-jawar-nagar-0288/12.webp",
+   "/hostels/media/birla-orchid-boys-hostel-jawar-nagar-0288/13.webp",
+   "/hostels/media/birla-orchid-boys-hostel-jawar-nagar-0288/14.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.153713,
+  "lng": 75.843359,
+  "updatedAt": "2025-03-08"
+ },
+ {
+  "id": "EH0040",
+  "ownerId": "erooms-static",
+  "ListingName": "Blue Pearl Group Of Hostel",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Jawahar Nagar",
+  "SubArea": "Jawar Nagar",
+  "Address": "132, DISTRICT CENTER, JAWAHAR NAGAR, KOTA",
+  "GoogleMapsPlusCode": "7JQQ5R3Q+49P Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Satyarth",
+    "distance": 280,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sammunnat",
+    "distance": 220,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samanvaya (Pncf)",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarokar",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 220,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   15000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Gym",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/blue-pearl-group-of-hostel-jawar-nagar-0040/cover.webp",
+  "PhotoRoom": "/hostels/media/blue-pearl-group-of-hostel-jawar-nagar-0040/01.webp",
+  "PhotoWashroom": "/hostels/media/blue-pearl-group-of-hostel-jawar-nagar-0040/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/blue-pearl-group-of-hostel-jawar-nagar-0040/03.webp",
+   "/hostels/media/blue-pearl-group-of-hostel-jawar-nagar-0040/04.webp",
+   "/hostels/media/blue-pearl-group-of-hostel-jawar-nagar-0040/05.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.152838,
+  "lng": 75.838453,
+  "updatedAt": "2025-03-10"
+ },
+ {
+  "id": "EH0272",
+  "ownerId": "erooms-static",
+  "ListingName": "Gangaur Residency",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Jawahar Nagar",
+  "SubArea": "Jawar Nagar",
+  "Address": "B-6, Jawahar Nagar Main Road, Kota",
+  "GoogleMapsPlusCode": "7JQQ5R3R+M9F Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Satyarth",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sammunnat",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarokar",
+    "distance": 500,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 400,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   8000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping"
+  ],
+  "PhotoMain": "/hostels/media/gangaur-residency-jawar-nagar-0272/cover.webp",
+  "PhotoRoom": "/hostels/media/gangaur-residency-jawar-nagar-0272/02.webp",
+  "PhotoWashroom": "/hostels/media/gangaur-residency-jawar-nagar-0272/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/gangaur-residency-jawar-nagar-0272/04.webp",
+   "/hostels/media/gangaur-residency-jawar-nagar-0272/05.webp",
+   "/hostels/media/gangaur-residency-jawar-nagar-0272/06.webp",
+   "/hostels/media/gangaur-residency-jawar-nagar-0272/07.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.154187,
+  "lng": 75.840922,
+  "updatedAt": "2025-03-08"
+ },
+ {
+  "id": "EH0173",
+  "ownerId": "erooms-static",
+  "ListingName": "Jayansh Residency",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Jawahar Nagar",
+  "SubArea": "Jawar Nagar",
+  "Address": "187, JAWAHAR NAGAR, NEAR POLICE CHOKI, KOTA",
+  "GoogleMapsPlusCode": "7JQQ5R3P+4XJ Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Satyarth",
+    "distance": 160,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sammunnat",
+    "distance": 100,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 100,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   10000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping"
+  ],
+  "PhotoMain": "/hostels/media/jayansh-residency-jawar-nagar-0173/cover.webp",
+  "PhotoRoom": "/hostels/media/jayansh-residency-jawar-nagar-0173/02.webp",
+  "PhotoWashroom": "/hostels/media/jayansh-residency-jawar-nagar-0173/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/jayansh-residency-jawar-nagar-0173/04.webp",
+   "/hostels/media/jayansh-residency-jawar-nagar-0173/05.webp",
+   "/hostels/media/jayansh-residency-jawar-nagar-0173/06.webp",
+   "/hostels/media/jayansh-residency-jawar-nagar-0173/07.webp",
+   "/hostels/media/jayansh-residency-jawar-nagar-0173/08.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.152838,
+  "lng": 75.837391,
+  "updatedAt": "2025-03-10"
+ },
+ {
+  "id": "EH0091",
+  "ownerId": "erooms-static",
+  "ListingName": "Natraj Prime",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Landmark City (Kunadi)",
+  "SubArea": "Landmark",
+  "Address": "PLOT NO 16 DEEPAK MENTION LANDMARK CITY KUNHARI KOTA NEAR NICE HOME HOSTEL",
+  "GoogleMapsPlusCode": "7JQQ5RXJ+J68 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Samyak",
+    "distance": 260,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samyak 2",
+    "distance": 200,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan",
+    "distance": 20,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan 2",
+    "distance": 70,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY KUNHARI",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 20,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 850,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   14000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Study Table",
+   "Gym",
+   "Library",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/natraj-prime-landmark-0091/cover.webp",
+  "PhotoRoom": "/hostels/media/natraj-prime-landmark-0091/02.webp",
+  "PhotoWashroom": "/hostels/media/natraj-prime-landmark-0091/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/natraj-prime-landmark-0091/04.webp",
+   "/hostels/media/natraj-prime-landmark-0091/05.webp",
+   "/hostels/media/natraj-prime-landmark-0091/06.webp",
+   "/hostels/media/natraj-prime-landmark-0091/07.webp",
+   "/hostels/media/natraj-prime-landmark-0091/08.webp",
+   "/hostels/media/natraj-prime-landmark-0091/09.webp",
+   "/hostels/media/natraj-prime-landmark-0091/10.webp",
+   "/hostels/media/natraj-prime-landmark-0091/11.webp",
+   "/hostels/media/natraj-prime-landmark-0091/12.webp",
+   "/hostels/media/natraj-prime-landmark-0091/13.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.199037,
+  "lng": 75.830578,
+  "updatedAt": "2025-03-16"
+ },
+ {
+  "id": "EH0186",
+  "ownerId": "erooms-static",
+  "ListingName": "Raghukul Heights",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Landmark City (Kunadi)",
+  "SubArea": "Landmark",
+  "Address": "PLOT NO G-30 LANDMARK CITY KUNHARI KOTA RAJASTHAN 324008",
+  "GoogleMapsPlusCode": "7JQQ5RXG+PWC Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Samyak 1",
+    "distance": 350,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samyak 2",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan 2",
+    "distance": 150,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 150,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   11000
+  ],
+  "RentDouble": [
+   9000
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/raghukul-heights-landmark-0186/cover.webp",
+  "PhotoRoom": "/hostels/media/raghukul-heights-landmark-0186/02.webp",
+  "PhotoWashroom": "/hostels/media/raghukul-heights-landmark-0186/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/raghukul-heights-landmark-0186/04.webp",
+   "/hostels/media/raghukul-heights-landmark-0186/05.webp",
+   "/hostels/media/raghukul-heights-landmark-0186/06.webp",
+   "/hostels/media/raghukul-heights-landmark-0186/07.webp",
+   "/hostels/media/raghukul-heights-landmark-0186/08.webp",
+   "/hostels/media/raghukul-heights-landmark-0186/09.webp",
+   "/hostels/media/raghukul-heights-landmark-0186/10.webp",
+   "/hostels/media/raghukul-heights-landmark-0186/11.webp",
+   "/hostels/media/raghukul-heights-landmark-0186/12.webp",
+   "/hostels/media/raghukul-heights-landmark-0186/13.webp",
+   "/hostels/media/raghukul-heights-landmark-0186/14.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.199313,
+  "lng": 75.827266,
+  "updatedAt": "2025-03-20"
+ },
+ {
+  "id": "EH0046",
+  "ownerId": "erooms-static",
+  "ListingName": "Khandelwal Residency",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Landmark City (Kunadi)",
+  "SubArea": "Landmark",
+  "Address": "E-47 LANDMARK CITY KUNHARI KOTA",
+  "GoogleMapsPlusCode": "7JQQ6R2H+9GF Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Sangyan",
+    "distance": 230,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samyak 1",
+    "distance": 190,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samyak 2",
+    "distance": 350,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 190,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   8000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Library",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/khandelwal-residency-landmark-0046/cover.webp",
+  "PhotoRoom": "/hostels/media/khandelwal-residency-landmark-0046/01.webp",
+  "PhotoWashroom": "/hostels/media/khandelwal-residency-landmark-0046/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/khandelwal-residency-landmark-0046/03.webp",
+   "/hostels/media/khandelwal-residency-landmark-0046/04.webp",
+   "/hostels/media/khandelwal-residency-landmark-0046/05.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.200938,
+  "lng": 75.828812,
+  "updatedAt": "2025-03-20"
+ },
+ {
+  "id": "EH0178",
+  "ownerId": "erooms-static",
+  "ListingName": "Narbda Residency",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Jawahar Nagar",
+  "SubArea": "Jawar Nagar",
+  "Address": "144-145, DISTRICT CENTER, JAWAHAR NAGAR, KOTA",
+  "GoogleMapsPlusCode": "7JQQ5R3Q+9P4 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Satyarth",
+    "distance": 350,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sammunnat",
+    "distance": 300,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 300,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   10500
+  ],
+  "RentDouble": [
+   8000
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/narbda-residency-jawar-nagar-0178/cover.webp",
+  "PhotoRoom": "/hostels/media/narbda-residency-jawar-nagar-0178/01.webp",
+  "PhotoWashroom": "/hostels/media/narbda-residency-jawar-nagar-0178/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/narbda-residency-jawar-nagar-0178/03.webp",
+   "/hostels/media/narbda-residency-jawar-nagar-0178/04.webp",
+   "/hostels/media/narbda-residency-jawar-nagar-0178/05.webp",
+   "/hostels/media/narbda-residency-jawar-nagar-0178/06.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.153388,
+  "lng": 75.839328,
+  "updatedAt": "2025-03-10"
+ },
+ {
+  "id": "EH0273",
+  "ownerId": "erooms-static",
+  "ListingName": "Shri Purushottam Residency",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Jawahar Nagar",
+  "SubArea": "Jawar Nagar",
+  "Address": "Plot No-5-B New Jawahar Nagar Main Road In Front Of Anil Kothari Doctor Clinic Jawahar Nagar Kota",
+  "GoogleMapsPlusCode": "7JQQ5R3R+P8G Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Sammunnat",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Satyarth",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarokar",
+    "distance": 500,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 400,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   8500
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping"
+  ],
+  "PhotoMain": "/hostels/media/shri-purushottam-residency-jawar-nagar-0273/cover.webp",
+  "PhotoRoom": "/hostels/media/shri-purushottam-residency-jawar-nagar-0273/02.webp",
+  "PhotoWashroom": "/hostels/media/shri-purushottam-residency-jawar-nagar-0273/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/shri-purushottam-residency-jawar-nagar-0273/04.webp",
+   "/hostels/media/shri-purushottam-residency-jawar-nagar-0273/05.webp",
+   "/hostels/media/shri-purushottam-residency-jawar-nagar-0273/06.webp",
+   "/hostels/media/shri-purushottam-residency-jawar-nagar-0273/07.webp",
+   "/hostels/media/shri-purushottam-residency-jawar-nagar-0273/08.webp",
+   "/hostels/media/shri-purushottam-residency-jawar-nagar-0273/09.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.154312,
+  "lng": 75.840828,
+  "updatedAt": "2025-03-08"
+ },
+ {
+  "id": "EH0181",
+  "ownerId": "erooms-static",
+  "ListingName": "Dream Destination",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Landmark City (Kunadi)",
+  "SubArea": "Landmark",
+  "Address": "G-42, NEAR ALLEN SANGYAN, LANDMARK CITY, KUNHADI, KOTA",
+  "GoogleMapsPlusCode": "7JQQ5RXH+VGF Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Samyak",
+    "distance": 300,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samyak 2",
+    "distance": 350,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan",
+    "distance": 140,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan 2",
+    "distance": 300,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY KUNHARI",
+    "distance": 1000,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 140,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 1000,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   12000
+  ],
+  "RentDouble": [
+   10000
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Library",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/dream-destination-landmark-0181/cover.webp",
+  "PhotoRoom": "/hostels/media/dream-destination-landmark-0181/01.webp",
+  "PhotoWashroom": "/hostels/media/dream-destination-landmark-0181/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/dream-destination-landmark-0181/03.webp",
+   "/hostels/media/dream-destination-landmark-0181/04.webp",
+   "/hostels/media/dream-destination-landmark-0181/05.webp",
+   "/hostels/media/dream-destination-landmark-0181/06.webp",
+   "/hostels/media/dream-destination-landmark-0181/07.webp",
+   "/hostels/media/dream-destination-landmark-0181/08.webp",
+   "/hostels/media/dream-destination-landmark-0181/09.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.199687,
+  "lng": 75.828797,
+  "updatedAt": "2025-07-08"
+ },
+ {
+  "id": "EH0322",
+  "ownerId": "erooms-static",
+  "ListingName": "Natraj Residency (Safe Hands)",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Landmark City (Kunadi)",
+  "SubArea": "Landmark",
+  "Address": "A-82-83, LANDMARK CITY KUNHARI",
+  "GoogleMapsPlusCode": "7JQQ6R2J+74G Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Samyak",
+    "distance": 110,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samyak 2",
+    "distance": 220,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan",
+    "distance": 200,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan 2",
+    "distance": 100,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 100,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   10000
+  ],
+  "RentDouble": [
+   9000
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/natraj-residency-safe-hands-landmark-0322/cover.webp",
+  "PhotoRoom": "/hostels/media/natraj-residency-safe-hands-landmark-0322/02.webp",
+  "PhotoWashroom": "/hostels/media/natraj-residency-safe-hands-landmark-0322/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/natraj-residency-safe-hands-landmark-0322/04.webp",
+   "/hostels/media/natraj-residency-safe-hands-landmark-0322/05.webp",
+   "/hostels/media/natraj-residency-safe-hands-landmark-0322/06.webp",
+   "/hostels/media/natraj-residency-safe-hands-landmark-0322/07.webp",
+   "/hostels/media/natraj-residency-safe-hands-landmark-0322/08.webp",
+   "/hostels/media/natraj-residency-safe-hands-landmark-0322/09.webp",
+   "/hostels/media/natraj-residency-safe-hands-landmark-0322/10.webp",
+   "/hostels/media/natraj-residency-safe-hands-landmark-0322/11.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.200688,
+  "lng": 75.830313,
+  "updatedAt": "2025-03-25"
+ },
+ {
+  "id": "EH0319",
+  "ownerId": "erooms-static",
+  "ListingName": "Sundaram Residency",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Landmark City (Kunadi)",
+  "SubArea": "Landmark",
+  "Address": "H-2 LANDMARK CITY KOTA",
+  "GoogleMapsPlusCode": "7JQQ5RXH+GGX Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Samyak",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samyak 2",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan",
+    "distance": 110,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan 2",
+    "distance": 100,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 100,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   11000
+  ],
+  "RentDouble": [
+   10500
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/sundaram-residency-landmark-0319/cover.webp",
+  "PhotoRoom": "/hostels/media/sundaram-residency-landmark-0319/01.webp",
+  "PhotoWashroom": "/hostels/media/sundaram-residency-landmark-0319/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/sundaram-residency-landmark-0319/03.webp",
+   "/hostels/media/sundaram-residency-landmark-0319/04.webp",
+   "/hostels/media/sundaram-residency-landmark-0319/05.webp",
+   "/hostels/media/sundaram-residency-landmark-0319/06.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.198863,
+  "lng": 75.828859,
+  "updatedAt": "2025-03-25"
+ },
+ {
+  "id": "EH0124",
+  "ownerId": "erooms-static",
+  "ListingName": "Mahendra Prime",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Rajeev Gandhi Nagar",
+  "SubArea": "Rajeev Gandhi Nagar Part 2",
+  "Address": "51, RAJEEV GANDHI PART-2, KOTA",
+  "GoogleMapsPlusCode": "7JQQ4VV2+9JV Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Samyik",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sankalp",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samarth",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Savinay",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sabal",
+    "distance": 900,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 900,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Saakar",
+    "distance": 500,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY IPIA ROAD NO. 2",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 450,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 800,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 700,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 700,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   10000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/mahendra-prime-rajeev-gandhi-nagar-part-2-0124/cover.webp",
+  "PhotoRoom": "/hostels/media/mahendra-prime-rajeev-gandhi-nagar-part-2-0124/01.webp",
+  "PhotoWashroom": "/hostels/media/mahendra-prime-rajeev-gandhi-nagar-part-2-0124/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/mahendra-prime-rajeev-gandhi-nagar-part-2-0124/03.webp",
+   "/hostels/media/mahendra-prime-rajeev-gandhi-nagar-part-2-0124/04.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.143487,
+  "lng": 75.851547,
+  "updatedAt": "2025-04-07"
+ },
+ {
+  "id": "EH0318",
+  "ownerId": "erooms-static",
+  "ListingName": "G Sundaram Residency",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Landmark City (Kunadi)",
+  "SubArea": "Landmark",
+  "Address": "13 DEEPAK MENTION LANDMARK CITY KUNHARI KOTA",
+  "GoogleMapsPlusCode": "7JQQ5RXJ+P83 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Samyak",
+    "distance": 270,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samyak 2",
+    "distance": 180,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan",
+    "distance": 110,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan 2",
+    "distance": 80,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 80,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   12000
+  ],
+  "RentDouble": [
+   12000
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Study Table",
+   "Gym",
+   "Library",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/g-sundaram-residency-landmark-0318/cover.webp",
+  "PhotoRoom": "/hostels/media/g-sundaram-residency-landmark-0318/01.webp",
+  "PhotoWashroom": "/hostels/media/g-sundaram-residency-landmark-0318/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/g-sundaram-residency-landmark-0318/03.webp",
+   "/hostels/media/g-sundaram-residency-landmark-0318/04.webp",
+   "/hostels/media/g-sundaram-residency-landmark-0318/05.webp",
+   "/hostels/media/g-sundaram-residency-landmark-0318/06.webp",
+   "/hostels/media/g-sundaram-residency-landmark-0318/07.webp",
+   "/hostels/media/g-sundaram-residency-landmark-0318/08.webp",
+   "/hostels/media/g-sundaram-residency-landmark-0318/09.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.199262,
+  "lng": 75.830797,
+  "updatedAt": "2025-03-25"
+ },
+ {
+  "id": "EH0316",
+  "ownerId": "erooms-static",
+  "ListingName": "Omega Residency",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Landmark City (Kunadi)",
+  "SubArea": "Landmark",
+  "Address": "I-4 LANDMARK CITY KUNHARI KOTA",
+  "GoogleMapsPlusCode": "7JQQ5RXH+96W Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Samyak",
+    "distance": 350,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samyak 2",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan",
+    "distance": 170,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan 2",
+    "distance": 150,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 150,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   10000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Gym",
+   "Game Zone",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/omega-residency-landmark-0316/cover.webp",
+  "PhotoRoom": "/hostels/media/omega-residency-landmark-0316/01.webp",
+  "PhotoWashroom": "/hostels/media/omega-residency-landmark-0316/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/omega-residency-landmark-0316/03.webp",
+   "/hostels/media/omega-residency-landmark-0316/04.webp",
+   "/hostels/media/omega-residency-landmark-0316/05.webp",
+   "/hostels/media/omega-residency-landmark-0316/06.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.198487,
+  "lng": 75.828078,
+  "updatedAt": "2025-03-25"
+ },
+ {
+  "id": "EH0313",
+  "ownerId": "erooms-static",
+  "ListingName": "Welfare Residency",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Landmark City (Kunadi)",
+  "SubArea": "Landmark",
+  "Address": "J-4, LANDMARK CITY KUNHARI",
+  "GoogleMapsPlusCode": "7JQQ5RXH+7J5 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Samyak",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samyak 2",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan",
+    "distance": 130,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan 2",
+    "distance": 100,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY KUNHARI",
+    "distance": 1000,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 100,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 1000,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   8000
+  ],
+  "RentDouble": [
+   6500
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/welfare-residency-landmark-0313/cover.webp",
+  "PhotoRoom": "/hostels/media/welfare-residency-landmark-0313/02.webp",
+  "PhotoWashroom": "/hostels/media/welfare-residency-landmark-0313/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/welfare-residency-landmark-0313/04.webp",
+   "/hostels/media/welfare-residency-landmark-0313/05.webp",
+   "/hostels/media/welfare-residency-landmark-0313/06.webp",
+   "/hostels/media/welfare-residency-landmark-0313/07.webp",
+   "/hostels/media/welfare-residency-landmark-0313/08.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.198138,
+  "lng": 75.829109,
+  "updatedAt": "2025-03-27"
+ },
+ {
+  "id": "EH0185",
+  "ownerId": "erooms-static",
+  "ListingName": "Sethi Boys Hostel",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Landmark City (Kunadi)",
+  "SubArea": "Landmark",
+  "Address": "B-41, BH. ALLEN SAMYAK-1, LANDMARK CITY, KUNHADI, KOTA",
+  "GoogleMapsPlusCode": "7JQQ6R2J+GFR Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Samyak",
+    "distance": 30,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samyak 2",
+    "distance": 170,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan",
+    "distance": 290,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan 2",
+    "distance": 300,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 30,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   8000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping"
+  ],
+  "PhotoMain": "/hostels/media/sethi-boys-hostel-landmark-0185/cover.webp",
+  "PhotoRoom": "/hostels/media/sethi-boys-hostel-landmark-0185/01.webp",
+  "PhotoWashroom": "/hostels/media/sethi-boys-hostel-landmark-0185/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/sethi-boys-hostel-landmark-0185/03.webp",
+   "/hostels/media/sethi-boys-hostel-landmark-0185/04.webp",
+   "/hostels/media/sethi-boys-hostel-landmark-0185/05.webp",
+   "/hostels/media/sethi-boys-hostel-landmark-0185/06.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.201363,
+  "lng": 75.831141,
+  "updatedAt": "2025-03-21"
+ },
+ {
+  "id": "EH0189",
+  "ownerId": "erooms-static",
+  "ListingName": "Khush Residency",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Landmark City (Kunadi)",
+  "SubArea": "Landmark",
+  "Address": "J-3, LANDMARK CITY, KUNHARI, KOTA",
+  "GoogleMapsPlusCode": "7JQQ5RXH+7J5 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Samyak",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan",
+    "distance": 100,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY KUNHARI",
+    "distance": 1000,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 100,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 1000,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   9000
+  ],
+  "RentDouble": [
+   7500
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/khush-residency-landmark-0189/cover.webp",
+  "PhotoRoom": "/hostels/media/khush-residency-landmark-0189/02.webp",
+  "PhotoWashroom": "/hostels/media/khush-residency-landmark-0189/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/khush-residency-landmark-0189/04.webp",
+   "/hostels/media/khush-residency-landmark-0189/05.webp",
+   "/hostels/media/khush-residency-landmark-0189/06.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.198138,
+  "lng": 75.829109,
+  "updatedAt": "2025-03-16"
+ },
+ {
+  "id": "EH0137",
+  "ownerId": "erooms-static",
+  "ListingName": "Ram Girls Hostel",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Rajeev Gandhi Nagar",
+  "SubArea": "Rajeev Gandhi Nagar Part 2",
+  "Address": "264, RAJEEV GANDHI NAGAR, PART - 2",
+  "GoogleMapsPlusCode": "7JQQ4VV2+G2J Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Saakar",
+    "distance": 500,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sankalp",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samarth",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Savinay",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sabal",
+    "distance": 900,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samyik",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY IPIA ROAD NO. 2",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 900,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 450,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 800,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 700,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 700,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   10000,
+   11000
+  ],
+  "RentDouble": [
+   9000
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/ram-girls-hostel-rajeev-gandhi-nagar-part-2-0137/cover.webp",
+  "PhotoRoom": "/hostels/media/ram-girls-hostel-rajeev-gandhi-nagar-part-2-0137/01.webp",
+  "PhotoWashroom": "/hostels/media/ram-girls-hostel-rajeev-gandhi-nagar-part-2-0137/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/ram-girls-hostel-rajeev-gandhi-nagar-part-2-0137/03.webp",
+   "/hostels/media/ram-girls-hostel-rajeev-gandhi-nagar-part-2-0137/04.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.143838,
+  "lng": 75.850016,
+  "updatedAt": "2025-04-07"
+ },
+ {
+  "id": "EH0198",
+  "ownerId": "erooms-static",
+  "ListingName": "Advik Hostel",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Landmark City (Kunadi)",
+  "SubArea": "Landmark",
+  "Address": "106, ADARSH NAGAR, NEAR EXOTICA GARDEN, CANAL ROAD, KUNHADI, KOTA",
+  "GoogleMapsPlusCode": "7JQQ6R3Q+VC6 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Samyak",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samyak 2",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan",
+    "distance": 1000,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan 2",
+    "distance": 1000,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY KUNHARI",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 800,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 850,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   8000
+  ],
+  "RentDouble": [
+   7500
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "Mess Facility",
+   "Housekeeping"
+  ],
+  "PhotoMain": "/hostels/media/advik-hostel-landmark-0198/cover.webp",
+  "PhotoRoom": "/hostels/media/advik-hostel-landmark-0198/01.webp",
+  "PhotoWashroom": "/hostels/media/advik-hostel-landmark-0198/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/advik-hostel-landmark-0198/03.webp",
+   "/hostels/media/advik-hostel-landmark-0198/04.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.204663,
+  "lng": 75.838516,
+  "updatedAt": "2025-03-27"
+ },
+ {
+  "id": "EP0182",
+  "ownerId": "erooms-static",
+  "ListingName": "Aryan Heights",
+  "ListingType": "PG",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Mahaveer Nagar",
+  "SubArea": "Mahaveer Nagar I",
+  "Address": "111, Bh. Sonal Mess, Mahaveer Nagar-1, Kota",
+  "GoogleMapsPlusCode": "7JQQ4VM2+WV4 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Unacademy IPIA ROAD NO. 2",
+    "distance": 1000,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Saakar",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samarth",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Safalya",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sabal",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 160,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Corporate Office",
+    "distance": 240,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "\"ALLEN SAAKAR",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAAKAR 2",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAMARTH",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAFALYA",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SANKALP",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SABAL",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SABAL 2",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "KOTA MENTORS",
+    "distance": 290,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION",
+    "distance": 240,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY",
+    "distance": 1000,
+    "unit": "m"
+   },
+   {
+    "name": "ISAC",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "Career POINT",
+    "distance": 1.2,
+    "unit": "km"
+   },
+   {
+    "name": "Allen",
+    "distance": 450,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 240,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 650,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 1000,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   9500
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Wardrobe",
+   "Study Table",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/aryan-heights-mahaveer-nagar-i-0182/cover.webp",
+  "PhotoRoom": "/hostels/media/aryan-heights-mahaveer-nagar-i-0182/02.webp",
+  "PhotoWashroom": "/hostels/media/aryan-heights-mahaveer-nagar-i-0182/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/aryan-heights-mahaveer-nagar-i-0182/04.webp",
+   "/hostels/media/aryan-heights-mahaveer-nagar-i-0182/05.webp",
+   "/hostels/media/aryan-heights-mahaveer-nagar-i-0182/06.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.134763,
+  "lng": 75.852203,
+  "updatedAt": "2025-05-25"
+ },
+ {
+  "id": "EH0346",
+  "ownerId": "erooms-static",
+  "ListingName": "Laxmi Niwas",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Rajeev Gandhi Nagar",
+  "SubArea": "Rajeev Gandhi Nagar Old",
+  "Address": "51, Near Hotel Flower In, Old Rajeev Gandhi Nagar, Kota",
+  "GoogleMapsPlusCode": "7JQQ4VP2+9XF Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Sankalp",
+    "distance": 950,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Saakar",
+    "distance": 350,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Safalya",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sabal",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Corporate Office",
+    "distance": 170,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 350,
+    "unit": "m"
+   },
+   {
+    "name": "Unacademy IPIA ROAD NO. 2",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samarth",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Savinay",
+    "distance": 1100,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 1200,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DAKSH ROAD NO-5",
+    "distance": 900,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAAKAR",
+    "distance": 350,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAAKAR-2",
+    "distance": 190,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAFALYA",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAMBANDH",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SABAL",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION",
+    "distance": 170,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SANKALP",
+    "distance": 950,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAMARTH",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAVINAY",
+    "distance": 1100,
+    "unit": "m"
+   },
+   {
+    "name": "RELIABLE",
+    "distance": 950,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DRONA-3",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "VIBRANT",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "CAREER POINT",
+    "distance": 1100,
+    "unit": "m"
+   },
+   {
+    "name": "BANSAL",
+    "distance": 1200,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 190,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 170,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 400,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 750,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   16000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Wardrobe",
+   "Study Table",
+   "Gym",
+   "Library",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/laxmi-niwas-rajeev-gandhi-nagar-old-0346/cover.webp",
+  "PhotoRoom": "/hostels/media/laxmi-niwas-rajeev-gandhi-nagar-old-0346/02.webp",
+  "PhotoWashroom": "/hostels/media/laxmi-niwas-rajeev-gandhi-nagar-old-0346/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/laxmi-niwas-rajeev-gandhi-nagar-old-0346/04.webp",
+   "/hostels/media/laxmi-niwas-rajeev-gandhi-nagar-old-0346/05.webp",
+   "/hostels/media/laxmi-niwas-rajeev-gandhi-nagar-old-0346/06.webp",
+   "/hostels/media/laxmi-niwas-rajeev-gandhi-nagar-old-0346/07.webp",
+   "/hostels/media/laxmi-niwas-rajeev-gandhi-nagar-old-0346/08.webp",
+   "/hostels/media/laxmi-niwas-rajeev-gandhi-nagar-old-0346/09.webp",
+   "/hostels/media/laxmi-niwas-rajeev-gandhi-nagar-old-0346/10.webp",
+   "/hostels/media/laxmi-niwas-rajeev-gandhi-nagar-old-0346/11.webp",
+   "/hostels/media/laxmi-niwas-rajeev-gandhi-nagar-old-0346/12.webp",
+   "/hostels/media/laxmi-niwas-rajeev-gandhi-nagar-old-0346/13.webp",
+   "/hostels/media/laxmi-niwas-rajeev-gandhi-nagar-old-0346/14.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.135938,
+  "lng": 75.852422,
+  "updatedAt": "2025-04-11"
+ },
+ {
+  "id": "EH0139",
+  "ownerId": "erooms-static",
+  "ListingName": "Galaxy House",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Rajeev Gandhi Nagar",
+  "SubArea": "Rajeev Gandhi Nagar Old",
+  "Address": "323, RAJEEV GANDHI NAGAR OLD, NEAR MOTION, KOTA",
+  "GoogleMapsPlusCode": "7JQQ4VP2+C7P Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Sankalp",
+    "distance": 500,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Saakar",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samarth",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sabal",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sukalp",
+    "distance": 500,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Corporate Office",
+    "distance": 60,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Safalya",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 400,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 60,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 550,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   10000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/galaxy-house-rajeev-gandhi-nagar-old-0139/cover.webp",
+  "PhotoRoom": "/hostels/media/galaxy-house-rajeev-gandhi-nagar-old-0139/01.webp",
+  "PhotoWashroom": "/hostels/media/galaxy-house-rajeev-gandhi-nagar-old-0139/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/galaxy-house-rajeev-gandhi-nagar-old-0139/03.webp",
+   "/hostels/media/galaxy-house-rajeev-gandhi-nagar-old-0139/04.webp",
+   "/hostels/media/galaxy-house-rajeev-gandhi-nagar-old-0139/05.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.136088,
+  "lng": 75.850703,
+  "updatedAt": "2025-04-13"
+ },
+ {
+  "id": "EH0109",
+  "ownerId": "erooms-static",
+  "ListingName": "Yashvi Residency",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Rajeev Gandhi Nagar",
+  "SubArea": "Rajeev Gandhi Nagar Old",
+  "Address": "327, RAJEEV GANDHI NAGAR OLD, NEAR KHUSHI RESIDENCY , KOTA",
+  "GoogleMapsPlusCode": "7JQQ4VP2+J78 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Sankalp",
+    "distance": 500,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Saakar",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Safalya",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samarth",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sabal",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sukalp",
+    "distance": 500,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Corporate Office",
+    "distance": 60,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 400,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 60,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 550,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   12000
+  ],
+  "RentDouble": [
+   12000
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Gym"
+  ],
+  "PhotoMain": "/hostels/media/yashvi-residency-rajeev-gandhi-nagar-old-0109/cover.webp",
+  "PhotoRoom": "/hostels/media/yashvi-residency-rajeev-gandhi-nagar-old-0109/01.webp",
+  "PhotoWashroom": "/hostels/media/yashvi-residency-rajeev-gandhi-nagar-old-0109/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/yashvi-residency-rajeev-gandhi-nagar-old-0109/03.webp",
+   "/hostels/media/yashvi-residency-rajeev-gandhi-nagar-old-0109/04.webp",
+   "/hostels/media/yashvi-residency-rajeev-gandhi-nagar-old-0109/05.webp",
+   "/hostels/media/yashvi-residency-rajeev-gandhi-nagar-old-0109/06.webp",
+   "/hostels/media/yashvi-residency-rajeev-gandhi-nagar-old-0109/07.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.136537,
+  "lng": 75.850703,
+  "updatedAt": "2025-04-13"
+ },
+ {
+  "id": "EH0330",
+  "ownerId": "erooms-static",
+  "ListingName": "Mahaveer Residency PG",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Mahaveer Nagar",
+  "SubArea": "Mahaveer Nagar Iii",
+  "Address": "11-B-18, Bh. Thali House, Parijat Colony, Mahaveer Nagar-3, Kota",
+  "GoogleMapsPlusCode": "7JQQ4RMW+6FF Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Sankalp",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samarth",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Safalya",
+    "distance": 240,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sabal",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Saakar",
+    "distance": 1000,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 1100,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 1400,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAMARTH",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAFALYA",
+    "distance": 240,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SANKALP",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SABAL",
+    "distance": 50,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAKAAR",
+    "distance": 1000,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE",
+    "distance": 1100,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 50,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 1100,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   7500
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Wardrobe",
+   "Study Table",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/mahaveer-residency-pg-mahaveer-nagar-iii-0330/cover.webp",
+  "PhotoRoom": "/hostels/media/mahaveer-residency-pg-mahaveer-nagar-iii-0330/02.webp",
+  "PhotoWashroom": "/hostels/media/mahaveer-residency-pg-mahaveer-nagar-iii-0330/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/mahaveer-residency-pg-mahaveer-nagar-iii-0330/04.webp",
+   "/hostels/media/mahaveer-residency-pg-mahaveer-nagar-iii-0330/05.webp",
+   "/hostels/media/mahaveer-residency-pg-mahaveer-nagar-iii-0330/06.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.133063,
+  "lng": 75.846172,
+  "updatedAt": "2025-05-12"
+ },
+ {
+  "id": "EH0353",
+  "ownerId": "erooms-static",
+  "ListingName": "Prakash Uday Premium Boys Hostel",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Rajeev Gandhi Nagar",
+  "SubArea": "Rajeev Gandhi Nagar Special (Road No. 1)",
+  "Address": "149, Rajeev Gandhi Nagar Special,Kota",
+  "GoogleMapsPlusCode": "7JQQ4VV5+V6M Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Srajit 2",
+    "distance": 260,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY IPIA ROAD NO. 2",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 2 Campus",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Srajit 3",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarjit 4",
+    "distance": 270,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 1 Campus",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 210,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 1200,
+    "unit": "m"
+   },
+   {
+    "name": "SARVAM IPIA ROAD 1",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 1300,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SARJIT 2",
+    "distance": 260,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SARJIT 3",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SARJIT 4",
+    "distance": 270,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DRONA 1",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DRONA 2",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DRONA 3",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "VIBRANT",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "CAREER POINT",
+    "distance": 230,
+    "unit": "m"
+   },
+   {
+    "name": "BANSAL",
+    "distance": 210,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "ISAC",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "RELIABLE",
+    "distance": 240,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "E-Saral",
+    "distance": 200,
+    "unit": "m"
+   },
+   {
+    "name": "\"ALLEN SANKALP",
+    "distance": 1500,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAMARTH",
+    "distance": 1400,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAAKAR",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAFALYA",
+    "distance": 1600,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SABAL",
+    "distance": 1600,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAVINAY",
+    "distance": 1200,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAMYIK",
+    "distance": 1200,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 260,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 400,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 750,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 400,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   12000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Wardrobe",
+   "Study Table",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/prakash-uday-premium-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0353/cover.webp",
+  "PhotoRoom": "/hostels/media/prakash-uday-premium-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0353/02.webp",
+  "PhotoWashroom": "/hostels/media/prakash-uday-premium-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0353/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/prakash-uday-premium-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0353/04.webp",
+   "/hostels/media/prakash-uday-premium-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0353/05.webp",
+   "/hostels/media/prakash-uday-premium-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0353/06.webp",
+   "/hostels/media/prakash-uday-premium-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0353/07.webp",
+   "/hostels/media/prakash-uday-premium-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0353/08.webp",
+   "/hostels/media/prakash-uday-premium-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0353/09.webp",
+   "/hostels/media/prakash-uday-premium-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0353/10.webp",
+   "/hostels/media/prakash-uday-premium-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0353/11.webp",
+   "/hostels/media/prakash-uday-premium-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0353/12.webp",
+   "/hostels/media/prakash-uday-premium-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0353/13.webp",
+   "/hostels/media/prakash-uday-premium-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0353/14.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.144713,
+  "lng": 75.858047,
+  "updatedAt": "2025-05-25"
+ },
+ {
+  "id": "EH0174",
+  "ownerId": "erooms-static",
+  "ListingName": "Hari Residency",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Jawahar Nagar",
+  "SubArea": "Jawar Nagar",
+  "Address": "490, JAWAHAR NAGAR, NEAR ALLEN SAMMUNAT GATE NO.3, KOTA",
+  "GoogleMapsPlusCode": "7JQQ5R2P+HWX Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Satyarth",
+    "distance": 140,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sammunnat",
+    "distance": 10,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 10,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   11000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping"
+  ],
+  "PhotoMain": "/hostels/media/hari-residency-jawar-nagar-0174/cover.webp",
+  "PhotoRoom": "/hostels/media/hari-residency-jawar-nagar-0174/02.webp",
+  "PhotoWashroom": "/hostels/media/hari-residency-jawar-nagar-0174/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/hari-residency-jawar-nagar-0174/04.webp",
+   "/hostels/media/hari-residency-jawar-nagar-0174/05.webp",
+   "/hostels/media/hari-residency-jawar-nagar-0174/06.webp",
+   "/hostels/media/hari-residency-jawar-nagar-0174/07.webp",
+   "/hostels/media/hari-residency-jawar-nagar-0174/08.webp",
+   "/hostels/media/hari-residency-jawar-nagar-0174/09.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.151488,
+  "lng": 75.837359,
+  "updatedAt": "2025-03-10"
+ },
+ {
+  "id": "EH0099",
+  "ownerId": "erooms-static",
+  "ListingName": "Raj Residency",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Rajeev Gandhi Nagar",
+  "SubArea": "Rajeev Gandhi Nagar Special (Road No. 1)",
+  "Address": "554, RAJEEV GANDHI NAGAR SPECIAL, KOTA",
+  "GoogleMapsPlusCode": "7JQQ4VW6+W7F Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 1900,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Srajit 2",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 2 Campus",
+    "distance": 950,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Srajit 3",
+    "distance": 1100,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarjit 4",
+    "distance": 1100,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 1 Campus",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 950,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DAKSH ROAD NO-5",
+    "distance": 2100,
+    "unit": "m"
+   },
+   {
+    "name": "CAREER WILL",
+    "distance": 1000,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY IPIA ROAD NO. 2",
+    "distance": 1000,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 1500,
+    "unit": "m"
+   },
+   {
+    "name": "SARVAM IPIA ROAD 1",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 1100,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 750,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 750,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 1500,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 1000,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   11000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Gym",
+   "Game Zone",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/raj-residency-rajeev-gandhi-nagar-special-road-no-1-0099/cover.webp",
+  "PhotoRoom": "/hostels/media/raj-residency-rajeev-gandhi-nagar-special-road-no-1-0099/01.webp",
+  "PhotoWashroom": "/hostels/media/raj-residency-rajeev-gandhi-nagar-special-road-no-1-0099/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/raj-residency-rajeev-gandhi-nagar-special-road-no-1-0099/03.webp",
+   "/hostels/media/raj-residency-rajeev-gandhi-nagar-special-road-no-1-0099/04.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.147312,
+  "lng": 75.860672,
+  "updatedAt": "2025-07-11"
+ },
+ {
+  "id": "EP0075",
+  "ownerId": "erooms-static",
+  "ListingName": "S.M. Residency",
+  "ListingType": "PG",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Rajeev Gandhi Nagar",
+  "SubArea": "Rajeev Gandhi Nagar Special (Road No. 1)",
+  "Address": "532, RAJIV GANDHI NAGAR SPECIAL, IPIA ROAD NO.01, KOTA",
+  "GoogleMapsPlusCode": "7JQQ4VX5+HWR Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Srajit 2",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Srajit 3",
+    "distance": 950,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarjit 4",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 1 Campus",
+    "distance": 1000,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 2 Campus",
+    "distance": 1200,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 1200,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DAKSH ROAD NO-5",
+    "distance": 2300,
+    "unit": "m"
+   },
+   {
+    "name": "CAREER WILL",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 2000,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY IPIA ROAD NO. 2",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 1200,
+    "unit": "m"
+   },
+   {
+    "name": "SARVAM IPIA ROAD 1",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 700,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 1000,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 1200,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 850,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   4000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/s-m-residency-rajeev-gandhi-nagar-special-road-no-1-0075/cover.webp",
+  "PhotoRoom": "/hostels/media/s-m-residency-rajeev-gandhi-nagar-special-road-no-1-0075/01.webp",
+  "PhotoWashroom": "/hostels/media/s-m-residency-rajeev-gandhi-nagar-special-road-no-1-0075/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/s-m-residency-rajeev-gandhi-nagar-special-road-no-1-0075/03.webp",
+   "/hostels/media/s-m-residency-rajeev-gandhi-nagar-special-road-no-1-0075/04.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.148988,
+  "lng": 75.859766,
+  "updatedAt": "2025-07-10"
+ },
+ {
+  "id": "EH0292",
+  "ownerId": "erooms-static",
+  "ListingName": "Ashirwad Boys Hostel",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Rajeev Gandhi Nagar",
+  "SubArea": "Rajeev Gandhi Nagar Special (Road No. 1)",
+  "Address": "Plot No-E-8 Career point-2 IPIA Road No-1 Kota",
+  "GoogleMapsPlusCode": "7JQQ4VV5+7XG Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Srajit 2",
+    "distance": 180,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 2 Campus",
+    "distance": 290,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 1300,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Srajit 3",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarjit 4",
+    "distance": 300,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 300,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DAKSH ROAD NO-5",
+    "distance": 1900,
+    "unit": "m"
+   },
+   {
+    "name": "CAREER WILL",
+    "distance": 300,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 50,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY IPIA ROAD NO. 2",
+    "distance": 300,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 170,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 1 Campus",
+    "distance": 230,
+    "unit": "m"
+   },
+   {
+    "name": "SARVAM IPIA ROAD 1",
+    "distance": 950,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 180,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 230,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 170,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 300,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   9000
+  ],
+  "RentDouble": [
+   8000
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/ashirwad-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0292/cover.webp",
+  "PhotoRoom": "/hostels/media/ashirwad-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0292/02.webp",
+  "PhotoWashroom": "/hostels/media/ashirwad-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0292/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/ashirwad-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0292/04.webp",
+   "/hostels/media/ashirwad-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0292/05.webp",
+   "/hostels/media/ashirwad-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0292/06.webp",
+   "/hostels/media/ashirwad-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0292/07.webp",
+   "/hostels/media/ashirwad-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0292/08.webp",
+   "/hostels/media/ashirwad-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0292/09.webp",
+   "/hostels/media/ashirwad-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0292/10.webp",
+   "/hostels/media/ashirwad-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0292/11.webp",
+   "/hostels/media/ashirwad-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0292/12.webp",
+   "/hostels/media/ashirwad-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0292/13.webp",
+   "/hostels/media/ashirwad-boys-hostel-rajeev-gandhi-nagar-special-road-no-1-0292/14.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.143187,
+  "lng": 75.859938,
+  "updatedAt": "2025-07-10"
+ },
+ {
+  "id": "EP0021",
+  "ownerId": "erooms-static",
+  "ListingName": "Gayatri Residency",
+  "ListingType": "PG",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Rajeev Gandhi Nagar",
+  "SubArea": "Rajeev Gandhi Nagar Special (Road No. 1)",
+  "Address": "183, ELECTRONIC COMPLEX, IPIA ROAD NO.1, KOTA",
+  "GoogleMapsPlusCode": "7JQQ4VW5+9H8 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Srajit 2",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 350,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Srajit 3",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarjit 4",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 1 Campus",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 2 Campus",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 500,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DAKSH ROAD NO-5",
+    "distance": 1900,
+    "unit": "m"
+   },
+   {
+    "name": "CAREER WILL",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 1400,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY IPIA ROAD NO. 2",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 900,
+    "unit": "m"
+   },
+   {
+    "name": "SARVAM IPIA ROAD 1",
+    "distance": 500,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 400,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 450,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 900,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 550,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   4000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/gayatri-residency-rajeev-gandhi-nagar-special-road-no-1-0021/cover.webp",
+  "PhotoRoom": "/hostels/media/gayatri-residency-rajeev-gandhi-nagar-special-road-no-1-0021/01.webp",
+  "PhotoWashroom": "/hostels/media/gayatri-residency-rajeev-gandhi-nagar-special-road-no-1-0021/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/gayatri-residency-rajeev-gandhi-nagar-special-road-no-1-0021/03.webp",
+   "/hostels/media/gayatri-residency-rajeev-gandhi-nagar-special-road-no-1-0021/04.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.145913,
+  "lng": 75.858953,
+  "updatedAt": "2025-07-13"
+ },
+ {
+  "id": "EH0294",
+  "ownerId": "erooms-static",
+  "ListingName": "Br Girls Residency",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "IPIA",
+  "SubArea": "Ipia Road No. 2",
+  "Address": "B-38, Near by Unacademy, IPIA Road No.02, Kota",
+  "GoogleMapsPlusCode": "7JQQ4VR5+8PG Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Srajit 2",
+    "distance": 180,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Srajit 3",
+    "distance": 350,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarjit 4",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 2 Campus",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 70,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DAKSH ROAD NO-5",
+    "distance": 1200,
+    "unit": "m"
+   },
+   {
+    "name": "CAREER WILL",
+    "distance": 120,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 260,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY IPIA ROAD NO. 2",
+    "distance": 120,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 1 Campus",
+    "distance": 45,
+    "unit": "m"
+   },
+   {
+    "name": "SARVAM IPIA ROAD 1",
+    "distance": 350,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 180,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 45,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 450,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 120,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   11000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/br-girls-residency-ipia-road-no-2-0294/cover.webp",
+  "PhotoRoom": "/hostels/media/br-girls-residency-ipia-road-no-2-0294/02.webp",
+  "PhotoWashroom": "/hostels/media/br-girls-residency-ipia-road-no-2-0294/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/br-girls-residency-ipia-road-no-2-0294/04.webp",
+   "/hostels/media/br-girls-residency-ipia-road-no-2-0294/05.webp",
+   "/hostels/media/br-girls-residency-ipia-road-no-2-0294/06.webp",
+   "/hostels/media/br-girls-residency-ipia-road-no-2-0294/07.webp",
+   "/hostels/media/br-girls-residency-ipia-road-no-2-0294/08.webp",
+   "/hostels/media/br-girls-residency-ipia-road-no-2-0294/09.webp",
+   "/hostels/media/br-girls-residency-ipia-road-no-2-0294/10.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.140813,
+  "lng": 75.859313,
+  "updatedAt": "2025-07-11"
+ },
+ {
+  "id": "EH0293",
+  "ownerId": "erooms-static",
+  "ListingName": "Kesari Vatika",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Rajeev Gandhi Nagar",
+  "SubArea": "Rajeev Gandhi Nagar Special (Road No. 1)",
+  "Address": "3-F-1, Near by Motion Drona, IPIA Road No.01, Kota",
+  "GoogleMapsPlusCode": "7JQQ4VV7+5FF Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Srajit 2",
+    "distance": 500,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 1400,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 2 Campus",
+    "distance": 28,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Srajit 3",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarjit 4",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 1 Campus",
+    "distance": 200,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DAKSH ROAD NO-5",
+    "distance": 1500,
+    "unit": "m"
+   },
+   {
+    "name": "CAREER WILL",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY IPIA ROAD NO. 2",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 950,
+    "unit": "m"
+   },
+   {
+    "name": "SARVAM IPIA ROAD 1",
+    "distance": 1300,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 900,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 450,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 28,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 950,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 600,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   13000
+  ],
+  "RentDouble": [
+   11000
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/kesari-vatika-rajeev-gandhi-nagar-special-road-no-1-0293/cover.webp",
+  "PhotoRoom": "/hostels/media/kesari-vatika-rajeev-gandhi-nagar-special-road-no-1-0293/02.webp",
+  "PhotoWashroom": "/hostels/media/kesari-vatika-rajeev-gandhi-nagar-special-road-no-1-0293/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/kesari-vatika-rajeev-gandhi-nagar-special-road-no-1-0293/04.webp",
+   "/hostels/media/kesari-vatika-rajeev-gandhi-nagar-special-road-no-1-0293/05.webp",
+   "/hostels/media/kesari-vatika-rajeev-gandhi-nagar-special-road-no-1-0293/06.webp",
+   "/hostels/media/kesari-vatika-rajeev-gandhi-nagar-special-road-no-1-0293/07.webp",
+   "/hostels/media/kesari-vatika-rajeev-gandhi-nagar-special-road-no-1-0293/08.webp",
+   "/hostels/media/kesari-vatika-rajeev-gandhi-nagar-special-road-no-1-0293/09.webp",
+   "/hostels/media/kesari-vatika-rajeev-gandhi-nagar-special-road-no-1-0293/10.webp",
+   "/hostels/media/kesari-vatika-rajeev-gandhi-nagar-special-road-no-1-0293/11.webp",
+   "/hostels/media/kesari-vatika-rajeev-gandhi-nagar-special-road-no-1-0293/12.webp",
+   "/hostels/media/kesari-vatika-rajeev-gandhi-nagar-special-road-no-1-0293/13.webp",
+   "/hostels/media/kesari-vatika-rajeev-gandhi-nagar-special-road-no-1-0293/14.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.142938,
+  "lng": 75.863687,
+  "updatedAt": "2025-07-11"
+ },
+ {
+  "id": "EH0115",
+  "ownerId": "erooms-static",
+  "ListingName": "Anshuman Residency",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Rajeev Gandhi Nagar",
+  "SubArea": "Rajeev Gandhi Nagar Special (Road No. 1)",
+  "Address": "H-9-A, ELECTRONIC COMPLEX, IPIA, KOTA",
+  "GoogleMapsPlusCode": "7JQQ4VW6+G47 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Srajit 2",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Srajit 3",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarjit 4",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 1 Campus",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 2 Campus",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DAKSH ROAD NO-5",
+    "distance": 1900,
+    "unit": "m"
+   },
+   {
+    "name": "CAREER WILL",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 1500,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY IPIA ROAD NO. 2",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 1100,
+    "unit": "m"
+   },
+   {
+    "name": "SARVAM IPIA ROAD 1",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 600,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 550,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 1100,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 750,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   11000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Study Table",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/anshuman-residency-rajeev-gandhi-nagar-special-road-no-1-0115/cover.webp",
+  "PhotoRoom": "/hostels/media/anshuman-residency-rajeev-gandhi-nagar-special-road-no-1-0115/01.webp",
+  "PhotoWashroom": "/hostels/media/anshuman-residency-rajeev-gandhi-nagar-special-road-no-1-0115/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/anshuman-residency-rajeev-gandhi-nagar-special-road-no-1-0115/03.webp",
+   "/hostels/media/anshuman-residency-rajeev-gandhi-nagar-special-road-no-1-0115/04.webp",
+   "/hostels/media/anshuman-residency-rajeev-gandhi-nagar-special-road-no-1-0115/05.webp",
+   "/hostels/media/anshuman-residency-rajeev-gandhi-nagar-special-road-no-1-0115/06.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.146287,
+  "lng": 75.860297,
+  "updatedAt": "2025-07-13"
+ },
+ {
+  "id": "EH0194",
+  "ownerId": "erooms-static",
+  "ListingName": "Balaji Dham",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Landmark City (Kunadi)",
+  "SubArea": "Landmark",
+  "Address": "PLOT NO.12, NEAR VISHALAKSHI RESIDENCY, LANDMARK CITY, KUNHADI, KOTA",
+  "GoogleMapsPlusCode": "7JQQ5RWG+R6G Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Sangyan",
+    "distance": 350,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sangyan 2",
+    "distance": 300,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samyak",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samyak 2",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY KUNHARI",
+    "distance": 1800,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 300,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 1800,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   9000
+  ],
+  "RentDouble": [
+   7500
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/balaji-dham-landmark-0194/cover.webp",
+  "PhotoRoom": "/hostels/media/balaji-dham-landmark-0194/01.webp",
+  "PhotoWashroom": "/hostels/media/balaji-dham-landmark-0194/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/balaji-dham-landmark-0194/03.webp",
+   "/hostels/media/balaji-dham-landmark-0194/04.webp",
+   "/hostels/media/balaji-dham-landmark-0194/05.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.197063,
+  "lng": 75.825578,
+  "updatedAt": "2025-07-18"
+ },
+ {
+  "id": "EH0021",
+  "ownerId": "erooms-static",
+  "ListingName": "Kapils Home",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Rajeev Gandhi Nagar",
+  "SubArea": "Rajeev Gandhi Nagar Special (Road No. 1)",
+  "Address": "568, RAJEEV GANDHI NAGAR SPECIAL, KOTA",
+  "GoogleMapsPlusCode": "7JQQ4VW6+494 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Srajit 2",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Srajit 3",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarjit 4",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 1 Campus",
+    "distance": 500,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 2 Campus",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DAKSH ROAD NO-5",
+    "distance": 1800,
+    "unit": "m"
+   },
+   {
+    "name": "CAREER WILL",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 1500,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY IPIA ROAD NO. 2",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 1100,
+    "unit": "m"
+   },
+   {
+    "name": "SARVAM IPIA ROAD 1",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 600,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 500,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 1100,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 750,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   13000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Gym",
+   "Game Zone",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/kapils-home-rajeev-gandhi-nagar-special-road-no-1-0021/cover.webp",
+  "PhotoRoom": "/hostels/media/kapils-home-rajeev-gandhi-nagar-special-road-no-1-0021/01.webp",
+  "PhotoWashroom": "/hostels/media/kapils-home-rajeev-gandhi-nagar-special-road-no-1-0021/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/kapils-home-rajeev-gandhi-nagar-special-road-no-1-0021/03.webp",
+   "/hostels/media/kapils-home-rajeev-gandhi-nagar-special-road-no-1-0021/04.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.145263,
+  "lng": 75.860953,
+  "updatedAt": "2025-07-22"
+ },
+ {
+  "id": "EH0019",
+  "ownerId": "erooms-static",
+  "ListingName": "Keshav Paradise",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Rajeev Gandhi Nagar",
+  "SubArea": "Rajeev Gandhi Nagar Special (Road No. 1)",
+  "Address": "551, RAJEEV GANDHI NAGAR SPECIAL, KOTA",
+  "GoogleMapsPlusCode": "7JQQ4VX6+27G Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Srajit 2",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Srajit 3",
+    "distance": 950,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarjit 4",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 1 Campus",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 2 Campus",
+    "distance": 1000,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 1000,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DAKSH ROAD NO-5",
+    "distance": 2100,
+    "unit": "m"
+   },
+   {
+    "name": "CAREER WILL",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 1700,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY IPIA ROAD NO. 2",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 1200,
+    "unit": "m"
+   },
+   {
+    "name": "SARVAM IPIA ROAD 1",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 700,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 750,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 1200,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 850,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   9000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/keshav-paradise-rajeev-gandhi-nagar-special-road-no-1-0019/cover.webp",
+  "PhotoRoom": "/hostels/media/keshav-paradise-rajeev-gandhi-nagar-special-road-no-1-0019/02.webp",
+  "PhotoWashroom": "/hostels/media/keshav-paradise-rajeev-gandhi-nagar-special-road-no-1-0019/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/keshav-paradise-rajeev-gandhi-nagar-special-road-no-1-0019/04.webp",
+   "/hostels/media/keshav-paradise-rajeev-gandhi-nagar-special-road-no-1-0019/05.webp",
+   "/hostels/media/keshav-paradise-rajeev-gandhi-nagar-special-road-no-1-0019/06.webp",
+   "/hostels/media/keshav-paradise-rajeev-gandhi-nagar-special-road-no-1-0019/07.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.147562,
+  "lng": 75.860703,
+  "updatedAt": "2025-07-22"
+ },
+ {
+  "id": "EH0015",
+  "ownerId": "erooms-static",
+  "ListingName": "Geeta Pearl Residency",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Rajeev Gandhi Nagar",
+  "SubArea": "Rajeev Gandhi Nagar Special (Road No. 1)",
+  "Address": "510, RAJEEV GANDHI NAGAR SPECIAL, KOTA",
+  "GoogleMapsPlusCode": "7JQQ4VX5+CQC Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Srajit 2",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Srajit 3",
+    "distance": 950,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarjit 4",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 1 Campus",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 2 Campus",
+    "distance": 1000,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 1000,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DAKSH ROAD NO-5",
+    "distance": 2300,
+    "unit": "m"
+   },
+   {
+    "name": "CAREER WILL",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 1800,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY IPIA ROAD NO. 2",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 1200,
+    "unit": "m"
+   },
+   {
+    "name": "SARVAM IPIA ROAD 1",
+    "distance": 800,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 700,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 800,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 1200,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 850,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   10000
+  ],
+  "RentDouble": [
+   8000
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/geeta-pearl-residency-rajeev-gandhi-nagar-special-road-no-1-0015/cover.webp",
+  "PhotoRoom": "/hostels/media/geeta-pearl-residency-rajeev-gandhi-nagar-special-road-no-1-0015/01.webp",
+  "PhotoWashroom": "/hostels/media/geeta-pearl-residency-rajeev-gandhi-nagar-special-road-no-1-0015/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/geeta-pearl-residency-rajeev-gandhi-nagar-special-road-no-1-0015/03.webp",
+   "/hostels/media/geeta-pearl-residency-rajeev-gandhi-nagar-special-road-no-1-0015/04.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.148563,
+  "lng": 75.859391,
+  "updatedAt": "2025-07-22"
+ },
+ {
+  "id": "EH0011",
+  "ownerId": "erooms-static",
+  "ListingName": "Shri Kanha Boys Residency",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Rajeev Gandhi Nagar",
+  "SubArea": "Rajeev Gandhi Nagar Special (Road No. 1)",
+  "Address": "H-33, ELECTRONIC COMPLEX, ROAD NO.1, IPIA, KOTA",
+  "GoogleMapsPlusCode": "7JQQ4VW5+J28 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Srajit 2",
+    "distance": 500,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Srajit 3",
+    "distance": 900,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarjit 4",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 1 Campus",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 2 Campus",
+    "distance": 1100,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DAKSH ROAD NO-5",
+    "distance": 2300,
+    "unit": "m"
+   },
+   {
+    "name": "CAREER WILL",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 1600,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY IPIA ROAD NO. 2",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 1700,
+    "unit": "m"
+   },
+   {
+    "name": "SARVAM IPIA ROAD 1",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 450,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 850,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 1700,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 650,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   8000
+  ],
+  "RentDouble": [
+   7500
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/shri-kanha-boys-residency-rajeev-gandhi-nagar-special-road-no-1-0011/cover.webp",
+  "PhotoRoom": "/hostels/media/shri-kanha-boys-residency-rajeev-gandhi-nagar-special-road-no-1-0011/02.webp",
+  "PhotoWashroom": "/hostels/media/shri-kanha-boys-residency-rajeev-gandhi-nagar-special-road-no-1-0011/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/shri-kanha-boys-residency-rajeev-gandhi-nagar-special-road-no-1-0011/04.webp",
+   "/hostels/media/shri-kanha-boys-residency-rajeev-gandhi-nagar-special-road-no-1-0011/05.webp",
+   "/hostels/media/shri-kanha-boys-residency-rajeev-gandhi-nagar-special-road-no-1-0011/06.webp",
+   "/hostels/media/shri-kanha-boys-residency-rajeev-gandhi-nagar-special-road-no-1-0011/07.webp",
+   "/hostels/media/shri-kanha-boys-residency-rajeev-gandhi-nagar-special-road-no-1-0011/08.webp",
+   "/hostels/media/shri-kanha-boys-residency-rajeev-gandhi-nagar-special-road-no-1-0011/09.webp",
+   "/hostels/media/shri-kanha-boys-residency-rajeev-gandhi-nagar-special-road-no-1-0011/10.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.146538,
+  "lng": 75.857578,
+  "updatedAt": "2025-07-22"
+ },
+ {
+  "id": "EH0203",
+  "ownerId": "erooms-static",
+  "ListingName": "Shri Rose",
+  "ListingType": "Hostel",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "IPIA",
+  "SubArea": "Ipia Road No. 4",
+  "Address": "E-59 (A), IPIA ROAD NO.04, BH. CITY MALL, KOTA",
+  "GoogleMapsPlusCode": "7JQQ4VQ5+78M Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Srajit 2",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Srajit 3",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarjit 4",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 1 Campus",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 2 Campus",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 300,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DAKSH ROAD NO-5",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "CAREER WILL",
+    "distance": 290,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 900,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 600,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY IPIA ROAD NO. 2",
+    "distance": 290,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 300,
+    "unit": "m"
+   },
+   {
+    "name": "SARVAM IPIA ROAD 1",
+    "distance": 1400,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 450,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 300,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 300,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 290,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   10000
+  ],
+  "RentDouble": [
+   8000
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/shri-rose-ipia-road-no-4-0203/cover.webp",
+  "PhotoRoom": "/hostels/media/shri-rose-ipia-road-no-4-0203/01.webp",
+  "PhotoWashroom": "/hostels/media/shri-rose-ipia-road-no-4-0203/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/shri-rose-ipia-road-no-4-0203/03.webp",
+   "/hostels/media/shri-rose-ipia-road-no-4-0203/04.webp",
+   "/hostels/media/shri-rose-ipia-road-no-4-0203/05.webp",
+   "/hostels/media/shri-rose-ipia-road-no-4-0203/06.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.138213,
+  "lng": 75.858297,
+  "updatedAt": "2025-07-24"
+ },
+ {
+  "id": "EH0206",
+  "ownerId": "erooms-static",
+  "ListingName": "Welcome Prime Residency",
+  "ListingType": "Hostel",
+  "Gender": "Girls",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "IPIA",
+  "SubArea": "Ipia Road No. 2",
+  "Address": "156-A, IPIA ROAD NO.05, ELECTRONIC COMPLEX, KOTA",
+  "GoogleMapsPlusCode": "7JQQ4VM5+98W Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Srajit 2",
+    "distance": 1000,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Srajit 3",
+    "distance": 1300,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarjit 4",
+    "distance": 1100,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 1 Campus",
+    "distance": 1500,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 2 Campus",
+    "distance": 1200,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DAKSH ROAD NO-5",
+    "distance": 160,
+    "unit": "m"
+   },
+   {
+    "name": "CAREER WILL",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 1100,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY IPIA ROAD NO. 2",
+    "distance": 850,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "SARVAM IPIA ROAD 1",
+    "distance": 1900,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 1100,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 1000,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 160,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 650,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 850,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   12000
+  ],
+  "RentDouble": [
+   10000
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Mess Facility",
+   "Housekeeping",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/welcome-prime-residency-ipia-road-no-2-0206/cover.webp",
+  "PhotoRoom": "/hostels/media/welcome-prime-residency-ipia-road-no-2-0206/01.webp",
+  "PhotoWashroom": "/hostels/media/welcome-prime-residency-ipia-road-no-2-0206/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/welcome-prime-residency-ipia-road-no-2-0206/03.webp",
+   "/hostels/media/welcome-prime-residency-ipia-road-no-2-0206/04.webp",
+   "/hostels/media/welcome-prime-residency-ipia-road-no-2-0206/05.webp",
+   "/hostels/media/welcome-prime-residency-ipia-road-no-2-0206/06.webp",
+   "/hostels/media/welcome-prime-residency-ipia-road-no-2-0206/07.webp",
+   "/hostels/media/welcome-prime-residency-ipia-road-no-2-0206/08.webp",
+   "/hostels/media/welcome-prime-residency-ipia-road-no-2-0206/09.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.133488,
+  "lng": 75.858328,
+  "updatedAt": "2025-07-25"
+ },
+ {
+  "id": "EP0060",
+  "ownerId": "erooms-static",
+  "ListingName": "Govind Residency",
+  "ListingType": "PG",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Jawahar Nagar",
+  "SubArea": "Jawar Nagar",
+  "Address": "B-82, GALI NO.07, JAWAHAR NAGAR, KOTA",
+  "GoogleMapsPlusCode": "7JQQ5R4R+7QC Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Satyarth",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sammunnat",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 650,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   3000
+  ],
+  "RentDouble": [
+   3500
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "WiFi",
+   "Laundry",
+   "Housekeeping"
+  ],
+  "PhotoMain": "/hostels/media/govind-residency-jawar-nagar-0060/cover.webp",
+  "PhotoRoom": "/hostels/media/govind-residency-jawar-nagar-0060/01.webp",
+  "PhotoWashroom": "/hostels/media/govind-residency-jawar-nagar-0060/02.webp",
+  "PhotosGallery": [
+   "/hostels/media/govind-residency-jawar-nagar-0060/03.webp",
+   "/hostels/media/govind-residency-jawar-nagar-0060/04.webp",
+   "/hostels/media/govind-residency-jawar-nagar-0060/05.webp",
+   "/hostels/media/govind-residency-jawar-nagar-0060/06.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.155687,
+  "lng": 75.841891,
+  "updatedAt": "2025-08-03"
+ },
+ {
+  "id": "EP0127",
+  "ownerId": "erooms-static",
+  "ListingName": "Keshav Residency",
+  "ListingType": "PG",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Dakniya Station",
+  "SubArea": "Dakniya Station",
+  "Address": "K-76 STEEL YARD NEAR DAKANIYA RAILWAY STATION KOTA",
+  "GoogleMapsPlusCode": "7JQQ4VW7+9HX Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Srajit 2",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Srajit 3",
+    "distance": 550,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarjit 4",
+    "distance": 1200,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 1 Campus",
+    "distance": 280,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 2 Campus",
+    "distance": 350,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION Drona 3 Campus",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "MOTION DAKSH ROAD NO-5",
+    "distance": 1900,
+    "unit": "m"
+   },
+   {
+    "name": "CAREER WILL",
+    "distance": 1200,
+    "unit": "m"
+   },
+   {
+    "name": "E-SARAL",
+    "distance": 500,
+    "unit": "m"
+   },
+   {
+    "name": "PW Vidyapeeth",
+    "distance": 1800,
+    "unit": "m"
+   },
+   {
+    "name": "UNACADEMY IPIA ROAD NO. 2",
+    "distance": 1200,
+    "unit": "m"
+   },
+   {
+    "name": "RESONANCE IPIA ROAD NO. 1",
+    "distance": 1600,
+    "unit": "m"
+   },
+   {
+    "name": "SARVAM IPIA ROAD 1",
+    "distance": 1600,
+    "unit": "m"
+   },
+   {
+    "name": "AKASH IPIA ROAD 1",
+    "distance": 950,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 550,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Motion",
+    "distance": 280,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Resonance",
+    "distance": 1600,
+    "unit": "m",
+    "generic": true
+   },
+   {
+    "name": "Unacademy",
+    "distance": 1200,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   3000
+  ],
+  "RentDouble": [
+   3000,
+   3500
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Housekeeping"
+  ],
+  "PhotoMain": "/hostels/media/keshav-residency-dakniya-station-0127/cover.webp",
+  "PhotoRoom": "/hostels/media/keshav-residency-dakniya-station-0127/02.webp",
+  "PhotoWashroom": "/hostels/media/keshav-residency-dakniya-station-0127/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/keshav-residency-dakniya-station-0127/04.webp",
+   "/hostels/media/keshav-residency-dakniya-station-0127/05.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.145988,
+  "lng": 75.863984,
+  "updatedAt": "2025-08-03"
+ },
+ {
+  "id": "EP0197",
+  "ownerId": "erooms-static",
+  "ListingName": "Hari Bhawan Residency",
+  "ListingType": "PG",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Indra Vihar",
+  "SubArea": "Indra Vihar",
+  "Address": "A-727(b), Opera Road, Indra Vihar, Kota",
+  "GoogleMapsPlusCode": "7JQQ4RRW+PP7 Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "ALLEN SAMARTH",
+    "distance": 260,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SANKALP",
+    "distance": 400,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SABAL",
+    "distance": 450,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAFALYA",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SUKALP",
+    "distance": 280,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAAKAR",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "ALLEN SAMYIK",
+    "distance": 750,
+    "unit": "m"
+   },
+   {
+    "name": "Allen",
+    "distance": 260,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   3000
+  ],
+  "RentDouble": [
+   4000
+  ],
+  "RentDoubleDetails": "Double sharing price is per student",
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Housekeeping",
+   "Wardrobe",
+   "Study Table"
+  ],
+  "PhotoMain": "/hostels/media/hari-bhawan-residency-indra-vihar-0197/cover.webp",
+  "PhotoRoom": "/hostels/media/hari-bhawan-residency-indra-vihar-0197/02.webp",
+  "PhotoWashroom": "/hostels/media/hari-bhawan-residency-indra-vihar-0197/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/hari-bhawan-residency-indra-vihar-0197/04.webp",
+   "/hostels/media/hari-bhawan-residency-indra-vihar-0197/05.webp",
+   "/hostels/media/hari-bhawan-residency-indra-vihar-0197/06.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.141787,
+  "lng": 75.846797,
+  "updatedAt": "2025-04-05"
+ },
+ {
+  "id": "EP0200",
+  "ownerId": "erooms-static",
+  "ListingName": "Glamz Residency",
+  "ListingType": "PG",
+  "Gender": "Boys",
+  "OwnerName": "",
+  "WardenName": "",
+  "Area": "Talwandi",
+  "SubArea": "Talwandi",
+  "Address": "2-C-3, Talwandi Circle, Talwandi,Kota",
+  "GoogleMapsPlusCode": "7JQQ4RWQ+GVG Kota, Rajasthan",
+  "InstituteDistanceMatrix": [
+   {
+    "name": "Allen Satyarth",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Sarokar -2",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samanvany",
+    "distance": 650,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samunanath",
+    "distance": 700,
+    "unit": "m"
+   },
+   {
+    "name": "Allen Samarth",
+    "distance": 1.3,
+    "unit": "km"
+   },
+   {
+    "name": "Allen Sankalp",
+    "distance": 1.4,
+    "unit": "km"
+   },
+   {
+    "name": "Allen Safalay",
+    "distance": 1.5,
+    "unit": "km"
+   },
+   {
+    "name": "Allen",
+    "distance": 650,
+    "unit": "m",
+    "generic": true
+   }
+  ],
+  "RentSingle": [
+   5000,
+   6000
+  ],
+  "RentDouble": [],
+  "RentDoubleDetails": null,
+  "SecurityTerms": "",
+  "ElectricityCharges": 0,
+  "Maintenance": 0,
+  "ParentsStayCharge": 0,
+  "Facilities": [
+   "AC",
+   "WiFi",
+   "Laundry",
+   "Housekeeping",
+   "Wardrobe",
+   "Study Table",
+   "Fully Furnished"
+  ],
+  "PhotoMain": "/hostels/media/glamz-residency-talwandi-0200/cover.webp",
+  "PhotoRoom": "/hostels/media/glamz-residency-talwandi-0200/02.webp",
+  "PhotoWashroom": "/hostels/media/glamz-residency-talwandi-0200/03.webp",
+  "PhotosGallery": [
+   "/hostels/media/glamz-residency-talwandi-0200/04.webp",
+   "/hostels/media/glamz-residency-talwandi-0200/05.webp",
+   "/hostels/media/glamz-residency-talwandi-0200/06.webp",
+   "/hostels/media/glamz-residency-talwandi-0200/07.webp",
+   "/hostels/media/glamz-residency-talwandi-0200/08.webp"
+  ],
+  "ApprovalStatus": "Approved",
+  "lat": 25.146313,
+  "lng": 75.839703,
+  "updatedAt": "2025-04-09"
+ }
+]

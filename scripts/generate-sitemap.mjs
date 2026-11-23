@@ -160,6 +160,18 @@ const main = async () => {
   // Always include the canonical sample preview property URL as fallback or alongside Firestore docs
   addUrl(`${SITE_BASE}/talwandi/vedanta-residency-kota-elite-preview-1`, 'weekly', '0.8');
 
+  // Static catalogue (data/hostels.json) — always included, no network needed
+  let staticCount = 0;
+  try {
+    const staticList = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'data', 'hostels.json'), 'utf8'));
+    for (const p of staticList) {
+      addUrl(`${SITE_BASE}/${slugify(p.Area)}/${slugify(p.ListingName)}-${p.id}`, 'weekly', '0.8', p.updatedAt || today);
+      staticCount++;
+    }
+  } catch (err) {
+    console.warn('[sitemap] Could not read data/hostels.json:', err?.message || err);
+  }
+
   const properties = await fetchApprovedPropertiesFromFirestore();
   for (const prop of properties) {
     const areaSlug = slugify(prop.area);
@@ -186,7 +198,7 @@ const main = async () => {
   const publicDir = path.join(ROOT_DIR, 'public');
   fs.mkdirSync(publicDir, { recursive: true });
   fs.writeFileSync(path.join(publicDir, 'sitemap.xml'), xmlLines.join('\n') + '\n', 'utf8');
-  console.log(`[sitemap] Generated public/sitemap.xml with ${urls.size} URLs (${properties.length} from Firestore).`);
+  console.log(`[sitemap] Generated public/sitemap.xml with ${urls.size} URLs (${staticCount} static hostels, ${properties.length} from Firestore).`);
 };
 
 main().catch((err) => {

@@ -1,16 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
 import { Property, ApprovalStatus, Gender } from '../types';
 import {
-  fetchApprovedProperties,
-  getCachedPropertiesWithMeta,
   saveProperty,
   updateProperty as dbUpdateProperty,
   deleteProperty,
-  bulkSaveProperties,
-  isFirestoreQuotaExceeded
+  bulkSaveProperties
 } from '../db';
 import { useConfig } from './ConfigContext';
 import { SAMPLE_PREVIEW_PROPERTY } from '../data/sampleProperty';
+import { STATIC_PROPERTIES } from '../data/staticProperties';
 
 export interface Filters {
   coaching: string;
@@ -56,58 +54,20 @@ const PropertyContext = createContext<PropertyContextType | undefined>(undefined
 
 export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { config } = useConfig();
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [properties, setProperties] = useState<Property[]>(STATIC_PROPERTIES);
+  const [loading, setLoading] = useState(STATIC_PROPERTIES.length === 0);
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
 
+  // Public hostel listing comes from the static catalogue (data/hostels.json) — zero Firebase reads.
+  // Admin / owner writes still go to Firestore through the functions below.
   const refreshProperties = useCallback(async () => {
-    try {
-      const fresh = await fetchApprovedProperties();
-      setProperties(fresh.length > 0 ? fresh : [SAMPLE_PREVIEW_PROPERTY]);
-    } catch {
-      const { properties: cached } = getCachedPropertiesWithMeta();
-      setProperties(cached.length > 0 ? cached : [SAMPLE_PREVIEW_PROPERTY]);
-    } finally {
-      setLoading(false);
-    }
+    setProperties(STATIC_PROPERTIES.length > 0 ? STATIC_PROPERTIES : [SAMPLE_PREVIEW_PROPERTY]);
+    setLoading(false);
   }, []);
 
   useEffect(() => {
-    let active = true;
-    const { properties: cached, isFresh } = getCachedPropertiesWithMeta();
-
-    if (cached.length > 0) {
-      setProperties(cached);
-      setLoading(false);
-    }
-
-    if (isFresh || isFirestoreQuotaExceeded()) {
-      if (cached.length === 0) {
-        setProperties([SAMPLE_PREVIEW_PROPERTY]);
-        setLoading(false);
-      }
-      return;
-    }
-
-    // Fetch approved properties once via getDocs (updates silently in background if cache existed)
-    fetchApprovedProperties()
-      .then((fresh) => {
-        if (!active) return;
-        setProperties(fresh.length > 0 ? fresh : [SAMPLE_PREVIEW_PROPERTY]);
-      })
-      .catch(() => {
-        if (!active) return;
-        if (cached.length === 0) {
-          setProperties([SAMPLE_PREVIEW_PROPERTY]);
-        }
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
+    setProperties(STATIC_PROPERTIES.length > 0 ? STATIC_PROPERTIES : [SAMPLE_PREVIEW_PROPERTY]);
+    setLoading(false);
   }, []);
 
   const filteredProperties = useMemo(() => {

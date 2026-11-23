@@ -48,6 +48,7 @@ import {
   extractPropertyId,
   getAreaPath,
   getCanonicalUrl,
+  SITE_ORIGIN,
   getPropertyPath,
   truncateMeta
 } from '../utils/slug';
@@ -352,6 +353,9 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
   const cleanArea = property.Area.split(' (')[0];
   const canonicalUrl = getCanonicalUrl(getPropertyPath(property));
   const mainPhoto800 = transformDriveUrl(property.PhotoMain, 800);
+  // Static catalogue photos are site-relative (/hostels/media/...); OG + JSON-LD need absolute URLs.
+  const mainPhotoAbs = mainPhoto800.startsWith('/') ? `${SITE_ORIGIN}${mainPhoto800}` : mainPhoto800;
+  const staticAddress = (property as Property & { Address?: string }).Address;
 
   const pageTitle = truncateMeta(
     `${property.ListingName}, ${cleanArea} | eRooms.in`,
@@ -369,14 +373,18 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
         '@type': 'LodgingBusiness',
         name: property.ListingName,
         url: canonicalUrl,
-        image: mainPhoto800,
+        image: mainPhotoAbs,
+        telephone: '+91-9351099947',
+        ...(property.lat && property.lng
+          ? { geo: { '@type': 'GeoCoordinates', latitude: property.lat, longitude: property.lng } }
+          : {}),
         priceRange:
           minRent === maxRent
             ? `₹${minRent.toLocaleString('en-IN')}/month`
             : `₹${minRent.toLocaleString('en-IN')} - ₹${maxRent.toLocaleString('en-IN')}/month`,
         address: {
           '@type': 'PostalAddress',
-          streetAddress: `${property.Area}, Kota, Rajasthan`,
+          streetAddress: staticAddress || `${property.Area}, Kota, Rajasthan`,
           addressLocality: cleanArea,
           addressRegion: 'Rajasthan',
           addressCountry: 'IN'
@@ -454,7 +462,7 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
         <link rel="canonical" href={canonicalUrl} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
-        <meta property="og:image" content={mainPhoto800} />
+        <meta property="og:image" content={mainPhotoAbs} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>

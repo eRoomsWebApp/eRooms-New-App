@@ -8,7 +8,9 @@ export const KOTA_AREAS = [
   'Rajeev Gandhi Nagar',
   'Indra Vihar',
   'Indraprastha',
-  'Mahaveer Nagar'
+  'Mahaveer Nagar',
+  'IPIA',
+  'Dakniya Station'
 ];
 
 export const INSTITUTES = [
