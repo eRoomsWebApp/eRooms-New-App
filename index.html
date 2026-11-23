@@ -1,16 +1,53 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>erooms-v2 | Kota Student Housing</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-</head>
+    <title>Verified Hostels, PG &amp; Flats in Kota | eRooms.in</title>
+    <meta name="description" content="Compare verified hostels, PGs &amp; flats in Kota near Allen, PW &amp; Motion. Zero brokerage, transparent rents &amp; free visits with eRooms.in." />
+    <meta name="theme-color" content="#2563eb" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Verified Hostels, PG &amp; Flats in Kota | eRooms.in" />
+    <meta property="og:description" content="Compare verified hostels, PGs &amp; flats in Kota near Allen, PW &amp; Motion. Zero brokerage, transparent rents &amp; free visits with eRooms.in." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.erooms.in/hostels/" />
+    <meta property="og:site_name" content="eRooms.in" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Google Tag (GA4 + Google Ads) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-807M3F93TW"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-807M3F93TW');
+      gtag('config', 'AW-18015271973');
+    </script>
+
+    <!-- Meta Pixel (delayed 3s after load so initial render stays fast) -->
+    <script>
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          !function(f,b,e,v,n,t,s)
+          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+          n.queue=[];t=b.createElement(e);t.async=!0;
+          t.src=v;s=b.getElementsByTagName(e)[0];
+          s.parentNode.insertBefore(t,s)}(window, document,'script',
+          'https://connect.facebook.net/en_US/fbevents.js');
+          fbq('init', '1246580237422938');
+          fbq('track', 'PageView');
+        }, 3000);
+      });
+    </script>
+  </head>
   <body>
     <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
-</body>
+    <script type="module" src="/index.tsx"></script>
+  </body>
 </html>

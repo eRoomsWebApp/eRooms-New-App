@@ -1,38 +1,38 @@
-
 /**
  * Transforms a Google Drive share link into a direct image URL.
- * Supports various formats:
- * - https://drive.google.com/file/d/FILE_ID/view?usp=sharing
- * - https://drive.google.com/open?id=FILE_ID
- * - https://drive.google.com/uc?id=FILE_ID
+ * Supports optional width resizing (`=w400` for cards, `=w800` for profile pages).
  */
-export const transformDriveUrl = (url: string | undefined | null): string | null => {
-  if (!url) return null;
-  
-  // If it's already a direct link or not a drive link, return as is
-  if (!url.includes('drive.google.com')) return url;
+export const transformDriveUrl = (
+  url: string | undefined | null,
+  width?: 400 | 800 | number
+): string => {
+  if (!url) return '';
 
-  try {
-    let fileId = '';
-    
-    // Pattern 1: /file/d/FILE_ID/
-    const fileDMatch = url.match(/\/file\/d\/([^/?]+)/);
-    if (fileDMatch && fileDMatch[1]) {
-      fileId = fileDMatch[1];
-    } 
-    // Pattern 2: ?id=FILE_ID
-    else {
-      const urlObj = new URL(url);
-      fileId = urlObj.searchParams.get('id') || '';
-    }
+  let directUrl = url;
 
-    if (fileId) {
-      // Using the requested format for direct viewing
-      return `https://lh3.googleusercontent.com/u/0/d/${fileId}`;
+  if (url.includes('drive.google.com')) {
+    try {
+      let fileId = '';
+      const fileDMatch = url.match(/\/file\/d\/([^/?]+)/);
+      if (fileDMatch && fileDMatch[1]) {
+        fileId = fileDMatch[1];
+      } else {
+        const urlObj = new URL(url);
+        fileId = urlObj.searchParams.get('id') || '';
+      }
+
+      if (fileId) {
+        directUrl = `https://lh3.googleusercontent.com/u/0/d/${fileId}`;
+      }
+    } catch {
+      return url;
     }
-  } catch (e) {
-    console.error('Error parsing Drive URL:', e);
   }
 
-  return url;
+  if (width && directUrl.includes('googleusercontent.com')) {
+    const cleaned = directUrl.replace(/=w\d+(-h\d+)?(-no)?$/, '');
+    return `${cleaned}=w${width}`;
+  }
+
+  return directUrl;
 };

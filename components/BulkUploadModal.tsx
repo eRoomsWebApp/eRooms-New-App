@@ -1,12 +1,11 @@
 
-import React, { useState, useRef, useMemo, useEffect } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Upload, FileSpreadsheet, Download, 
   CheckCircle2, AlertCircle, Loader2, Trash2,
   Edit3, Save, AlertTriangle, Image as ImageIcon
 } from 'lucide-react';
-import * as XLSX from 'xlsx';
 import { Property, ListingType, Gender, ApprovalStatus } from '../types';
 import { 
   normalizePhone, 
@@ -39,7 +38,7 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
     const errors: string[] = [];
     if (!p.ListingName || p.ListingName === 'Unlabeled Asset') errors.push('Missing Name');
     if (!p.PhotoMain) errors.push('Missing Main Photo');
-    if (p.OwnerWhatsApp.length < 10) errors.push('Invalid Phone');
+    if ((p.OwnerWhatsApp || '').length < 10) errors.push('Invalid Phone');
     if (!p.Area) errors.push('Missing Area');
     if (p.RentSingle.length === 0 && p.RentDouble.length === 0) errors.push('Missing Rent');
     return errors;
@@ -53,8 +52,9 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
     setError(null);
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       try {
+        const XLSX = await import('xlsx');
         const bstr = event.target?.result;
         const wb = XLSX.read(bstr, { type: 'binary' });
         const wsname = wb.SheetNames[0];
@@ -115,7 +115,7 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
             WardenName: String(getValue(['Warden Name', 'WardenName']) || 'On-Call Security'),
             EmergencyContact: normalizePhone(String(getValue(['Office Contact Number', 'EmergencyContact']) || '')),
             OwnerEmail: String(getValue(['Email ID', 'OwnerEmail']) || 'contact@erooms.in'),
-            Area: standardizeArea(String(getValue(['Area']) || ''), config.areas),
+            Area: standardizeArea(String(getValue(['Area']) || ''), config?.areas || []),
             FullAddress: String(getValue(['Property Full Address', 'FullAddress']) || ''),
             GoogleMapsPlusCode: String(getValue(['Property Location', 'GoogleMapsPlusCode']) || ''),
             InstituteDistanceMatrix: combinedDistances,
@@ -163,7 +163,8 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
     setStagingData(newData);
   };
 
-  const downloadTemplate = () => {
+  const downloadTemplate = async () => {
+    const XLSX = await import('xlsx');
     const template = [
       {
         "Listing Name": "Sample PG Name",
@@ -416,11 +417,11 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, onUp
                                   ) : `₹${row.RentSingle.join('/')} / ₹${row.RentDouble.join('/')}`}
                                 </td>
 
-                                <td className={`px-6 py-4 ${row.OwnerWhatsApp.length < 10 ? 'text-rose-500 bg-rose-50/50' : ''}`}>
+                                <td className={`px-6 py-4 ${(row.OwnerWhatsApp || '').length < 10 ? 'text-rose-500 bg-rose-50/50' : ''}`}>
                                   {isEditing ? (
                                     <input 
                                       className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 focus:outline-none"
-                                      value={row.OwnerWhatsApp}
+                                      value={row.OwnerWhatsApp || ''}
                                       onChange={(e) => handleUpdateStaging(idx, { OwnerWhatsApp: e.target.value })}
                                     />
                                   ) : row.OwnerWhatsApp}

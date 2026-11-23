@@ -1,20 +1,40 @@
-
-import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
 import { Property, ApprovalStatus, Gender } from '../types';
-import { subscribeToProperties, saveProperty, deleteProperty, bulkSaveProperties } from '../db';
+import {
+  fetchApprovedProperties,
+  getCachedPropertiesWithMeta,
+  saveProperty,
+  updateProperty as dbUpdateProperty,
+  deleteProperty,
+  bulkSaveProperties,
+  isFirestoreQuotaExceeded
+} from '../db';
 import { useConfig } from './ConfigContext';
-import { useAuth } from './AuthContext';
+import { SAMPLE_PREVIEW_PROPERTY } from '../data/sampleProperty';
 
 export interface Filters {
   coaching: string;
   gender: string;
   area: string;
+  listingType: string;
   activePills: string[];
   priceRange: [number, number];
   selectedFacilities: string[];
   maxDistance: number; // in meters, 0 means no limit
   roomTypes: string[]; // ['Single', 'Double']
 }
+
+export const DEFAULT_FILTERS: Filters = {
+  coaching: 'All',
+  gender: 'All',
+  area: 'All',
+  listingType: 'All',
+  activePills: [],
+  priceRange: [0, 50000],
+  selectedFacilities: [],
+  maxDistance: 0,
+  roomTypes: []
+};
 
 interface PropertyContextType {
   properties: Property[];
@@ -23,6 +43,7 @@ interface PropertyContextType {
   loading: boolean;
   filters: Filters;
   setFilters: React.Dispatch<React.SetStateAction<Filters>>;
+  refreshProperties: () => Promise<void>;
   addProperty: (property: Property) => Promise<void>;
   bulkAddProperties: (properties: Property[]) => Promise<void>;
   updateProperty: (id: string, updates: Partial<Property>) => Promise<void>;
@@ -34,56 +55,111 @@ interface PropertyContextType {
 const PropertyContext = createContext<PropertyContextType | undefined>(undefined);
 
 export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
   const { config } = useConfig();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<Filters>({
-    coaching: 'All',
-    gender: 'All',
-    area: 'All',
-    activePills: [],
-    priceRange: [0, 50000],
-    selectedFacilities: [],
-    maxDistance: 0,
-    roomTypes: []
-  });
+  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
 
-  const institutes = config?.institutes || [];
+  const refreshProperties = useCallback(async () => {
+    try {
+      const fresh = await fetchApprovedProperties();
+      setProperties(fresh.length > 0 ? fresh : [SAMPLE_PREVIEW_PROPERTY]);
+    } catch {
+      const { properties: cached } = getCachedPropertiesWithMeta();
+      setProperties(cached.length > 0 ? cached : [SAMPLE_PREVIEW_PROPERTY]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const unsubscribe = subscribeToProperties(user?.id, user?.role, (data) => {
-      setProperties(data);
+    let active = true;
+    const { properties: cached, isFresh } = getCachedPropertiesWithMeta();
+
+    if (cached.length > 0) {
+      setProperties(cached);
       setLoading(false);
-    });
-    return () => unsubscribe();
-  }, [user]);
+    }
+
+    if (isFresh || isFirestoreQuotaExceeded()) {
+      if (cached.length === 0) {
+        setProperties([SAMPLE_PREVIEW_PROPERTY]);
+        setLoading(false);
+      }
+      return;
+    }
+
+    // Fetch approved properties once via getDocs (updates silently in background if cache existed)
+    fetchApprovedProperties()
+      .then((fresh) => {
+        if (!active) return;
+        setProperties(fresh.length > 0 ? fresh : [SAMPLE_PREVIEW_PROPERTY]);
+      })
+      .catch(() => {
+        if (!active) return;
+        if (cached.length === 0) {
+          setProperties([SAMPLE_PREVIEW_PROPERTY]);
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const filteredProperties = useMemo(() => {
     return properties
       .filter(p => p.ApprovalStatus === ApprovalStatus.Approved)
       .filter(p => {
-        const minRent = Math.min(...(p.RentDouble || [0]), ...(p.RentSingle || [0]));
-        
-        const matchesCoaching = filters.coaching === 'All' || 
-          p.InstituteDistanceMatrix?.some(i => i.name === filters.coaching);
-        
-        const matchesGender = filters.gender === 'All' || p.Gender === filters.gender;
-        const matchesArea = filters.area === 'All' || p.Area === filters.area;
-        
-        const matchesPrice = minRent >= filters.priceRange[0] && minRent <= filters.priceRange[1];
-        
-        const matchesFacilities = filters.selectedFacilities.length === 0 || 
+        const rents = [
+          ...(Array.isArray(p.RentDouble) ? p.RentDouble : []),
+          ...(Array.isArray(p.RentSingle) ? p.RentSingle : [])
+        ].filter(n => typeof n === 'number' && n > 0);
+        const minRent = rents.length > 0 ? Math.min(...rents) : 0;
+
+        const matchesType =
+          filters.listingType === 'All' ||
+          p.ListingType.toLowerCase() === filters.listingType.toLowerCase();
+
+        const matchesCoaching =
+          filters.coaching === 'All' ||
+          p.InstituteDistanceMatrix?.some(
+            i => i.name.toLowerCase() === filters.coaching.toLowerCase()
+          );
+
+        const matchesGender =
+          filters.gender === 'All' ||
+          p.Gender.toLowerCase() === filters.gender.toLowerCase();
+
+        const matchesArea =
+          filters.area === 'All' ||
+          p.Area.toLowerCase() === filters.area.toLowerCase() ||
+          p.Area.toLowerCase().includes(filters.area.toLowerCase());
+
+        const matchesPrice =
+          minRent >= filters.priceRange[0] && minRent <= filters.priceRange[1];
+
+        const matchesFacilities =
+          filters.selectedFacilities.length === 0 ||
           filters.selectedFacilities.every(f => p.Facilities?.includes(f));
+
+        const toMeters = (item: { distance: number; unit?: string }) =>
+          item.unit === 'm' || item.distance > 50 ? item.distance : item.distance * 1000;
 
         let matchesDistance = true;
         if (filters.maxDistance > 0) {
           if (filters.coaching !== 'All') {
-            const dist = p.InstituteDistanceMatrix?.find(i => i.name === filters.coaching)?.distance;
-            matchesDistance = dist !== undefined && dist <= filters.maxDistance;
+            const match = p.InstituteDistanceMatrix?.find(
+              i => i.name.toLowerCase() === filters.coaching.toLowerCase()
+            );
+            matchesDistance = match !== undefined && toMeters(match) <= filters.maxDistance;
           } else {
-            // If "All" coaching is selected, check if it's within distance of ANY institute
-            const minDist = Math.min(...(p.InstituteDistanceMatrix?.map(i => i.distance) || [Infinity]));
+            const minDist = Math.min(
+              ...(p.InstituteDistanceMatrix?.map(i => toMeters(i)) || [Infinity])
+            );
             matchesDistance = minDist <= filters.maxDistance;
           }
         }
@@ -101,111 +177,138 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({ children }
         if (filters.activePills.length > 0) {
           matchesPills = filters.activePills.every(pill => {
             switch (pill) {
-              case 'Luxury': return minRent > 15000;
-              case 'Budget': return minRent < 10000;
-              case 'Girls': return p.Gender === Gender.Girls;
-              case 'Boys': return p.Gender === Gender.Boys;
-              case 'Near Allen': return p.InstituteDistanceMatrix?.some(i => i.name.includes('Allen') && i.distance < 500);
-              case 'Near PW': return p.InstituteDistanceMatrix?.some(i => i.name.includes('PW') && i.distance < 500);
-              case 'AC': return p.Facilities?.includes('AC');
-              case 'Food': return p.Facilities?.includes('Mess Facility');
-              default: return true;
+              case 'Luxury':
+                return minRent > 15000;
+              case 'Budget':
+                return minRent < 10000;
+              case 'Girls':
+                return p.Gender === Gender.Girls;
+              case 'Boys':
+                return p.Gender === Gender.Boys;
+              case 'Near Allen':
+                return p.InstituteDistanceMatrix?.some(
+                  i => i.name.includes('Allen') && toMeters(i) < 500
+                );
+              case 'Near PW':
+                return p.InstituteDistanceMatrix?.some(
+                  i => i.name.includes('PW') && toMeters(i) < 500
+                );
+              case 'AC':
+                return p.Facilities?.includes('AC');
+              case 'Food':
+                return p.Facilities?.includes('Mess Facility');
+              case 'Hostel':
+              case 'PG':
+              case 'Flat':
+              case 'Mess':
+                return p.ListingType === pill;
+              default:
+                return true;
             }
           });
         }
 
-        return matchesCoaching && matchesGender && matchesArea && matchesPills && matchesPrice && matchesFacilities && matchesDistance && matchesRoomType;
+        return (
+          matchesType &&
+          matchesCoaching &&
+          matchesGender &&
+          matchesArea &&
+          matchesPills &&
+          matchesPrice &&
+          matchesFacilities &&
+          matchesDistance &&
+          matchesRoomType
+        );
       })
       .sort((a, b) => {
-        // 1. Featured properties first
         if (a.isFeatured && !b.isFeatured) return -1;
         if (!a.isFeatured && b.isFeatured) return 1;
-        
-        // 2. Higher priority score first
         const priorityA = a.priorityScore || 0;
         const priorityB = b.priorityScore || 0;
         if (priorityA !== priorityB) return priorityB - priorityA;
-        
-        // 3. Alphabetical as fallback
         return a.ListingName.localeCompare(b.ListingName);
       });
   }, [properties, filters]);
 
-  const isFiltering = filters.coaching !== 'All' || 
-                      filters.gender !== 'All' || 
-                      filters.area !== 'All' || 
-                      filters.activePills.length > 0 ||
-                      filters.priceRange[0] > 0 ||
-                      filters.priceRange[1] < 50000 ||
-                      filters.selectedFacilities.length > 0 ||
-                      filters.maxDistance > 0 ||
-                      filters.roomTypes.length > 0;
+  const isFiltering =
+    filters.coaching !== 'All' ||
+    filters.gender !== 'All' ||
+    filters.area !== 'All' ||
+    filters.listingType !== 'All' ||
+    filters.activePills.length > 0 ||
+    filters.priceRange[0] > 0 ||
+    filters.priceRange[1] < 50000 ||
+    filters.selectedFacilities.length > 0 ||
+    filters.maxDistance > 0 ||
+    filters.roomTypes.length > 0;
 
   const normalize = (p: Property): Property => ({
     ...p,
-    InstituteDistanceMatrix: Array.isArray(p.InstituteDistanceMatrix) ? p.InstituteDistanceMatrix : (config?.institutes || []).map(name => ({ name, distance: 1.0 })),
+    InstituteDistanceMatrix: Array.isArray(p.InstituteDistanceMatrix)
+      ? p.InstituteDistanceMatrix
+      : (config?.institutes || []).map(name => ({ name, distance: 1.0, unit: 'km' })),
     Facilities: Array.isArray(p.Facilities) ? p.Facilities : []
   });
 
   const addProperty = async (property: Property) => {
     const normalized = normalize(property);
     await saveProperty(normalized);
+    setProperties(prev => [...prev.filter(x => x.id !== normalized.id), normalized]);
   };
 
   const bulkAddProperties = async (newProps: Property[]) => {
     const normalizedProps = newProps.map(normalize);
     await bulkSaveProperties(normalizedProps);
+    await refreshProperties();
   };
 
   const updateProperty = async (id: string, updates: Partial<Property>) => {
-    // If it's a full property, normalize it. If it's a partial, we can't easily normalize it without the full object.
-    // But since normalize just ensures arrays exist, we can skip it for partial updates.
-    const { updateProperty: dbUpdateProperty } = await import('../db');
     await dbUpdateProperty(id, updates);
+    setProperties(prev => prev.map(p => (p.id === id ? { ...p, ...updates } : p)));
   };
 
   const deletePropertyHandler = async (id: string) => {
     await deleteProperty(id);
+    setProperties(prev => prev.filter(p => p.id !== id));
   };
 
   const approveProperty = async (id: string) => {
-    const p = properties.find(prop => prop.id === id);
-    if (p) {
-      const updated = { ...p, ApprovalStatus: ApprovalStatus.Approved };
-      await saveProperty(updated);
-    }
+    await updateProperty(id, { ApprovalStatus: ApprovalStatus.Approved });
   };
 
   const bulkUpdatePrices = async (area: string, amount: number) => {
     const toSave: Property[] = [];
     properties.forEach(p => {
       if (area === 'All' || p.Area === area) {
-        const updated = {
+        toSave.push({
           ...p,
-          RentSingle: p.RentSingle.map(r => r + amount),
-          RentDouble: p.RentDouble.map(r => r + amount)
-        };
-        toSave.push(updated);
+          RentSingle: (p.RentSingle || []).map(r => Math.max(0, r + amount)),
+          RentDouble: (p.RentDouble || []).map(r => Math.max(0, r + amount))
+        });
       }
     });
     await bulkSaveProperties(toSave);
+    await refreshProperties();
   };
 
   return (
-    <PropertyContext.Provider value={{ 
-      properties, 
-      filteredProperties, 
-      isFiltering,
-      loading, 
-      filters, 
-      setFilters, 
-      addProperty, 
-      bulkAddProperties,
-      updateProperty, 
-      deleteProperty: deletePropertyHandler, 
-      approveProperty,
-      bulkUpdatePrices
-    }}>
+    <PropertyContext.Provider
+      value={{
+        properties,
+        filteredProperties,
+        isFiltering,
+        loading,
+        filters,
+        setFilters,
+        refreshProperties,
+        addProperty,
+        bulkAddProperties,
+        updateProperty,
+        deleteProperty: deletePropertyHandler,
+        approveProperty,
+        bulkUpdatePrices
+      }}
+    >
       {children}
     </PropertyContext.Provider>
   );

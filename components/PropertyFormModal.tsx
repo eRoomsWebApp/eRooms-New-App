@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Building2, IndianRupee, MapPin, 
@@ -10,7 +10,7 @@ import { Property, ListingType, Gender, ApprovalStatus } from '../types';
 import { useConfig } from '../context/ConfigContext';
 import { transformDriveUrl } from '../utils/urlHelper';
 import { normalizePhone, parseRent } from '../utils/normalization';
-import { savePropertyDraft, getPropertyDraft, clearPropertyDraft } from '../db';
+import { savePropertyDraft, getPropertyDraft, clearPropertyDraft, fetchPropertyPrivate } from '../db';
 
 interface PropertyFormModalProps {
   isOpen: boolean;
@@ -58,28 +58,26 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
     OwnerWhatsApp: initialData?.OwnerWhatsApp || ownerPhone || '',
     OwnerEmail: initialData?.OwnerEmail || ownerEmail || '',
     OwnerName: initialData?.OwnerName || ownerName || '',
-    ApprovalStatus: initialData?.ApprovalStatus || ApprovalStatus.Approved, // Default to Approved for immediate feedback
+    ApprovalStatus: initialData?.ApprovalStatus || ApprovalStatus.Pending,
     views: initialData?.views || 0,
     leadsCount: initialData?.leadsCount || 0
   });
 
-  // Update default Area if config loads and no initialData
-  useEffect(() => {
-    if (!initialData && areas.length > 0 && !formData.Area) {
-      setFormData(prev => ({ ...prev, Area: areas[0] }));
-    }
-  }, [areas, initialData]);
-
-  // Update default InstituteDistanceMatrix if config loads and no initialData
-  useEffect(() => {
-    if (!initialData && institutes.length > 0 && (!formData.InstituteDistanceMatrix || formData.InstituteDistanceMatrix.length === 0)) {
-      setFormData(prev => ({ ...prev, InstituteDistanceMatrix: institutes.map(name => ({ name, distance: 1.0 })) }));
-    }
-  }, [institutes, initialData]);
-
-  // Load draft on mount if creating new
+  // Load private fields when editing an existing property
   React.useEffect(() => {
-    if (!initialData && isOpen) {
+    if (initialData?.id && isOpen) {
+      fetchPropertyPrivate(initialData.id).then((priv) => {
+        if (priv) {
+          setFormData(prev => ({
+            ...prev,
+            OwnerWhatsApp: priv.OwnerWhatsApp ?? prev.OwnerWhatsApp ?? '',
+            OwnerEmail: priv.OwnerEmail ?? prev.OwnerEmail ?? '',
+            EmergencyContact: priv.EmergencyContact ?? prev.EmergencyContact ?? '',
+            FullAddress: priv.FullAddress ?? prev.FullAddress ?? ''
+          }));
+        }
+      });
+    } else if (!initialData && isOpen) {
       const draft = getPropertyDraft();
       if (draft) {
         setFormData(prev => ({ ...prev, ...draft }));
@@ -129,6 +127,10 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
 
     const property: Property = {
       ...formData as Property,
+      Area: formData.Area || areas[0] || '',
+      InstituteDistanceMatrix: (formData.InstituteDistanceMatrix && formData.InstituteDistanceMatrix.length > 0)
+        ? formData.InstituteDistanceMatrix
+        : institutes.map(name => ({ name, distance: 1.0, unit: 'km' })),
       id: initialData?.id || `prop-${Date.now()}`,
       ownerId: ownerId,
       OwnerWhatsApp: normalizePhone(formData.OwnerWhatsApp || ''),
@@ -138,7 +140,7 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
       PhotoMain: transformDriveUrl(formData.PhotoMain || ''),
       PhotoRoom: transformDriveUrl(formData.PhotoRoom || ''),
       PhotoWashroom: transformDriveUrl(formData.PhotoWashroom || ''),
-      ApprovalStatus: initialData?.ApprovalStatus || ApprovalStatus.Approved, // Auto-approve for now
+      ApprovalStatus: initialData?.ApprovalStatus || ApprovalStatus.Pending,
       views: initialData?.views || 0,
       leadsCount: initialData?.leadsCount || 0,
       isFeatured: initialData?.isFeatured || false,
@@ -523,7 +525,7 @@ const PropertyFormModal: React.FC<PropertyFormModalProps> = ({
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {institutes.map((name, index) => {
+                    {institutes.map((name) => {
                       const item = formData.InstituteDistanceMatrix?.find(i => i.name === name) || { name, distance: 1.0 };
                       return (
                         <div key={name} className="space-y-3">

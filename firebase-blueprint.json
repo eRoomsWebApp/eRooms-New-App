@@ -5,10 +5,10 @@
       "description": "User profile information",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "username": { "type": "string" },
-        "email": { "type": "string", "format": "email" },
-        "phone": { "type": "string" },
+        "id": { "type": "string", "maxLength": 128 },
+        "username": { "type": "string", "maxLength": 120 },
+        "email": { "type": "string", "format": "email", "maxLength": 200 },
+        "phone": { "type": "string", "maxLength": 30 },
         "role": { "type": "string", "enum": ["super_admin", "admin", "owner", "student"] },
         "status": { "type": "string", "enum": ["Active", "Suspended", "Flagged"] },
         "isVerified": { "type": "boolean" },
@@ -34,34 +34,51 @@
     },
     "Property": {
       "title": "Property",
-      "description": "Hostel/PG/Flat listing",
+      "description": "Public hostel, PG, flat, or mess listing (no owner PII or exact street address)",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "ownerId": { "type": "string" },
-        "ListingName": { "type": "string" },
+        "id": { "type": "string", "maxLength": 128 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "ListingName": { "type": "string", "maxLength": 150 },
         "ListingType": { "type": "string", "enum": ["Hostel", "PG", "Flat", "Mess"] },
         "Gender": { "type": "string", "enum": ["Boys", "Girls", "Unisex"] },
-        "Area": { "type": "string" },
+        "Area": { "type": "string", "maxLength": 100 },
         "RentSingle": { "type": "array", "items": { "type": "number" } },
         "RentDouble": { "type": "array", "items": { "type": "number" } },
         "ApprovalStatus": { "type": "string", "enum": ["Pending", "Approved", "Rejected"] },
+        "isFeatured": { "type": "boolean" },
+        "priorityScore": { "type": "number" },
         "views": { "type": "number" },
         "leadsCount": { "type": "number" }
       },
       "required": ["id", "ownerId", "ListingName", "ListingType", "Gender", "Area", "ApprovalStatus"]
+    },
+    "PropertyPrivate": {
+      "title": "PropertyPrivate",
+      "description": "Private owner contact details and exact street address isolated from public reads",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "OwnerWhatsApp": { "type": "string", "maxLength": 30 },
+        "OwnerEmail": { "type": "string", "format": "email", "maxLength": 200 },
+        "EmergencyContact": { "type": "string", "maxLength": 30 },
+        "FullAddress": { "type": "string", "maxLength": 500 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "ownerId"]
     },
     "Lead": {
       "title": "Lead",
       "description": "Student inquiry for a property",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "propertyId": { "type": "string" },
-        "propertyName": { "type": "string" },
-        "studentId": { "type": "string" },
-        "studentName": { "type": "string" },
-        "studentPhone": { "type": "string" },
+        "id": { "type": "string", "maxLength": 128 },
+        "propertyId": { "type": "string", "maxLength": 128 },
+        "propertyName": { "type": "string", "maxLength": 150 },
+        "studentId": { "type": "string", "maxLength": 128 },
+        "studentName": { "type": "string", "maxLength": 120 },
+        "studentPhone": { "type": "string", "maxLength": 30 },
         "type": { "type": "string", "enum": ["WhatsApp", "Call", "VisitRequest"] },
         "status": { "type": "string", "enum": ["New", "Contacted", "Closed"] },
         "timestamp": { "type": "string", "format": "date-time" }
@@ -77,9 +94,9 @@
         "tagline": { "type": "string" },
         "heroDescription": { "type": "string" },
         "heroImages": { "type": "array", "items": { "type": "string" } },
-        "announcements": { 
-          "type": "array", 
-          "items": { 
+        "announcements": {
+          "type": "array",
+          "items": {
             "type": "object",
             "properties": {
               "id": { "type": "string" },
@@ -97,6 +114,19 @@
         "supportEmail": { "type": "string" },
         "lastUpdated": { "type": "string", "format": "date-time" }
       }
+    },
+    "ActivityLog": {
+      "title": "ActivityLog",
+      "description": "Audit log entries for administrative actions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "action": { "type": "string", "maxLength": 200 },
+        "importance": { "type": "string", "enum": ["low", "medium", "high"] },
+        "target": { "type": "string", "maxLength": 200 },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "action", "importance", "timestamp"]
     }
   },
   "firestore": {
@@ -106,7 +136,11 @@
     },
     "/properties/{propertyId}": {
       "schema": "Property",
-      "description": "Property listings"
+      "description": "Public property listings without PII"
+    },
+    "/property_private/{propertyId}": {
+      "schema": "PropertyPrivate",
+      "description": "Private owner contact details and exact address isolated per property"
     },
     "/leads/{leadId}": {
       "schema": "Lead",
@@ -116,9 +150,9 @@
       "schema": "AppConfig",
       "description": "Global settings"
     },
-    "/test/connection": {
-      "schema": { "type": "object" },
-      "description": "Test connection document"
+    "/activity_logs/{logId}": {
+      "schema": "ActivityLog",
+      "description": "Platform audit logs"
     }
   }
 }

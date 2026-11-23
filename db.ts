@@ -1,22 +1,129 @@
-
-import { 
-  collection, 
-  doc, 
-  getDoc, 
-  getDocs, 
-  setDoc, 
-  updateDoc, 
-  query, 
-  where, 
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  deleteField,
+  query,
+  where,
   orderBy,
-  getDocFromServer,
-  onSnapshot
+  writeBatch
 } from 'firebase/firestore';
 import { db, auth } from './firebase';
-import { Property, ApprovalStatus, User, UserRole, UserStatus, AppConfig, Lead } from './types';
+import {
+  Property,
+  PropertyPrivate,
+  ApprovalStatus,
+  User,
+  UserRole,
+  UserStatus,
+  AppConfig,
+  Lead,
+  ActivityLog
+} from './types';
 import { KOTA_AREAS, INSTITUTES, FACILITY_OPTIONS } from './constants';
 
 export const CONFIG_UPDATED_EVENT = 'erooms_config_sync';
+export const FIRESTORE_QUOTA_EVENT = 'erooms_firestore_quota';
+
+const CONFIG_CACHE_KEY = 'erooms_cached_config_v2';
+const PROPERTIES_CACHE_KEY = 'erooms_cached_properties_v2';
+const CONFIG_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const PROPERTIES_CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
+
+let quotaExceededFlag = false;
+
+export const isQuotaExceededError = (error: unknown): boolean => {
+  const msg = error instanceof Error ? error.message : String(error);
+  const lower = msg.toLowerCase();
+  return (
+    lower.includes('quota') ||
+    lower.includes('resource-exhausted') ||
+    lower.includes('free daily read units')
+  );
+};
+
+const markQuotaExceeded = () => {
+  if (!quotaExceededFlag) {
+    quotaExceededFlag = true;
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent(FIRESTORE_QUOTA_EVENT, { detail: { exceeded: true } }));
+    }
+  }
+};
+
+export const isFirestoreQuotaExceeded = () => quotaExceededFlag;
+
+// --- PRIVATE FIELD ISOLATION ---
+export const PRIVATE_FIELD_KEYS = [
+  'OwnerWhatsApp',
+  'OwnerEmail',
+  'EmergencyContact',
+  'FullAddress'
+] as const;
+
+export const stripPrivateFields = (property: Property): Property => {
+  const cleaned = { ...property };
+  delete cleaned.OwnerWhatsApp;
+  delete cleaned.OwnerEmail;
+  delete cleaned.EmergencyContact;
+  delete cleaned.FullAddress;
+  return cleaned;
+};
+
+export const extractPrivateFields = (property: Partial<Property> & { id: string; ownerId?: string }): PropertyPrivate | null => {
+  const hasAny =
+    property.OwnerWhatsApp !== undefined ||
+    property.OwnerEmail !== undefined ||
+    property.EmergencyContact !== undefined ||
+    property.FullAddress !== undefined;
+  if (!hasAny) return null;
+
+  const result: PropertyPrivate = {
+    id: property.id,
+    ownerId: property.ownerId || auth.currentUser?.uid || 'unknown',
+    updatedAt: new Date().toISOString()
+  };
+  if (property.OwnerWhatsApp !== undefined) result.OwnerWhatsApp = property.OwnerWhatsApp;
+  if (property.OwnerEmail !== undefined) result.OwnerEmail = property.OwnerEmail;
+  if (property.EmergencyContact !== undefined) result.EmergencyContact = property.EmergencyContact;
+  if (property.FullAddress !== undefined) result.FullAddress = property.FullAddress;
+  return result;
+};
+
+// --- PROPERTIES CACHE (6 HOURS) ---
+export const getCachedPropertiesWithMeta = (): { properties: Property[]; isFresh: boolean } => {
+  try {
+    const raw = localStorage.getItem(PROPERTIES_CACHE_KEY);
+    if (!raw) return { properties: [], isFresh: false };
+    const parsed = JSON.parse(raw) as { properties?: Property[]; cachedAt?: number };
+    const list = Array.isArray(parsed?.properties) ? parsed.properties.map(stripPrivateFields) : [];
+    const isFresh =
+      list.length > 0 && Date.now() - (parsed?.cachedAt || 0) < PROPERTIES_CACHE_TTL_MS;
+    return { properties: list, isFresh };
+  } catch {
+    return { properties: [], isFresh: false };
+  }
+};
+
+export const getCachedProperties = (): Property[] => getCachedPropertiesWithMeta().properties;
+
+export const setCachedProperties = (properties: Property[]) => {
+  try {
+    localStorage.setItem(
+      PROPERTIES_CACHE_KEY,
+      JSON.stringify({
+        properties: properties.map(stripPrivateFields),
+        cachedAt: Date.now()
+      })
+    );
+  } catch {
+    // ignore storage quota errors
+  }
+};
 
 // --- ERROR HANDLING ---
 export enum OperationType {
@@ -25,7 +132,7 @@ export enum OperationType {
   DELETE = 'delete',
   LIST = 'list',
   GET = 'get',
-  WRITE = 'write',
+  WRITE = 'write'
 }
 
 interface FirestoreErrorInfo {
@@ -44,7 +151,7 @@ interface FirestoreErrorInfo {
       email: string | null;
       photoUrl: string | null;
     }[];
-  }
+  };
 }
 
 export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
@@ -56,47 +163,53 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
       emailVerified: auth.currentUser?.emailVerified,
       isAnonymous: auth.currentUser?.isAnonymous,
       tenantId: auth.currentUser?.tenantId,
-      providerInfo: auth.currentUser?.providerData.map(provider => ({
-        providerId: provider.providerId,
-        displayName: provider.displayName,
-        email: provider.email,
-        photoUrl: provider.photoURL
-      })) || []
+      providerInfo:
+        auth.currentUser?.providerData.map(provider => ({
+          providerId: provider.providerId,
+          displayName: provider.displayName,
+          email: provider.email,
+          photoUrl: provider.photoURL
+        })) || []
     },
     operationType,
     path
+  };
+  if (isQuotaExceededError(error)) {
+    console.warn('Firestore Quota Exceeded:', JSON.stringify(errInfo));
+    markQuotaExceeded();
+  } else {
+    console.error('Firestore Error:', JSON.stringify(errInfo));
   }
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
   throw new Error(JSON.stringify(errInfo));
 }
 
-// --- CONNECTION TEST ---
-async function testConnection() {
-  try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
-  } catch (error) {
-    if(error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration. ");
-    }
+function logFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  if (isQuotaExceededError(error)) {
+    console.warn(`Firestore Quota Exceeded on ${operationType} (${path})`);
+    markQuotaExceeded();
+  } else {
+    console.error(`Firestore Error on ${operationType} (${path}):`, error);
   }
 }
-testConnection();
 
-// --- APP CONFIG ---
+// --- APP CONFIG (24H CACHE) ---
 export const DEFAULT_CONFIG: AppConfig = {
-  siteName: 'erooms.in',
-  tagline: 'Premium Kota Student Living',
-  heroDescription: 'Discover 10+ elite verified properties across Kota. Zero-commission direct bookings.',
-  footerText: "Kota's largest student housing network. Hosted for free on Vercel. Database via Atlas.",
+  siteName: 'eRooms.in',
+  tagline: 'Verified Hostels, PG & Flats in Kota',
+  heroDescription:
+    'Explore verified student hostels, PGs, and flats across Kota near top coaching institutes. Direct visits with zero brokerage.',
+  heroImages: [],
+  announcements: [],
+  footerText:
+    "Kota's verified student housing catalogue by eRooms.in. Book free visits directly with our local Kota team.",
   maintenanceMode: false,
   allowNewRegistrations: true,
   supportWhatsApp: '919351099947',
-  supportPhone: '+91 93510-99947',
+  supportPhone: '+91 93510 99947',
   supportEmail: 'support@erooms.in',
   socialLinks: {
-    instagram: 'https://instagram.com/erooms',
-    twitter: 'https://twitter.com/erooms',
-    linkedin: 'https://linkedin.com/company/erooms'
+    instagram: 'https://www.instagram.com/erooms.in/',
+    youtube: 'https://www.youtube.com/@eroomsin'
   },
   areas: KOTA_AREAS,
   institutes: INSTITUTES,
@@ -104,97 +217,87 @@ export const DEFAULT_CONFIG: AppConfig = {
   lastUpdated: new Date().toISOString()
 };
 
-export const getAppConfig = async (): Promise<AppConfig> => {
+const getCachedConfig = (): { config: AppConfig; isFresh: boolean } | null => {
+  try {
+    const raw = localStorage.getItem(CONFIG_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { config: AppConfig; cachedAt: number };
+    if (!parsed?.config) return null;
+    const merged: AppConfig = {
+      ...DEFAULT_CONFIG,
+      ...parsed.config,
+      socialLinks: {
+        instagram: parsed.config.socialLinks?.instagram || DEFAULT_CONFIG.socialLinks.instagram,
+        youtube: parsed.config.socialLinks?.youtube || DEFAULT_CONFIG.socialLinks.youtube
+      }
+    };
+    return {
+      config: merged,
+      isFresh: Date.now() - (parsed.cachedAt || 0) < CONFIG_CACHE_TTL_MS
+    };
+  } catch {
+    return null;
+  }
+};
+
+const setCachedConfig = (config: AppConfig) => {
+  try {
+    localStorage.setItem(CONFIG_CACHE_KEY, JSON.stringify({ config, cachedAt: Date.now() }));
+  } catch {
+    // ignore storage quota errors
+  }
+};
+
+export const getAppConfig = async (forceRefresh = false): Promise<AppConfig> => {
   const path = 'config/global';
+  const cached = getCachedConfig();
+  if (!forceRefresh && (cached?.isFresh || quotaExceededFlag)) {
+    return cached?.config || DEFAULT_CONFIG;
+  }
   try {
     const docSnap = await getDoc(doc(db, path));
-    return docSnap.exists() ? docSnap.data() as AppConfig : DEFAULT_CONFIG;
+    const remote = docSnap.exists() ? (docSnap.data() as Partial<AppConfig>) : {};
+    const resolved: AppConfig = {
+      ...DEFAULT_CONFIG,
+      ...remote,
+      socialLinks: {
+        instagram: remote.socialLinks?.instagram || DEFAULT_CONFIG.socialLinks.instagram,
+        youtube: remote.socialLinks?.youtube || DEFAULT_CONFIG.socialLinks.youtube
+      }
+    };
+    setCachedConfig(resolved);
+    return resolved;
   } catch (error) {
-    handleFirestoreError(error, OperationType.GET, path);
-    return DEFAULT_CONFIG;
+    logFirestoreError(error, OperationType.GET, path);
+    return cached?.config || DEFAULT_CONFIG;
   }
 };
 
 export const saveAppConfig = async (config: AppConfig) => {
   const path = 'config/global';
   try {
-    await setDoc(doc(db, path), config);
-    window.dispatchEvent(new CustomEvent(CONFIG_UPDATED_EVENT, { detail: config }));
+    const cleanConfig = { ...config, lastUpdated: new Date().toISOString() };
+    await setDoc(doc(db, path), cleanConfig);
+    setCachedConfig(cleanConfig);
+    window.dispatchEvent(new CustomEvent(CONFIG_UPDATED_EVENT, { detail: cleanConfig }));
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, path);
   }
 };
 
-// --- LEADS ---
+// --- LEADS (ON-DEMAND ONLY FOR DASHBOARD, PUBLIC LEADS GO TO SHEETS) ---
 export const fetchLeads = async (userId: string, role: string): Promise<Lead[]> => {
   const path = 'leads';
   try {
-    let q;
-    if (role === 'admin') {
-      q = query(collection(db, path), orderBy('timestamp', 'desc'));
-    } else if (role === 'owner') {
-      q = query(collection(db, path), orderBy('timestamp', 'desc'));
-    } else {
-      q = query(collection(db, path), where('studentId', '==', userId), orderBy('timestamp', 'desc'));
-    }
+    const q =
+      role === UserRole.Admin || role === UserRole.SuperAdmin
+        ? query(collection(db, path), orderBy('timestamp', 'desc'))
+        : query(collection(db, path), where('studentId', '==', userId), orderBy('timestamp', 'desc'));
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => doc.data() as Lead);
+    return querySnapshot.docs.map(d => d.data() as Lead);
   } catch (error) {
-    handleFirestoreError(error, OperationType.LIST, path);
+    logFirestoreError(error, OperationType.LIST, path);
     return [];
-  }
-};
-
-export const subscribeToLeads = (userId: string, role: string, callback: (leads: Lead[]) => void) => {
-  const path = 'leads';
-  let q;
-  if (role === UserRole.Admin || role === UserRole.SuperAdmin) {
-    q = query(collection(db, path), orderBy('timestamp', 'desc'));
-  } else if (role === UserRole.Owner) {
-    q = query(collection(db, path), orderBy('timestamp', 'desc'));
-  } else {
-    q = query(collection(db, path), where('studentId', '==', userId), orderBy('timestamp', 'desc'));
-  }
-
-  return onSnapshot(q, (snapshot) => {
-    const leads = snapshot.docs.map(doc => doc.data() as Lead);
-    callback(leads);
-  }, (error) => {
-    handleFirestoreError(error, OperationType.LIST, path);
-  });
-};
-
-export const saveLead = async (lead: Partial<Lead> & Omit<Lead, 'propertyId' | 'studentId' | 'propertyName' | 'studentName' | 'studentPhone' | 'type'>) => {
-  const path = 'leads';
-  const id = lead.id || `lead-${Date.now()}`;
-  const newLead: Lead = {
-    status: 'New',
-    timestamp: new Date().toISOString(),
-    ...lead,
-    id,
-  } as Lead;
-  try {
-    await setDoc(doc(db, path, id), newLead);
-    
-    // Increment property lead count
-    const propPath = `properties/${lead.propertyId}`;
-    const propSnap = await getDoc(doc(db, propPath));
-    if (propSnap.exists()) {
-      const currentLeads = propSnap.data().leadsCount || 0;
-      await updateDoc(doc(db, propPath), { leadsCount: currentLeads + 1 });
-    }
-
-    await saveActivityLog({
-      action: 'Inquiry Captured',
-      importance: 'medium',
-      target: lead.propertyName,
-      metadata: { student: lead.studentName, type: lead.type }
-    });
-    
-    return newLead;
-  } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, path);
-    throw error;
   }
 };
 
@@ -207,29 +310,18 @@ export const updateLead = async (leadId: string, updates: Partial<Lead>) => {
   }
 };
 
-// --- PROPERTIES ---
-export const recordPropertyView = async (propertyId: string) => {
-  const path = `properties/${propertyId}`;
-  try {
-    const propSnap = await getDoc(doc(db, path));
-    if (propSnap.exists()) {
-      const currentViews = propSnap.data().views || 0;
-      await updateDoc(doc(db, path), { views: currentViews + 1 });
-    }
-  } catch (error) {
-    handleFirestoreError(error, OperationType.UPDATE, path);
-  }
-};
-
-export const fetchProperties = async (): Promise<Property[]> => {
+// --- PROPERTIES (SINGLE READ + 6H CACHE) ---
+export const fetchApprovedProperties = async (): Promise<Property[]> => {
   const path = 'properties';
   try {
     const q = query(collection(db, path), where('ApprovalStatus', '==', ApprovalStatus.Approved));
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => doc.data() as Property);
+    const list = querySnapshot.docs.map(d => stripPrivateFields(d.data() as Property));
+    setCachedProperties(list);
+    return list;
   } catch (error) {
-    handleFirestoreError(error, OperationType.LIST, path);
-    return [];
+    logFirestoreError(error, OperationType.LIST, path);
+    throw error;
   }
 };
 
@@ -237,21 +329,70 @@ export const fetchAllProperties = async (): Promise<Property[]> => {
   const path = 'properties';
   try {
     const querySnapshot = await getDocs(collection(db, path));
-    return querySnapshot.docs.map(doc => doc.data() as Property);
+    return querySnapshot.docs.map(d => d.data() as Property);
   } catch (error) {
     handleFirestoreError(error, OperationType.LIST, path);
     return [];
   }
 };
 
+export const fetchOwnerProperties = async (ownerId: string): Promise<Property[]> => {
+  const path = 'properties';
+  try {
+    const q = query(collection(db, path), where('ownerId', '==', ownerId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(d => d.data() as Property);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.LIST, path);
+    return [];
+  }
+};
+
+export const fetchPropertyById = async (id: string): Promise<Property | null> => {
+  const path = `properties/${id}`;
+  try {
+    const snap = await getDoc(doc(db, 'properties', id));
+    if (!snap.exists()) return null;
+    return stripPrivateFields(snap.data() as Property);
+  } catch (error) {
+    logFirestoreError(error, OperationType.GET, path);
+    return null;
+  }
+};
+
+export const fetchPropertyPrivate = async (propertyId: string): Promise<PropertyPrivate | null> => {
+  const path = `property_private/${propertyId}`;
+  try {
+    const snap = await getDoc(doc(db, 'property_private', propertyId));
+    return snap.exists() ? (snap.data() as PropertyPrivate) : null;
+  } catch (error) {
+    logFirestoreError(error, OperationType.GET, path);
+    return null;
+  }
+};
+
+export const savePropertyPrivate = async (privateData: PropertyPrivate) => {
+  const path = `property_private/${privateData.id}`;
+  try {
+    await setDoc(doc(db, 'property_private', privateData.id), privateData, { merge: true });
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, path);
+  }
+};
+
 export const saveProperty = async (property: Property) => {
   const path = `properties/${property.id}`;
   try {
-    const isNew = !(await getDoc(doc(db, 'properties', property.id))).exists();
-    await setDoc(doc(db, 'properties', property.id), property);
+    const publicProperty = stripPrivateFields(property);
+    const privateData = extractPrivateFields(property);
+
+    await setDoc(doc(db, 'properties', property.id), publicProperty);
+    if (privateData) {
+      await setDoc(doc(db, 'property_private', property.id), privateData, { merge: true });
+    }
     await saveActivityLog({
-      action: isNew ? 'Property Registered' : 'Property Updated',
-      importance: isNew ? 'medium' : 'low',
+      action: 'Property Saved',
+      importance: 'medium',
       target: property.ListingName,
       metadata: { id: property.id, area: property.Area }
     });
@@ -263,7 +404,27 @@ export const saveProperty = async (property: Property) => {
 export const updateProperty = async (id: string, updates: Partial<Property>) => {
   const path = `properties/${id}`;
   try {
-    await updateDoc(doc(db, 'properties', id), updates);
+    const publicUpdates: Record<string, unknown> = { ...updates };
+    delete publicUpdates.OwnerWhatsApp;
+    delete publicUpdates.OwnerEmail;
+    delete publicUpdates.EmergencyContact;
+    delete publicUpdates.FullAddress;
+
+    if (Object.keys(publicUpdates).length > 0) {
+      await updateDoc(doc(db, 'properties', id), publicUpdates);
+    }
+
+    const privateData = extractPrivateFields({
+      id,
+      ownerId: updates.ownerId,
+      OwnerWhatsApp: updates.OwnerWhatsApp,
+      OwnerEmail: updates.OwnerEmail,
+      EmergencyContact: updates.EmergencyContact,
+      FullAddress: updates.FullAddress
+    });
+    if (privateData) {
+      await setDoc(doc(db, 'property_private', id), privateData, { merge: true });
+    }
   } catch (error) {
     handleFirestoreError(error, OperationType.UPDATE, path);
   }
@@ -274,8 +435,12 @@ export const deleteProperty = async (id: string) => {
   try {
     const propSnap = await getDoc(doc(db, 'properties', id));
     const propName = propSnap.exists() ? propSnap.data().ListingName : id;
-    const { deleteDoc } = await import('firebase/firestore');
     await deleteDoc(doc(db, 'properties', id));
+    try {
+      await deleteDoc(doc(db, 'property_private', id));
+    } catch {
+      // ignore if private doc did not exist
+    }
     await saveActivityLog({
       action: 'Property Decommissioned',
       importance: 'high',
@@ -287,49 +452,18 @@ export const deleteProperty = async (id: string) => {
   }
 };
 
-export const subscribeToProperties = (
-  userId: string | undefined,
-  role: UserRole | undefined,
-  callback: (properties: Property[]) => void
-) => {
-  const path = 'properties';
-  let q;
-
-  if (role === UserRole.Admin || role === UserRole.SuperAdmin) {
-    // Admin sees everything
-    q = query(collection(db, path), orderBy('ListingName', 'asc'));
-  } else if (role === UserRole.Owner && userId) {
-    // Owner sees their own properties + all approved properties (for context/comparison if needed, but usually just their own for management)
-    // Actually, for the PropertyContext, we want to see ALL approved properties for the public view, 
-    // AND the owner's own properties (even if pending) for the dashboard.
-    // So we might need to fetch all approved OR owned by me.
-    // Firestore doesn't support OR across different fields easily without multiple queries or in-memory filtering.
-    // Let's just fetch all approved properties for everyone, and if owner, also fetch their own.
-    // Or simpler: fetch all properties if admin/owner, and filter in context.
-    // But for performance, let's just fetch all approved for now, and if owner, we'll need their pending ones too.
-    
-    // For now, let's fetch all properties for Admins and Owners, and only Approved for Students.
-    q = query(collection(db, path), orderBy('ListingName', 'asc'));
-  } else {
-    // Students/Guests see only approved
-    q = query(collection(db, path), where('ApprovalStatus', '==', ApprovalStatus.Approved), orderBy('ListingName', 'asc'));
-  }
-
-  return onSnapshot(q, (snapshot) => {
-    const properties = snapshot.docs.map(doc => doc.data() as Property);
-    callback(properties);
-  }, (error) => {
-    handleFirestoreError(error, OperationType.LIST, path);
-  });
-};
-
 export const bulkSaveProperties = async (properties: Property[]) => {
-  // In a real app, use writeBatch
-  const { writeBatch } = await import('firebase/firestore');
   const batch = writeBatch(db);
   properties.forEach(p => {
+    const publicProperty = stripPrivateFields(p);
     const ref = doc(db, 'properties', p.id);
-    batch.set(ref, p);
+    batch.set(ref, publicProperty);
+
+    const privateData = extractPrivateFields(p);
+    if (privateData) {
+      const privRef = doc(db, 'property_private', p.id);
+      batch.set(privRef, privateData, { merge: true });
+    }
   });
   try {
     await batch.commit();
@@ -344,15 +478,65 @@ export const bulkSaveProperties = async (properties: Property[]) => {
   }
 };
 
-// --- USERS ---
+export const migratePrivateFieldsToCollection = async (): Promise<{
+  migratedCount: number;
+  totalScanned: number;
+}> => {
+  const snap = await getDocs(collection(db, 'properties'));
+  let migratedCount = 0;
+
+  // Process in batches of up to 200 properties (each property uses 2 ops -> 400 < 500 Firestore batch limit)
+  const docs = snap.docs;
+  for (let i = 0; i < docs.length; i += 200) {
+    const chunk = docs.slice(i, i + 200);
+    const batch = writeBatch(db);
+    let chunkHasWrites = false;
+
+    for (const d of chunk) {
+      const data = d.data() as Property;
+      const privateData = extractPrivateFields({ ...data, id: d.id });
+      if (privateData) {
+        chunkHasWrites = true;
+        migratedCount++;
+        batch.set(doc(db, 'property_private', d.id), privateData, { merge: true });
+        batch.update(doc(db, 'properties', d.id), {
+          OwnerWhatsApp: deleteField(),
+          OwnerEmail: deleteField(),
+          EmergencyContact: deleteField(),
+          FullAddress: deleteField()
+        });
+      }
+    }
+
+    if (chunkHasWrites) {
+      await batch.commit();
+    }
+  }
+
+  return { migratedCount, totalScanned: docs.length };
+};
+
+// --- USERS (ON-DEMAND) ---
 export const fetchUser = async (userId: string): Promise<User | null> => {
   const path = `users/${userId}`;
   try {
     const docSnap = await getDoc(doc(db, path));
-    return docSnap.exists() ? docSnap.data() as User : null;
+    return docSnap.exists() ? (docSnap.data() as User) : null;
   } catch (error) {
     handleFirestoreError(error, OperationType.GET, path);
     return null;
+  }
+};
+
+export const fetchUsersOnce = async (): Promise<User[]> => {
+  const path = 'users';
+  try {
+    const q = query(collection(db, path), orderBy('username', 'asc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(d => d.data() as User);
+  } catch (error) {
+    logFirestoreError(error, OperationType.LIST, path);
+    return [];
   }
 };
 
@@ -368,13 +552,11 @@ export const saveUser = async (user: User) => {
 export const updateUser = async (userId: string, updates: Partial<User>) => {
   const path = `users/${userId}`;
   try {
-    const userSnap = await getDoc(doc(db, 'users', userId));
-    const username = userSnap.exists() ? userSnap.data().username : userId;
     await updateDoc(doc(db, 'users', userId), updates);
     await saveActivityLog({
-      action: 'Node Protocol Updated',
+      action: 'User Profile Updated',
       importance: 'medium',
-      target: username,
+      target: userId,
       metadata: { id: userId, updates: Object.keys(updates).join(', ') }
     });
   } catch (error) {
@@ -397,44 +579,21 @@ export const deleteUser = async (userId: string) => {
   }
 };
 
-export const subscribeToUsers = (callback: (users: User[]) => void) => {
-  const path = 'users';
-  const q = query(collection(db, path), orderBy('username', 'asc'));
-
-  return onSnapshot(q, (snapshot) => {
-    const users = snapshot.docs.map(doc => doc.data() as User);
-    callback(users);
-  }, (error) => {
-    handleFirestoreError(error, OperationType.LIST, path);
-  });
-};
-
-// --- ACTIVITY LOGS ---
+// --- ACTIVITY LOGS (ON-DEMAND) ---
 export const fetchActivityLogs = async (): Promise<ActivityLog[]> => {
   const path = 'activity_logs';
   try {
     const q = query(collection(db, path), orderBy('timestamp', 'desc'));
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => doc.data() as ActivityLog);
+    return querySnapshot.docs.map(d => d.data() as ActivityLog);
   } catch (error) {
-    handleFirestoreError(error, OperationType.LIST, path);
+    logFirestoreError(error, OperationType.LIST, path);
     return [];
   }
 };
 
-export const subscribeToActivityLogs = (callback: (logs: ActivityLog[]) => void) => {
-  const path = 'activity_logs';
-  const q = query(collection(db, path), orderBy('timestamp', 'desc'));
-
-  return onSnapshot(q, (snapshot) => {
-    const logs = snapshot.docs.map(doc => doc.data() as ActivityLog);
-    callback(logs);
-  }, (error) => {
-    handleFirestoreError(error, OperationType.LIST, path);
-  });
-};
-
 export const saveActivityLog = async (log: Omit<ActivityLog, 'id' | 'timestamp'>) => {
+  if (!auth.currentUser) return;
   const path = 'activity_logs';
   const id = `log-${Date.now()}`;
   const newLog: ActivityLog = {
@@ -445,22 +604,34 @@ export const saveActivityLog = async (log: Omit<ActivityLog, 'id' | 'timestamp'>
   try {
     await setDoc(doc(db, path, id), newLog);
   } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, path);
+    logFirestoreError(error, OperationType.WRITE, path);
   }
 };
 
 // --- DRAFTS ---
 export const savePropertyDraft = (property: Partial<Property>) => {
-  localStorage.setItem('erooms_property_draft', JSON.stringify(property));
+  try {
+    localStorage.setItem('erooms_property_draft', JSON.stringify(property));
+  } catch {
+    // ignore storage errors
+  }
 };
 
 export const getPropertyDraft = (): Partial<Property> | null => {
-  const draft = localStorage.getItem('erooms_property_draft');
-  return draft ? JSON.parse(draft) : null;
+  try {
+    const draft = localStorage.getItem('erooms_property_draft');
+    return draft ? JSON.parse(draft) : null;
+  } catch {
+    return null;
+  }
 };
 
 export const clearPropertyDraft = () => {
-  localStorage.removeItem('erooms_property_draft');
+  try {
+    localStorage.removeItem('erooms_property_draft');
+  } catch {
+    // ignore
+  }
 };
 
 export const getMockUsers = (): User[] => {
@@ -472,78 +643,6 @@ export const getMockUsers = (): User[] => {
       role: UserRole.Admin,
       status: UserStatus.Active,
       joinedAt: new Date().toISOString()
-    },
-    {
-      id: 'owner-1',
-      username: 'Rajesh Kumar',
-      email: 'owner@example.com',
-      role: UserRole.Owner,
-      status: UserStatus.Active,
-      joinedAt: new Date().toISOString()
     }
   ];
-};
-
-export const migrateLocalStorageToFirestore = async () => {
-  console.log('Starting migration from localStorage to Firestore...');
-  
-  // 1. Migrate Config
-  const localConfig = localStorage.getItem('erooms_config');
-  if (localConfig) {
-    try {
-      const config = JSON.parse(localConfig) as AppConfig;
-      await saveAppConfig(config);
-      localStorage.removeItem('erooms_config');
-      console.log('Config migrated successfully');
-    } catch (e) {
-      console.error('Failed to migrate config:', e);
-    }
-  }
-
-  // 2. Migrate Properties
-  const localProperties = localStorage.getItem('erooms_properties');
-  if (localProperties) {
-    try {
-      const properties = JSON.parse(localProperties) as Property[];
-      if (properties.length > 0) {
-        await bulkSaveProperties(properties);
-        localStorage.removeItem('erooms_properties');
-        console.log(`${properties.length} properties migrated successfully`);
-      }
-    } catch (e) {
-      console.error('Failed to migrate properties:', e);
-    }
-  }
-
-  // 3. Migrate Leads
-  const localLeads = localStorage.getItem('erooms_leads');
-  if (localLeads) {
-    try {
-      const leads = JSON.parse(localLeads) as Lead[];
-      for (const lead of leads) {
-        await saveLead(lead);
-      }
-      localStorage.removeItem('erooms_leads');
-      console.log(`${leads.length} leads migrated successfully`);
-    } catch (e) {
-      console.error('Failed to migrate leads:', e);
-    }
-  }
-
-  // 4. Migrate Users
-  const localUsers = localStorage.getItem('erooms_users');
-  if (localUsers) {
-    try {
-      const users = JSON.parse(localUsers) as User[];
-      for (const user of users) {
-        await saveUser(user);
-      }
-      localStorage.removeItem('erooms_users');
-      console.log(`${users.length} users migrated successfully`);
-    } catch (e) {
-      console.error('Failed to migrate users:', e);
-    }
-  }
-  
-  console.log('Migration completed.');
 };

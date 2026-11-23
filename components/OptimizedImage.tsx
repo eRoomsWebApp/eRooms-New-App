@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ImageOff } from 'lucide-react';
@@ -7,13 +6,19 @@ interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> 
   src: string;
   alt: string;
   className?: string;
+  priority?: boolean;
+  width?: number | string;
+  height?: number | string;
 }
 
-const OptimizedImage: React.FC<OptimizedImageProps> = ({ 
-  src, 
-  alt, 
-  className = "", 
-  ...props 
+const OptimizedImage: React.FC<OptimizedImageProps> = ({
+  src,
+  alt,
+  className = '',
+  priority = false,
+  width,
+  height,
+  ...props
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -32,20 +37,28 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
         )}
       </AnimatePresence>
 
-      {hasError ? (
+      {hasError || !src ? (
         <div className="w-full h-full bg-slate-50 flex flex-col items-center justify-center text-slate-300 p-4 text-center">
           <ImageOff size={24} className="mb-2 opacity-20" />
-          <span className="text-[8px] font-black uppercase tracking-widest opacity-40">Asset Unavailable</span>
+          <span className="text-[8px] font-black uppercase tracking-widest opacity-40">
+            Photo Unavailable
+          </span>
         </div>
       ) : (
         <img
           src={src}
           alt={alt}
+          width={width}
+          height={height}
           onLoad={() => setIsLoaded(true)}
           onError={() => setHasError(true)}
-          loading="lazy"
+          loading={priority ? 'eager' : 'lazy'}
+          fetchPriority={priority ? 'high' : 'auto'}
+          decoding={priority ? 'sync' : 'async'}
           referrerPolicy="no-referrer"
-          className={`w-full h-full object-cover transition-all duration-700 ${isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
+          className={`w-full h-full object-cover transition-all duration-700 ${
+            isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+          }`}
           {...props}
         />
       )}

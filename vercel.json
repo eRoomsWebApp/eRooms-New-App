@@ -1,6 +1,21 @@
-
 {
   "rewrites": [
+    {
+      "source": "/hostels/assets/(.*)",
+      "destination": "/assets/$1"
+    },
+    {
+      "source": "/hostels/sitemap.xml",
+      "destination": "/sitemap.xml"
+    },
+    {
+      "source": "/hostels/robots.txt",
+      "destination": "/robots.txt"
+    },
+    {
+      "source": "/hostels/(.*)",
+      "destination": "/index.html"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"

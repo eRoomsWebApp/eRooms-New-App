@@ -1,4 +1,3 @@
-
 export enum ListingType {
   Hostel = 'Hostel',
   PG = 'PG',
@@ -67,8 +66,7 @@ export interface AppConfig {
   supportEmail: string;
   socialLinks: {
     instagram: string;
-    twitter: string;
-    linkedin: string;
+    youtube: string;
   };
   areas: string[];
   institutes: string[];
@@ -78,8 +76,8 @@ export interface AppConfig {
 
 export interface DistanceMatrixItem {
   name: string;
-  distance: number; // in meters
-  unit: string;
+  distance: number; // in meters or km depending on unit
+  unit?: string;
 }
 
 export interface ActivityLog {
@@ -99,6 +97,11 @@ export interface SavedSearch {
     gender: string;
     area: string;
     activePills: string[];
+    listingType?: string;
+    priceRange?: [number, number];
+    selectedFacilities?: string[];
+    maxDistance?: number;
+    roomTypes?: string[];
   };
   timestamp: string;
 }
@@ -114,17 +117,21 @@ export interface User {
   joinedAt?: string;
   address?: string;
   avatar?: string;
+  college?: string;
+  course?: string;
+  businessName?: string;
+  gstNumber?: string;
   behavioralMetrics?: {
-    avgSessionTime: number; 
+    avgSessionTime: number;
     totalSessions: number;
     pricePreference: { min: number; max: number };
     topAreas: string[];
     topFacilities: string[];
-    searchDepth: number; 
+    searchDepth: number;
   };
   activityLog?: ActivityLog[];
   savedSearches?: SavedSearch[];
-  shortlist?: string[]; // Array of property IDs
+  shortlist?: string[];
   verificationDocs?: VerificationDoc[];
 }
 
@@ -138,19 +145,25 @@ export interface VerificationDoc {
   rejectionReason?: string;
 }
 
+export interface PropertyPrivate {
+  id: string;
+  ownerId: string;
+  OwnerWhatsApp?: string;
+  OwnerEmail?: string;
+  EmergencyContact?: string;
+  FullAddress?: string;
+  updatedAt?: string;
+}
+
 export interface Property {
-  id: string; 
-  ownerId: string; 
+  id: string;
+  ownerId: string;
   ListingName: string;
   ListingType: ListingType;
   Gender: Gender;
   OwnerName: string;
-  OwnerWhatsApp: string;
   WardenName: string;
-  EmergencyContact: string;
-  OwnerEmail: string;
   Area: string;
-  FullAddress: string;
   GoogleMapsPlusCode: string;
   InstituteDistanceMatrix: DistanceMatrixItem[];
   RentSingle: number[];
@@ -159,9 +172,9 @@ export interface Property {
   RentDoubleDetails?: string;
   SecurityTerms: string;
   ValidationIssues?: string[];
-  ElectricityCharges: number; 
-  Maintenance: number; 
-  ParentsStayCharge: number; 
+  ElectricityCharges: number;
+  Maintenance: number;
+  ParentsStayCharge: number;
   Facilities: string[];
   PhotoMain: string;
   PhotoRoom: string;
@@ -175,5 +188,11 @@ export interface Property {
   leadsCount?: number;
   rating?: number;
   isFeatured?: boolean;
-  priorityScore?: number; // Higher is more priority
+  priorityScore?: number;
+  // Private fields are stored in property_private/{id} and never exposed publicly;
+  // kept optional only for owner/admin form submission and migration tooling.
+  OwnerWhatsApp?: string;
+  OwnerEmail?: string;
+  EmergencyContact?: string;
+  FullAddress?: string;
 }

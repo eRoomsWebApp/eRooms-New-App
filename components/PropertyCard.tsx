@@ -1,144 +1,215 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Wind, Wifi, Utensils, WashingMachine, Cctv, Droplet, 
-  Zap, Bath, BookOpen, Shirt, Sun, Star, Heart 
+import {
+  Wind,
+  Wifi,
+  Utensils,
+  WashingMachine,
+  Cctv,
+  Droplet,
+  Zap,
+  Bath,
+  BookOpen,
+  Shirt,
+  Sun,
+  Star,
+  MessageCircle,
+  Phone,
+  Calendar
 } from 'lucide-react';
 import { Property, Gender } from '../types';
-import { useAuth } from '../context/AuthContext';
 import { transformDriveUrl } from '../utils/urlHelper';
+import { getPropertyPath } from '../utils/slug';
+import { useLeadCapture } from './LeadCaptureSheet';
+import { useProperties } from '../context/PropertyContext';
 import OptimizedImage from './OptimizedImage';
 
 interface PropertyCardProps {
   property: Property;
+  priority?: boolean;
 }
 
 const facilityIconMap: Record<string, React.ElementType> = {
-  'AC': Wind,
-  'WiFi': Wifi,
+  AC: Wind,
+  WiFi: Wifi,
   'Mess Facility': Utensils,
-  'Laundry': WashingMachine,
-  'CCTV': Cctv,
+  Laundry: WashingMachine,
+  CCTV: Cctv,
   'RO Water': Droplet,
-  'Geyser': Zap,
+  Geyser: Zap,
   'Attached Washroom': Bath,
   'Study Table': BookOpen,
-  'Wardrobe': Shirt,
-  'Balcony': Sun
+  Wardrobe: Shirt,
+  Balcony: Sun
 };
 
-const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
-  const { user, toggleShortlist } = useAuth();
-  const isShortlisted = user?.shortlist?.includes(property.id) || false;
+const PropertyCard: React.FC<PropertyCardProps> = ({ property, priority = false }) => {
+  const { triggerLeadAction } = useLeadCapture();
+  const { filters } = useProperties();
 
-  const genderColor = property.Gender === Gender.Boys ? 'bg-blue-500 text-white' : 
-                      property.Gender === Gender.Girls ? 'bg-pink-500 text-white' : 
-                      'bg-slate-500 text-white';
+  const genderColor =
+    property.Gender === Gender.Boys
+      ? 'bg-blue-600 text-white'
+      : property.Gender === Gender.Girls
+        ? 'bg-pink-600 text-white'
+        : 'bg-slate-700 text-white';
 
-  const nearest = property.InstituteDistanceMatrix[0];
-  const minsWalk = nearest ? Math.ceil((nearest.distance / 1000) * 12) : null;
+  const nearest = property.InstituteDistanceMatrix?.[0];
+  const distanceKm = nearest
+    ? nearest.unit === 'm' || nearest.distance > 50
+      ? nearest.distance / 1000
+      : nearest.distance
+    : null;
+  const minsWalk = distanceKm !== null ? Math.max(1, Math.ceil(distanceKm * 12)) : null;
 
-  const minRent = property.RentDouble && property.RentDouble.length > 0 
-    ? Math.min(...property.RentDouble) 
-    : 0;
-  const hasMultiplePrices = property.RentDouble && property.RentDouble.length > 1;
+  const rents = [
+    ...(Array.isArray(property.RentDouble) ? property.RentDouble : []),
+    ...(Array.isArray(property.RentSingle) ? property.RentSingle : [])
+  ].filter(n => typeof n === 'number' && n > 0);
+  const minRent = rents.length > 0 ? Math.min(...rents) : 0;
+  const hasMultiplePrices = rents.length > 1;
+  const propertyUrl = getPropertyPath(property);
 
   return (
-    <motion.div 
-      whileHover={{ y: -8, scale: 1.01 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="group relative"
+    <motion.div
+      whileHover={{ y: -6 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+      className="group relative flex flex-col overflow-hidden bg-white rounded-[24px] border border-slate-200 hover:shadow-[0_20px_40px_rgba(37,99,235,0.08)] transition-all duration-300"
     >
-      <Link to={`/property/${property.id}`} className="block overflow-hidden bg-white rounded-[24px] border border-[#e2e8f0] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-500">
+      <Link to={propertyUrl} className="block flex-1">
         <div className="relative aspect-[4/3] overflow-hidden">
-          <OptimizedImage 
-            src={transformDriveUrl(property.PhotoMain)} 
-            alt={property.ListingName} 
-            className="w-full h-full group-hover:scale-110 transition-transform duration-700 ease-out"
+          <OptimizedImage
+            src={transformDriveUrl(property.PhotoMain, 400)}
+            alt={`${property.ListingName} in ${property.Area}, Kota`}
+            width={400}
+            height={300}
+            priority={priority}
+            className="w-full h-full group-hover:scale-105 transition-transform duration-700 ease-out"
           />
-          
+
           <div className="absolute top-4 left-4 flex gap-2">
-            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg backdrop-blur-md ${genderColor}`}>
+            <span
+              className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg backdrop-blur-md ${genderColor}`}
+            >
               {property.Gender}
             </span>
-            <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full bg-white/90 text-slate-900 shadow-lg backdrop-blur-md">
+            <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full bg-white/95 text-slate-900 shadow-lg backdrop-blur-md">
               {property.ListingType}
             </span>
           </div>
 
-          <div className="absolute top-4 right-4 flex flex-col gap-2">
-            <button 
-              onClick={(e) => { e.preventDefault(); toggleShortlist(property.id); }}
-              className={`p-2.5 rounded-full shadow-lg backdrop-blur-md transition-all active:scale-90 ${isShortlisted ? 'bg-rose-500 text-white' : 'bg-white/90 text-slate-400 hover:text-rose-500'}`}
+          <div className="absolute top-4 right-4">
+            <div
+              title="eRooms Verified Property"
+              className="bg-white/95 backdrop-blur-md p-1.5 rounded-full shadow-lg border border-white/50"
             >
-              <Heart size={18} fill={isShortlisted ? "currentColor" : "none"} />
-            </button>
-            <div className="bg-white/90 backdrop-blur-md p-1.5 rounded-full shadow-lg border border-white/50">
-              <svg className="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-5-5 1.41-1.41L10 13.17l7.59-7.59L19 7l-9 9z"/>
+              <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-5-5 1.41-1.41L10 13.17l7.59-7.59L19 7l-9 9z" />
               </svg>
             </div>
           </div>
 
-          <div className="absolute bottom-4 left-4 right-4">
-             <div className="bg-slate-900/40 backdrop-blur-xl rounded-2xl p-3 border border-white/20 flex items-center justify-between text-white shadow-xl min-w-0">
-               <div className="flex items-center gap-2 min-w-0">
-                 <span className="text-xl flex-shrink-0">🚶</span>
-                 <p className="text-xs font-bold leading-tight truncate">
-                    {minsWalk} mins walk <br/>
-                    <span className="text-white/60 font-medium truncate block">to {nearest?.name}</span>
-                 </p>
-               </div>
-               <div className="h-8 w-px bg-white/20 flex-shrink-0 mx-2"></div>
-               <div className="text-right flex-shrink-0">
-                  <p className="text-[10px] uppercase font-black tracking-widest text-white/60">Area</p>
-                  <p className="text-xs font-bold truncate max-w-[80px]">{property.Area.split(' (')[0]}</p>
-               </div>
-             </div>
-          </div>
+          {nearest && (
+            <div className="absolute bottom-3 left-3 right-3">
+              <div className="bg-slate-900/60 backdrop-blur-xl rounded-2xl p-3 border border-white/15 flex items-center justify-between text-white shadow-xl min-w-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-lg flex-shrink-0">🚶</span>
+                  <p className="text-xs font-bold leading-tight truncate">
+                    {minsWalk} mins walk <br />
+                    <span className="text-white/75 font-medium truncate block">
+                      to {nearest.name}
+                    </span>
+                  </p>
+                </div>
+                <div className="h-8 w-px bg-white/20 flex-shrink-0 mx-2" />
+                <div className="text-right flex-shrink-0">
+                  <p className="text-[9px] uppercase font-black tracking-widest text-white/60">
+                    Area
+                  </p>
+                  <p className="text-xs font-bold truncate max-w-[90px]">
+                    {property.Area.split(' (')[0]}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-        
-        <div className="p-4 md:p-6">
-          <div className="flex justify-between items-start mb-2 md:mb-3">
-            <h3 className="font-extrabold text-lg md:text-xl text-slate-900 tracking-tight line-clamp-1">{property.ListingName}</h3>
+
+        <div className="p-5 pb-3">
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="font-extrabold text-lg text-slate-900 tracking-tight line-clamp-1 group-hover:text-blue-600 transition-colors">
+              {property.ListingName}
+            </h3>
           </div>
-          
-          <div className="flex flex-wrap gap-1.5 md:gap-2 mb-4 md:mb-6">
-            {property.Facilities.slice(0, 3).map(f => {
+
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {(property.Facilities || []).slice(0, 3).map(f => {
               const Icon = facilityIconMap[f] || Star;
               return (
-                <div key={f} className="flex items-center gap-1.5 text-[9px] md:text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-100 px-2 py-1 md:py-1.5 rounded-lg">
-                  <Icon size={10} className="text-indigo-500 md:w-[12px] md:h-[12px]" />
+                <div
+                  key={f}
+                  className="flex items-center gap-1.5 text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-100 px-2 py-1 rounded-lg"
+                >
+                  <Icon size={11} className="text-blue-600" />
                   {f}
                 </div>
               );
             })}
-            {property.Facilities.length > 3 && <span className="text-[9px] md:text-[10px] font-bold text-slate-400 px-1 py-1">+{property.Facilities.length - 3}</span>}
+            {(property.Facilities || []).length > 3 && (
+              <span className="text-[10px] font-bold text-slate-400 px-1 py-1">
+                +{property.Facilities.length - 3}
+              </span>
+            )}
           </div>
 
-          <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-slate-50">
+          <div className="flex items-center justify-between pt-3 border-t border-slate-100">
             <div>
-              <p className="text-[9px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.15em] mb-0.5 md:mb-1">
-                {hasMultiplePrices ? 'Starting From' : 'Monthly Rental'}
+              <p className="text-[9px] font-black uppercase text-slate-400 tracking-[0.15em] mb-0.5">
+                {hasMultiplePrices ? 'Starting From' : 'Monthly Rent'}
               </p>
-              <p className="text-xl md:text-2xl font-black text-indigo-600 tracking-tighter">
-                ₹{minRent.toLocaleString()}
-                <span className="text-[10px] md:text-xs font-bold text-slate-400 ml-1">/mo</span>
+              <p className="text-xl font-black text-blue-600 tracking-tighter">
+                ₹{minRent.toLocaleString('en-IN')}
+                <span className="text-xs font-bold text-slate-400 ml-1">/mo</span>
               </p>
             </div>
-            <div className="bg-slate-50 group-hover:bg-slate-900 group-hover:text-white p-2.5 md:p-3 rounded-2xl transition-all duration-300">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+              {property.Area.split(' (')[0]}
+            </span>
           </div>
         </div>
       </Link>
+
+      {/* No-Login Direct eRooms Lead Actions */}
+      <div className="px-5 pb-5 pt-2 flex flex-col gap-2">
+        <button
+          type="button"
+          onClick={() =>
+            triggerLeadAction('Get Details on WhatsApp', property, filters.coaching)
+          }
+          className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-colors shadow-sm"
+        >
+          <MessageCircle size={14} /> Get Details on WhatsApp
+        </button>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => triggerLeadAction('Call eRooms', property, filters.coaching)}
+            className="py-2.5 px-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors"
+          >
+            <Phone size={13} /> Call eRooms
+          </button>
+          <button
+            type="button"
+            onClick={() => triggerLeadAction('Book Free Visit', property, filters.coaching)}
+            className="py-2.5 px-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors"
+          >
+            <Calendar size={13} /> Book Free Visit
+          </button>
+        </div>
+      </div>
     </motion.div>
   );
 };
 
 export default PropertyCard;
-
