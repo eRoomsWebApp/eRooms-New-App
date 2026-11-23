@@ -223,6 +223,30 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // eRooms Lead CRM — one document per student, id = 10-digit mobile.
+    // Public visitors may only CREATE a minimal "New" lead from the hostels gate (no read, no overwrite).
+    match /crm_leads/{phone} {
+      allow read, update, delete: if isAdmin();
+      allow create: if isAdmin() || (
+        phone.matches('^[6-9][0-9]{9}$') &&
+        request.resource.data.keys().hasOnly(['id', 'name', 'phone', 'source', 'page', 'status', 'createdAt', 'updatedAt']) &&
+        request.resource.data.id == phone &&
+        request.resource.data.phone == phone &&
+        request.resource.data.name is string &&
+        request.resource.data.name.size() >= 2 && request.resource.data.name.size() <= 80 &&
+        request.resource.data.source == 'hostels-gate' &&
+        request.resource.data.status == 'New' &&
+        request.resource.data.page is string && request.resource.data.page.size() <= 200 &&
+        request.resource.data.createdAt is string && request.resource.data.createdAt.size() <= 40 &&
+        request.resource.data.updatedAt is string && request.resource.data.updatedAt.size() <= 40
+      );
+    }
+
+    // Bookings & commission ledger — admin only
+    match /bookings/{bookingId} {
+      allow read, write: if isAdmin();
+    }
+
     // Activity logs
     match /activity_logs/{logId} {
       allow read: if isAdmin();

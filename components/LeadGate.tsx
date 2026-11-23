@@ -42,6 +42,9 @@ const LeadGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     }
     saveKnownLeadInfo(trimmed, normalized);
     sendGateLead({ name: trimmed, whatsapp: normalized, page: location.pathname });
+    import('../utils/crm')
+      .then((m) => m.createGateLead(trimmed, normalized, location.pathname))
+      .catch(() => undefined);
     setUnlocked(true);
   };
 

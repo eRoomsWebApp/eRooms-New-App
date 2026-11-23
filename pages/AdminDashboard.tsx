@@ -36,6 +36,8 @@ import {
 const PropertyFormModal = React.lazy(() => import('../components/PropertyFormModal'));
 const BulkUploadModal = React.lazy(() => import('../components/BulkUploadModal'));
 const BulkPriceUpdateModal = React.lazy(() => import('../components/BulkPriceUpdateModal'));
+const CrmPanel = React.lazy(() => import('../components/admin/CrmPanel'));
+const BookingsPanel = React.lazy(() => import('../components/admin/BookingsPanel'));
 
 const TableSkeleton = () => (
   <div className="space-y-4 p-8">
@@ -54,13 +56,14 @@ const TableSkeleton = () => (
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { addProperty, bulkAddProperties, approveProperty, updateProperty, deleteProperty, bulkUpdatePrices } = useProperties();
+  const { properties: catalogProperties, addProperty, bulkAddProperties, approveProperty, updateProperty, deleteProperty, bulkUpdatePrices } = useProperties();
   const { config } = useConfig();
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<'overview' | 'listings' | 'users' | 'leads' | 'config' | 'logs' | 'docs'>(
+  const [activeTab, setActiveTab] = useState<'overview' | 'listings' | 'users' | 'leads' | 'crm' | 'bookings' | 'config' | 'logs' | 'docs'>(
     searchParams.get('action') === 'add' ? 'listings' : 'overview'
   );
   const [searchTerm, setSearchTerm] = useState('');
+  const [bookingDraft, setBookingDraft] = useState<{ studentName?: string; studentPhone?: string; propertyName?: string; leadId?: string } | null>(null);
   const [adminProperties, setAdminProperties] = useState<Property[]>([]);
   const [propertiesLoading, setPropertiesLoading] = useState(true);
   const [registeredUsers, setRegisteredUsers] = useState<User[]>([]);
@@ -228,6 +231,8 @@ const AdminDashboard: React.FC = () => {
 
   const navItems = [
     { id: 'overview', label: 'Command Hub', icon: Command },
+    { id: 'crm', label: 'Lead CRM', icon: Target },
+    { id: 'bookings', label: 'Bookings & Earnings', icon: TrendingUp },
     { id: 'listings', label: 'Asset Registry', icon: Building2 },
     { id: 'users', label: 'Node Directory', icon: Users },
     { id: 'docs', label: 'Document Audit', icon: FileCheck },
@@ -1115,6 +1120,32 @@ const AdminDashboard: React.FC = () => {
                   Initiate Reset
                 </button>
               </section>
+            </motion.div>
+          )}
+
+          {activeTab === 'crm' && (
+            <motion.div key="crm" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <Suspense fallback={<TableSkeleton />}>
+                <CrmPanel
+                  inquiryLeads={leads}
+                  onCreateBooking={(l) => {
+                    setBookingDraft({ studentName: l.name, studentPhone: l.phone, propertyName: l.propertyInterest, leadId: l.id });
+                    setActiveTab('bookings');
+                  }}
+                />
+              </Suspense>
+            </motion.div>
+          )}
+
+          {activeTab === 'bookings' && (
+            <motion.div key="bookings" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <Suspense fallback={<TableSkeleton />}>
+                <BookingsPanel
+                  properties={[...catalogProperties, ...adminProperties.filter((p) => !catalogProperties.some((c) => c.id === p.id))]}
+                  draft={bookingDraft}
+                  onDraftUsed={() => setBookingDraft(null)}
+                />
+              </Suspense>
             </motion.div>
           )}
 
