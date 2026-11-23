@@ -4,6 +4,10 @@ import { auth, googleProvider, db } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { User, UserRole, UserStatus, SavedSearch } from '../types';
 
+// Company accounts that always get full Super Admin rights (must match firestore.rules isAdmin()).
+export const SUPER_ADMIN_EMAILS = ['kajay5788@gmail.com', 'erooms.edtechsathi@gmail.com'];
+const isSuperAdminEmail = (email?: string | null) => !!email && SUPER_ADMIN_EMAILS.includes(email.trim().toLowerCase());
+
 interface AuthContextType {
   user: User | null;
   signInWithGoogle: (preferredRole?: UserRole) => Promise<void>;
@@ -33,7 +37,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const docSnap = await getDoc(userRef);
           if (docSnap.exists()) {
             const userData = docSnap.data() as User;
-            if (userData.email === 'kajay5788@gmail.com' && userData.role !== UserRole.SuperAdmin) {
+            if (isSuperAdminEmail(userData.email) && userData.role !== UserRole.SuperAdmin) {
               try {
                 await setDoc(userRef, { role: UserRole.SuperAdmin }, { merge: true });
                 setUser({ ...userData, role: UserRole.SuperAdmin });
@@ -76,7 +80,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (!userSnap.exists()) {
         const finalRole =
-          firebaseUser.email === 'kajay5788@gmail.com'
+          isSuperAdminEmail(firebaseUser.email)
             ? UserRole.SuperAdmin
             : preferredRole === UserRole.Admin || preferredRole === UserRole.SuperAdmin
               ? UserRole.Owner
@@ -164,8 +168,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isAdmin:
           user?.role === UserRole.Admin ||
           user?.role === UserRole.SuperAdmin ||
-          user?.email === 'kajay5788@gmail.com',
-        isSuperAdmin: user?.role === UserRole.SuperAdmin || user?.email === 'kajay5788@gmail.com',
+          isSuperAdminEmail(user?.email),
+        isSuperAdmin: user?.role === UserRole.SuperAdmin || isSuperAdminEmail(user?.email),
         isOwner: user?.role === UserRole.Owner,
         isStudent: user?.role === UserRole.Student,
         isAuthReady
