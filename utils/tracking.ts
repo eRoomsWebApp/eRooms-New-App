@@ -183,6 +183,39 @@ export const sendCompletedLead = ({
   }
 };
 
+/** Lead from the "name + mobile first" gate shown before the hostel catalogue. */
+export const sendGateLead = ({ name, whatsapp, page }: { name: string; whatsapp: string; page: string }) => {
+  const actionLabel = `Catalogue unlocked: ${page}`;
+  const clickPath = pushClickPathAction(actionLabel);
+  postRecordsToSheets([
+    {
+      type: 'STUDENT',
+      date: new Date().toLocaleString('en-IN'),
+      status: 'completed',
+      name: name.trim(),
+      whatsapp: normalizeIndianPhone(whatsapp),
+      requirement: '',
+      budget: '',
+      area: '',
+      gender: '',
+      extra1: '',
+      sessionId: getSessionId(),
+      visitorId: getVisitorId(),
+      source: 'hostels-gate',
+      device: getDeviceType(),
+      lastAction: actionLabel,
+      clickPath,
+      fieldsFilled: 2
+    }
+  ]);
+  try {
+    window.gtag?.('event', 'generate_lead', { value: 1, currency: 'INR' });
+    window.fbq?.('track', 'Lead');
+  } catch {
+    // ignore analytics failures
+  }
+};
+
 let lastPartialSentAt = 0;
 
 export const sendPartialVisit = (

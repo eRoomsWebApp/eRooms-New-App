@@ -12,6 +12,7 @@ import TopBar from './components/TopBar';
 import Home from './pages/Home';
 import ProtectedRoute from './components/ProtectedRoute';
 import FriendlyErrorBoundary from './components/FriendlyErrorBoundary';
+import LeadGate from './components/LeadGate';
 import { UserRole } from './types';
 import { Instagram, Youtube, Phone, MessageCircle } from 'lucide-react';
 import { SAMPLE_PREVIEW_PROPERTY } from './data/sampleProperty';
@@ -181,7 +182,9 @@ const App: React.FC = () => {
             <AuthProvider>
               <PropertyProvider>
                 <LeadCaptureProvider>
-                  <AppContent />
+                  <LeadGate>
+                    <AppContent />
+                  </LeadGate>
                 </LeadCaptureProvider>
               </PropertyProvider>
             </AuthProvider>
