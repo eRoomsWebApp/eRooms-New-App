@@ -8,8 +8,7 @@ import FilterBar from '../components/FilterBar';
 import { ApprovalStatus, Gender, ListingType } from '../types';
 import { useConfig } from '../context/ConfigContext';
 import { Helmet } from 'react-helmet-async';
-import { Building2, ArrowRight, Zap, Eye, MapPin, GraduationCap } from 'lucide-react';
-import { SAMPLE_PREVIEW_PROPERTY } from '../data/sampleProperty';
+import { Building2, ArrowRight, Zap, MapPin, GraduationCap } from 'lucide-react';
 import { transformDriveUrl } from '../utils/urlHelper';
 import { PropertyCardSkeleton } from '../components/Skeleton';
 import OptimizedImage from '../components/OptimizedImage';
@@ -110,9 +109,9 @@ const Home: React.FC = () => {
 
   if (!config) return null;
 
-  const pageTitle = truncateMeta('Verified Hostels, PG & Flats in Kota | eRooms.in', 59);
+  const pageTitle = truncateMeta('Verified Hostels & PG in Kota | eRooms.in', 59);
   const pageDescription = truncateMeta(
-    'Browse verified hostels, PGs, flats, and mess in Kota near Allen, Resonance, Motion & PW Vidyapeeth. Zero brokerage with eRooms.in.',
+    'Browse verified hostels & PGs in Kota near Allen, Motion & PW with rent, photos and facilities. Zero brokerage, free visit with eRooms.in.',
     154
   );
   const canonicalUrl = getCanonicalUrl('/');
@@ -122,7 +121,7 @@ const Home: React.FC = () => {
     '@graph': [
       {
         '@type': 'ItemList',
-        name: 'Verified Hostels, PGs & Flats in Kota',
+        name: 'Verified Hostels & PGs in Kota',
         url: canonicalUrl,
         numberOfItems: filteredProperties.length,
         itemListElement: filteredProperties.slice(0, 20).map((p, index) => ({
@@ -246,7 +245,10 @@ const Home: React.FC = () => {
               { label: 'PGs', type: 'PG', icon: '🏠' },
               { label: 'Flats', type: 'Flat', icon: '🏙️' },
               { label: 'Mess', type: 'Mess', icon: '🍱' }
-            ].map((cat) => {
+            ]
+              // Only show categories that actually have listings (no empty "Flats"/"Mess" pages).
+              .filter((cat) => cat.type === 'All' || properties.some((p) => p.ListingType === cat.type))
+              .map((cat) => {
               const isSelected = filters.listingType === cat.type;
               return (
                 <button
@@ -285,12 +287,6 @@ const Home: React.FC = () => {
             )}
           </div>
           <div className="flex items-center gap-4">
-            <Link
-              to={getPropertyPath(SAMPLE_PREVIEW_PROPERTY)}
-              className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 border border-blue-100 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all"
-            >
-              <Eye size={14} /> Sample Profile
-            </Link>
             {isFiltering && (
               <button
                 type="button"

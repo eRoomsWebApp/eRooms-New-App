@@ -54,9 +54,9 @@ const CrmPanel: React.FC<Props> = ({ inquiryLeads = [], onCreateBooking }) => {
     setError('');
     try {
       setLeads(await fetchCrmLeads());
-    } catch (e: any) {
+    } catch (e) {
       setError(
-        e?.code === 'permission-denied'
+        (e as { code?: string })?.code === 'permission-denied'
           ? 'Permission denied — publish the new Firestore rules (crm_leads) in Firebase console.'
           : 'Could not load leads. Check internet and try Refresh.'
       );

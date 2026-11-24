@@ -17,19 +17,15 @@ import {
   MapPin,
   Phone,
   ShieldCheck,
-  ExternalLink,
   Calendar,
   Sparkles,
   Map as MapIcon,
   Share2,
   Navigation,
-  Stethoscope,
-  Bus,
   CheckCircle2,
   ArrowLeft,
   LayoutGrid,
   Shield as Safety,
-  Coffee as Cup,
   ArrowRight,
   MessageCircle,
   ChevronLeft,
@@ -142,6 +138,7 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
   const [activeRentType, setActiveRentType] = useState<'Single' | 'Double'>('Double');
   const [activeSection, setActiveSection] = useState('overview');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
   const [shareCopied, setShareCopied] = useState(false);
   const [showContractModal, setShowContractModal] = useState(false);
 
@@ -197,7 +194,7 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      const offset = 120;
+      const offset = 170; // site header + sticky section tabs
       const bodyRect = document.body.getBoundingClientRect().top;
       const elementRect = element.getBoundingClientRect().top;
       const offsetPosition = elementRect - bodyRect - offset;
@@ -208,82 +205,6 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
   const toKm = (item: { distance: number; unit?: string }) =>
     item.unit === 'm' || item.distance > 50 ? item.distance / 1000 : item.distance;
 
-  const isEcosystemNode = (name: string) =>
-    ['HOSPITAL', 'BUS', 'STATION', 'MANDIR', 'MASJID', 'GURUDWARA', 'CAFE', 'MEDICAL', 'MARKET'].some(
-      (k) => name.toUpperCase().includes(k)
-    );
-
-  const survivalMatrix = useMemo(() => {
-    if (!property || !property.InstituteDistanceMatrix || property.InstituteDistanceMatrix.length === 0) {
-      return [
-        { label: 'Caffeine Node', value: '0.2km', icon: Cup, desc: 'Student Study Cafe' },
-        { label: 'Medical Pulse', value: '1.2km', icon: Stethoscope, desc: 'City Hospital' },
-        { label: 'Transit Link', value: '0.5km', icon: Bus, desc: 'Local Bus Stop' }
-      ];
-    }
-
-    const nodes = property.InstituteDistanceMatrix.filter(
-      (item) =>
-        isEcosystemNode(item.name) ||
-        ![
-          'ALLEN',
-          'MOTION',
-          'PW',
-          'RESONANCE',
-          'VIBRANT',
-          'BANSAL',
-          'AKASH',
-          'ISAC',
-          'RELIABLE',
-          'UNACADEMY',
-          'E-SARAL',
-          'SARVAM'
-        ].some((brand) => item.name.toUpperCase().includes(brand))
-    );
-
-    if (nodes.length > 0) {
-      return nodes.slice(0, 3).map((node) => {
-        let icon = MapIcon;
-        let label = 'Essential Node';
-        if (node.name.toUpperCase().includes('CAFE') || node.name.toUpperCase().includes('BREW')) {
-          icon = Cup;
-          label = 'Caffeine Node';
-        }
-        if (
-          node.name.toUpperCase().includes('HOSPITAL') ||
-          node.name.toUpperCase().includes('MEDICAL')
-        ) {
-          icon = Stethoscope;
-          label = 'Medical Pulse';
-        }
-        if (node.name.toUpperCase().includes('BUS') || node.name.toUpperCase().includes('STATION')) {
-          icon = Bus;
-          label = 'Transit Link';
-        }
-        if (
-          node.name.toUpperCase().includes('MANDIR') ||
-          node.name.toUpperCase().includes('MASJID') ||
-          node.name.toUpperCase().includes('GURUDWARA')
-        ) {
-          icon = Sparkles;
-          label = 'Spiritual Node';
-        }
-
-        return {
-          label,
-          value: `${toKm(node).toFixed(1)}km`,
-          icon,
-          desc: node.name
-        };
-      });
-    }
-
-    return [
-      { label: 'Caffeine Node', value: '0.2km', icon: Cup, desc: 'Student Study Cafe' },
-      { label: 'Medical Pulse', value: '1.2km', icon: Stethoscope, desc: 'City Hospital' },
-      { label: 'Transit Link', value: '0.5km', icon: Bus, desc: 'Local Bus Stop' }
-    ];
-  }, [property]);
 
   const categorizedFacilities = useMemo(() => {
     if (!property) return { essential: [], comfort: [], safety: [] };
@@ -298,10 +219,18 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
     };
   }, [property]);
 
+  const isEcosystemNode = (name: string) =>
+    ['HOSPITAL', 'BUS', 'STATION', 'MANDIR', 'MASJID', 'GURUDWARA', 'CAFE', 'MEDICAL', 'MARKET'].some((k) =>
+      name.toUpperCase().includes(k)
+    );
+
   const sortedMatrix = useMemo(() => {
     if (!property) return [];
     const list = property.InstituteDistanceMatrix || [];
-    const coachingOnly = list.filter((item) => !isEcosystemNode(item.name));
+    // Skip generic brand rows (e.g. plain "Allen") — the named campus rows are more useful.
+    const coachingOnly = list.filter(
+      (item) => !isEcosystemNode(item.name) && !(item as { generic?: boolean }).generic
+    );
     const source = coachingOnly.length > 0 ? coachingOnly : list;
     return [...source].sort((a, b) => toKm(a) - toKm(b));
   }, [property]);
@@ -312,6 +241,23 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
     const gallery = property.PhotosGallery || [];
     return [...base, ...gallery];
   }, [property]);
+
+  const stepLightbox = (dir: 1 | -1) =>
+    setLightboxIndex((prev) =>
+      prev === null || allPhotos.length === 0 ? prev : (prev + dir + allPhotos.length) % allPhotos.length
+    );
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightboxIndex(null);
+      if (e.key === 'ArrowRight') stepLightbox(1);
+      if (e.key === 'ArrowLeft') stepLightbox(-1);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lightboxIndex === null, allPhotos.length]);
 
   if ((loading || (!property && !directLookupDone)) && !property) {
     return <PropertyProfileSkeleton />;
@@ -350,6 +296,13 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
   ].filter((n) => typeof n === 'number' && n > 0);
   const minRent = allRents.length > 0 ? Math.min(...allRents) : 0;
   const maxRent = allRents.length > 0 ? Math.max(...allRents) : minRent;
+  const toList = (v: unknown): number[] =>
+    (Array.isArray(v) ? v : [v]).filter((n): n is number => typeof n === 'number' && n > 0);
+  const rentTypes = (['Single', 'Double'] as const).filter((t) =>
+    toList(t === 'Single' ? property.RentSingle : property.RentDouble).length > 0
+  );
+  const shownRentType = rentTypes.includes(activeRentType) ? activeRentType : rentTypes[0] || 'Single';
+  const shownRents = toList(shownRentType === 'Single' ? property.RentSingle : property.RentDouble);
 
   const cleanArea = property.Area.split(' (')[0];
   const canonicalUrl = getCanonicalUrl(getPropertyPath(property));
@@ -452,7 +405,7 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.35 }}
-      className="bg-white min-h-screen pb-40 lg:pb-0 scroll-smooth"
+      className="bg-white min-h-screen pb-28 lg:pb-0 scroll-smooth"
     >
       <motion.div
         className="fixed top-0 left-0 right-0 h-1 bg-blue-600 z-[100] origin-left"
@@ -471,118 +424,121 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       </Helmet>
 
-      {/* 1. Hero Gallery */}
-      <section id="overview" ref={overviewRef} className="relative h-[62vh] lg:h-[80vh] overflow-hidden">
-        <div className="absolute inset-0 grid grid-cols-1 lg:grid-cols-12 gap-1 lg:gap-2">
-          <div
-            className="lg:col-span-8 h-full relative group cursor-zoom-in"
-            onClick={() => setLightboxIndex(0)}
-          >
-            <OptimizedImage
-              src={mainPhoto800}
-              width={800}
-              height={600}
-              priority
-              className="w-full h-full transition-transform duration-1000 group-hover:scale-105"
-              alt={`${property.ListingName} exterior`}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent" />
-          </div>
-          <div className="hidden lg:grid lg:col-span-4 grid-rows-2 gap-2 h-full">
-            <div
-              className="relative overflow-hidden group cursor-zoom-in"
-              onClick={() => setLightboxIndex(1)}
-            >
-              <OptimizedImage
-                src={transformDriveUrl(property.PhotoRoom, 800)}
-                width={800}
-                height={400}
-                className="w-full h-full transition-transform duration-700 group-hover:scale-110"
-                alt={`${property.ListingName} room`}
-              />
-              <div className="absolute inset-0 bg-black/15" />
-            </div>
-            <div
-              className="relative overflow-hidden group cursor-zoom-in"
-              onClick={() => setLightboxIndex(2)}
-            >
-              <OptimizedImage
-                src={transformDriveUrl(property.PhotoWashroom, 800)}
-                width={800}
-                height={400}
-                className="w-full h-full transition-transform duration-700 group-hover:scale-110"
-                alt={`${property.ListingName} washroom`}
-              />
-              <div className="absolute inset-0 bg-black/35 flex items-center justify-center group-hover:bg-black/50 transition-all">
-                <span className="text-white font-black uppercase text-xs tracking-widest border border-white/40 px-6 py-3 rounded-xl backdrop-blur-md">
-                  View All {allPhotos.length} Photos
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Hero Header Controls */}
-        <div className="absolute top-6 left-6 right-6 flex justify-between items-start pointer-events-none z-20">
-          <Link
-            to="/"
-            className="pointer-events-auto bg-white/15 backdrop-blur-xl p-3.5 rounded-2xl border border-white/25 text-white hover:bg-white hover:text-slate-900 transition-all shadow-xl"
-          >
-            <ArrowLeft size={20} />
-          </Link>
-          <div className="flex gap-3 pointer-events-auto">
+      {/* 1. Photo gallery (whole photo always visible — no cropping) */}
+      <section id="overview" ref={overviewRef} className="relative bg-slate-900">
+        <div className="max-w-7xl mx-auto lg:px-12 lg:pt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-1 lg:gap-2 h-[46vh] sm:h-[52vh] lg:h-[60vh] lg:rounded-[28px] overflow-hidden">
             <button
               type="button"
+              aria-label="Open photo gallery"
+              className="lg:col-span-8 h-full relative cursor-zoom-in"
               onClick={() => setLightboxIndex(0)}
-              className="lg:hidden bg-white/15 backdrop-blur-xl px-4 py-3 rounded-2xl border border-white/25 text-white text-[10px] font-black uppercase tracking-widest shadow-xl"
             >
-              {allPhotos.length} Photos
+              <OptimizedImage
+                src={mainPhoto800}
+                width={800}
+                height={600}
+                priority
+                fit="contain"
+                className="w-full h-full bg-slate-800"
+                alt={`${property.ListingName} building, ${cleanArea} Kota`}
+              />
             </button>
-            <button
-              type="button"
-              onClick={handleShare}
-              className="bg-white/15 backdrop-blur-xl p-3.5 rounded-2xl border border-white/25 text-white hover:bg-white hover:text-slate-900 transition-all shadow-xl flex items-center gap-2"
-            >
-              <Share2 size={20} />
-              {shareCopied && (
-                <span className="text-[10px] font-black uppercase tracking-widest">Copied</span>
-              )}
-            </button>
+            <div className="hidden lg:grid lg:col-span-4 grid-rows-2 gap-2 h-full">
+              {[1, 2].map((idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  aria-label={`Open photo ${idx + 1}`}
+                  className="relative h-full overflow-hidden cursor-zoom-in"
+                  onClick={() => setLightboxIndex(Math.min(idx, allPhotos.length - 1))}
+                >
+                  <OptimizedImage
+                    src={transformDriveUrl(allPhotos[idx] || property.PhotoMain, 800)}
+                    width={800}
+                    height={400}
+                    fit="contain"
+                    className="w-full h-full bg-slate-800"
+                    alt={`${property.ListingName} photo ${idx + 1}`}
+                  />
+                  {idx === 2 && allPhotos.length > 3 && (
+                    <span className="absolute inset-0 bg-black/45 flex items-center justify-center text-white font-black uppercase text-xs tracking-widest">
+                      +{allPhotos.length - 3} more photos
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="absolute bottom-12 left-6 lg:left-16 right-6 lg:right-16 text-white pointer-events-none z-20">
-          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-end gap-8">
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <span
-                  className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg ${
-                    property.Gender === Gender.Boys
-                      ? 'bg-blue-600'
-                      : property.Gender === Gender.Girls
-                        ? 'bg-pink-600'
-                        : 'bg-slate-700'
-                  }`}
-                >
-                  {property.Gender} {property.ListingType}
-                </span>
-                <span className="bg-emerald-500/90 backdrop-blur-md px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg flex items-center gap-1.5">
-                  <CheckCircle2 size={12} /> Verified by eRooms
-                </span>
-              </div>
-              <h1 className="text-3xl sm:text-5xl lg:text-7xl font-black tracking-tighter leading-tight uppercase break-words">
-                {property.ListingName}
-              </h1>
-              <div className="flex items-center gap-2.5 text-white/85 font-bold">
-                <MapPin size={20} className="text-blue-400 flex-shrink-0" />
-                <span className="text-base lg:text-xl">
-                  {property.Area}, Kota, Rajasthan
-                </span>
-              </div>
-            </div>
-          </div>
+        {/* Gallery controls */}
+        <Link
+          to="/"
+          aria-label="Back to all hostels"
+          className="absolute top-4 left-4 lg:top-10 lg:left-16 z-20 bg-slate-900/60 backdrop-blur-xl p-3 rounded-2xl border border-white/20 text-white hover:bg-white hover:text-slate-900 transition-all"
+        >
+          <ArrowLeft size={20} />
+        </Link>
+        <div className="absolute bottom-4 right-4 lg:right-16 z-20 flex gap-2">
+          <button
+            type="button"
+            onClick={() => setLightboxIndex(0)}
+            className="bg-slate-900/70 backdrop-blur-xl px-4 py-3 rounded-2xl border border-white/20 text-white text-[10px] font-black uppercase tracking-widest"
+          >
+            View {allPhotos.length} Photos
+          </button>
+          <button
+            type="button"
+            onClick={handleShare}
+            aria-label="Share"
+            className="bg-slate-900/70 backdrop-blur-xl p-3 rounded-2xl border border-white/20 text-white hover:bg-white hover:text-slate-900 transition-all flex items-center gap-2"
+          >
+            <Share2 size={18} />
+            {shareCopied && <span className="text-[10px] font-black uppercase tracking-widest">Copied</span>}
+          </button>
         </div>
       </section>
+
+      {/* Title block (kept off the photo so it never overlaps poster text) */}
+      <header className="bg-white">
+        <div className="max-w-7xl mx-auto px-4 lg:px-12 pt-6 pb-5 lg:pt-8 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+          <div className="space-y-3 min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-[0.15em] text-white ${
+                  property.Gender === Gender.Boys
+                    ? 'bg-blue-600'
+                    : property.Gender === Gender.Girls
+                      ? 'bg-pink-600'
+                      : 'bg-slate-700'
+                }`}
+              >
+                {property.Gender} {property.ListingType}
+              </span>
+              <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-[0.15em] flex items-center gap-1.5">
+                <CheckCircle2 size={12} /> Verified by eRooms
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-slate-900 break-words">
+              {property.ListingName}
+            </h1>
+            <p className="flex items-center gap-2 text-slate-600 font-bold">
+              <MapPin size={18} className="text-blue-600 flex-shrink-0" />
+              {cleanArea}, Kota, Rajasthan
+            </p>
+          </div>
+          {minRent > 0 && (
+            <div className="lg:text-right flex-shrink-0">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Rent starts at</p>
+              <p className="text-3xl font-black text-slate-900">
+                ₹{minRent.toLocaleString('en-IN')}
+                <span className="text-sm text-slate-400 font-bold">/month</span>
+              </p>
+            </div>
+          )}
+        </div>
+      </header>
 
       {/* 2. Sticky Section Navigation */}
       <nav className="sticky top-20 z-[50] bg-white border-b border-slate-100 shadow-sm overflow-x-auto no-scrollbar">
@@ -640,7 +596,7 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
                 <p className="text-[11px] font-black uppercase tracking-[0.35em] text-blue-600">
                   Amenities & Facilities
                 </p>
-                <h2 className="text-3xl lg:text-5xl font-black text-slate-900 uppercase tracking-tighter">
+                <h2 className="text-2xl lg:text-4xl font-black text-slate-900 tracking-tight">
                   Included Infrastructure
                 </h2>
                 <p className="text-slate-500 font-bold max-w-xl text-base leading-relaxed">
@@ -747,168 +703,104 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
             <section
               id="budget"
               ref={budgetRef}
-              className="bg-slate-50 border border-slate-200 rounded-[40px] p-8 lg:p-14 shadow-sm"
+              className="bg-slate-50 border border-slate-200 rounded-[32px] p-6 sm:p-8 lg:p-12 shadow-sm"
             >
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-12">
-                <div className="space-y-3">
-                  <p className="text-[11px] font-black uppercase tracking-[0.35em] text-blue-600">
-                    Transparent Pricing
-                  </p>
-                  <h2 className="text-3xl lg:text-5xl font-black tracking-tighter uppercase text-slate-900">
-                    Monthly Rent & Terms
-                  </h2>
-                  <p className="text-slate-500 font-bold text-base">
-                    Zero brokerage when you book directly through eRooms.in.
-                  </p>
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8">
+                <div className="space-y-2">
+                  <p className="text-[11px] font-black uppercase tracking-[0.3em] text-blue-600">Transparent Pricing</p>
+                  <h2 className="text-2xl lg:text-4xl font-black tracking-tight text-slate-900">Monthly Rent &amp; Terms</h2>
+                  <p className="text-slate-500 font-bold text-sm">Zero brokerage when you book through eRooms.in.</p>
                 </div>
-                <div className="flex p-1.5 bg-white rounded-2xl border border-slate-200 shadow-sm w-full md:w-auto">
-                  <button
-                    type="button"
-                    onClick={() => setActiveRentType('Single')}
-                    className={`flex-1 md:flex-none px-7 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                      activeRentType === 'Single'
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'text-slate-500 hover:text-slate-900'
-                    }`}
-                  >
-                    Single Room
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveRentType('Double')}
-                    className={`flex-1 md:flex-none px-7 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                      activeRentType === 'Double'
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'text-slate-500 hover:text-slate-900'
-                    }`}
-                  >
-                    Double Sharing
-                  </button>
-                </div>
+                {rentTypes.length > 1 && (
+                  <div role="tablist" className="inline-flex p-1 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                    {rentTypes.map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        role="tab"
+                        aria-selected={shownRentType === t}
+                        onClick={() => setActiveRentType(t)}
+                        className={`px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider whitespace-nowrap transition-colors ${
+                          shownRentType === t ? 'bg-blue-600 text-white shadow' : 'text-slate-500 hover:text-slate-900'
+                        }`}
+                      >
+                        {t === 'Single' ? 'Single Room' : 'Double Sharing'}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 <div className="lg:col-span-7 space-y-4">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-black text-slate-300">₹</span>
-                    <span className="text-6xl sm:text-7xl font-black tracking-tighter text-slate-900 leading-none">
-                      {(
-                        (activeRentType === 'Single'
-                          ? Array.isArray(property.RentSingle)
-                            ? property.RentSingle[0]
-                            : property.RentSingle
-                          : Array.isArray(property.RentDouble)
-                            ? property.RentDouble[0]
-                            : property.RentDouble) || 0
-                      ).toLocaleString('en-IN')}
-                    </span>
-                    <span className="text-xl font-bold text-slate-400">/mo</span>
-                  </div>
-
-                  {Array.isArray(
-                    activeRentType === 'Single' ? property.RentSingle : property.RentDouble
-                  ) &&
-                    (activeRentType === 'Single'
-                      ? property.RentSingle
-                      : property.RentDouble
-                    ).length > 1 && (
-                      <div className="flex flex-wrap gap-2.5 mt-3">
-                        <p className="w-full text-[10px] font-black uppercase tracking-widest text-slate-400">
-                          Other Room Variants
-                        </p>
-                        {(activeRentType === 'Single'
-                          ? property.RentSingle
-                          : property.RentDouble
-                        )
-                          .slice(1)
-                          .map((price, idx) => (
-                            <div
-                              key={idx}
-                              className="bg-white border border-slate-200 px-4 py-2 rounded-xl text-sm font-black text-slate-900"
-                            >
-                              ₹{(price || 0).toLocaleString('en-IN')}/mo
-                            </div>
-                          ))}
+                  {shownRents.length > 0 ? (
+                    <>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        {shownRentType === 'Single' ? 'Single room' : 'Double sharing (per student)'}
+                      </p>
+                      <div className="flex items-baseline gap-2 flex-wrap">
+                        <span className="text-5xl sm:text-6xl font-black tracking-tight text-slate-900 leading-none">
+                          ₹{shownRents[0].toLocaleString('en-IN')}
+                        </span>
+                        <span className="text-lg font-bold text-slate-400">/month</span>
                       </div>
-                    )}
-
-                  {(activeRentType === 'Single'
-                    ? property.RentSingleDetails
-                    : property.RentDoubleDetails) && (
-                    <p className="text-xs font-black text-blue-700 uppercase tracking-wider bg-blue-50 px-5 py-3 rounded-2xl border border-blue-100 w-fit">
-                      {activeRentType === 'Single'
-                        ? property.RentSingleDetails
-                        : property.RentDoubleDetails}
-                    </p>
+                      {shownRents.length > 1 && (
+                        <div className="flex flex-wrap gap-2">
+                          <p className="w-full text-[10px] font-black uppercase tracking-widest text-slate-400">Other room options</p>
+                          {shownRents.slice(1).map((price, idx) => (
+                            <span key={idx} className="bg-white border border-slate-200 px-3 py-1.5 rounded-xl text-sm font-black text-slate-900">
+                              ₹{price.toLocaleString('en-IN')}/month
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-lg font-black text-slate-900">Rent on request — ask the eRooms team.</p>
                   )}
-
-                  <div className="flex items-center gap-3 bg-emerald-50 text-emerald-700 px-5 py-2.5 rounded-2xl border border-emerald-100 w-fit">
-                    <Zap size={15} />
-                    <span className="text-[11px] font-black uppercase tracking-widest">
-                      Zero Commission / Brokerage
-                    </span>
+                  <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl border border-emerald-100 w-fit">
+                    <Zap size={14} />
+                    <span className="text-[11px] font-black uppercase tracking-wider">Zero commission / brokerage</span>
                   </div>
                 </div>
 
-                <div className="lg:col-span-5 grid grid-cols-2 gap-4">
+                <div className="lg:col-span-5 grid grid-cols-2 gap-3">
                   {[
-                    {
-                      label: 'Electricity',
-                      val: `₹${property.ElectricityCharges || 0}`,
-                      unit: '/Unit'
-                    },
-                    {
-                      label: 'Parent Stay',
-                      val: `₹${property.ParentsStayCharge || 0}`,
-                      unit: '/Day'
-                    },
-                    {
-                      label: 'Security',
-                      val: property.SecurityDeposit || '1 Month',
-                      unit: 'Refundable'
-                    },
-                    {
-                      label: 'Maintenance',
-                      val: `₹${property.Maintenance || 0}`,
-                      unit: 'Charges'
-                    }
-                  ].map((fee, i) => (
-                    <div
-                      key={i}
-                      className="bg-white border border-slate-100 p-6 rounded-[28px] shadow-sm"
-                    >
-                      <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1.5">
-                        {fee.label}
-                      </p>
-                      <p className="text-xl font-black text-slate-900 tracking-tight">
-                        {fee.val}
-                        <span className="text-[10px] ml-1 text-slate-400 font-bold uppercase">
-                          {fee.unit}
-                        </span>
+                    { label: 'Electricity', val: property.ElectricityCharges ? `₹${property.ElectricityCharges}/unit` : '' },
+                    { label: 'Parent stay', val: property.ParentsStayCharge ? `₹${property.ParentsStayCharge}/day` : '' },
+                    { label: 'Security deposit', val: property.SecurityDeposit ? String(property.SecurityDeposit) : '' },
+                    { label: 'Maintenance', val: property.Maintenance ? `₹${property.Maintenance}` : '' }
+                  ].map((fee) => (
+                    <div key={fee.label} className="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm min-w-0">
+                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">{fee.label}</p>
+                      <p className={`text-base font-black break-words ${fee.val ? 'text-slate-900' : 'text-slate-400'}`}>
+                        {fee.val || 'Ask us'}
                       </p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="mt-10 p-6 bg-slate-900 text-white rounded-[28px] flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-blue-400">
-                    <ShieldCheck size={24} />
+              {property.SecurityTerms && (
+                <div className="mt-8 p-5 bg-slate-900 text-white rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-blue-400 flex-shrink-0">
+                      <ShieldCheck size={20} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-black">Security Terms</p>
+                      <p className="text-xs font-bold text-white/60 line-clamp-2">{property.SecurityTerms}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-base font-black tracking-tight">Security Terms</p>
-                    <p className="text-xs font-bold text-white/60">{property.SecurityTerms}</p>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowContractModal(true)}
+                    className="w-full md:w-auto bg-white text-slate-900 px-5 py-2.5 rounded-xl font-black uppercase tracking-wider text-[10px] hover:bg-blue-600 hover:text-white transition-colors"
+                  >
+                    View Terms
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setShowContractModal(true)}
-                  className="w-full md:w-auto bg-white text-slate-900 px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-600 hover:text-white transition-all"
-                >
-                  View Terms Summary
-                </button>
-              </div>
+              )}
             </section>
 
             {/* Location Section */}
@@ -917,7 +809,7 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
                 <p className="text-[11px] font-black uppercase tracking-[0.35em] text-blue-600">
                   Location & Commute
                 </p>
-                <h2 className="text-3xl lg:text-5xl font-black text-slate-900 uppercase tracking-tighter">
+                <h2 className="text-2xl lg:text-4xl font-black text-slate-900 tracking-tight">
                   Nearby Institutes
                 </h2>
                 <p className="text-slate-500 font-bold max-w-xl text-base leading-relaxed">
@@ -965,30 +857,9 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
 
                 <div className="space-y-4">
                   <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight flex items-center gap-2.5">
-                    <MapIcon size={18} className="text-blue-600" /> Neighborhood Essentials
+                    <MapIcon size={18} className="text-blue-600" /> Address &amp; Contact
                   </h3>
                   <div className="grid grid-cols-1 gap-4">
-                    {survivalMatrix.map((node, i) => (
-                      <div
-                        key={i}
-                        className="p-5 bg-slate-50 border border-slate-100 rounded-[28px] flex items-center gap-5"
-                      >
-                        <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-blue-600 border border-slate-100">
-                          <node.icon size={22} />
-                        </div>
-                        <div>
-                          <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-0.5">
-                            {node.label}
-                          </p>
-                          <p className="text-base font-black text-slate-900">
-                            {node.desc}{' '}
-                            <span className="text-blue-600 ml-1 font-mono text-xs">
-                              [{node.value}]
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                    ))}
                     <LockedLocation property={property} />
                   </div>
                 </div>
@@ -1107,7 +978,7 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
       </div>
 
       {/* Mobile Floating Action Bar */}
-      <div className="fixed bottom-16 left-3 right-3 lg:hidden z-[65]">
+      <div className="fixed bottom-3 left-3 right-3 lg:hidden z-[65]">
         <div className="bg-slate-900/95 backdrop-blur-xl rounded-[24px] p-2 flex items-center gap-2 border border-white/10 shadow-2xl">
           <button
             type="button"
@@ -1156,9 +1027,19 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
             </button>
 
             <div
-              className="relative w-full max-w-5xl aspect-video flex items-center justify-center"
+              className="relative w-full max-w-5xl h-[78vh] flex items-center justify-center"
               onClick={(e) => e.stopPropagation()}
+              onTouchStart={(e) => (touchStartX.current = e.touches[0].clientX)}
+              onTouchEnd={(e) => {
+                if (touchStartX.current === null) return;
+                const dx = e.changedTouches[0].clientX - touchStartX.current;
+                touchStartX.current = null;
+                if (Math.abs(dx) > 40) stepLightbox(dx < 0 ? 1 : -1);
+              }}
             >
+              <span className="absolute -top-10 left-1/2 -translate-x-1/2 text-white/80 text-xs font-black tracking-widest">
+                {lightboxIndex + 1} / {allPhotos.length}
+              </span>
               <button
                 type="button"
                 onClick={(e) => {
@@ -1177,7 +1058,8 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
                 src={transformDriveUrl(allPhotos[lightboxIndex], 800)}
                 width={800}
                 height={500}
-                className="w-full h-full rounded-3xl shadow-2xl"
+                fit="contain"
+                className="w-full h-full rounded-2xl"
                 alt={`${property.ListingName} photo ${lightboxIndex + 1}`}
               />
 

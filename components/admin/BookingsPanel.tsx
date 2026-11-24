@@ -65,9 +65,9 @@ const BookingsPanel: React.FC<Props> = ({ properties, draft, onDraftUsed }) => {
     setError('');
     try {
       setRows(await fetchBookings());
-    } catch (e: any) {
+    } catch (e) {
       setError(
-        e?.code === 'permission-denied'
+        (e as { code?: string })?.code === 'permission-denied'
           ? 'Permission denied — publish the new Firestore rules (bookings) in Firebase console.'
           : 'Could not load bookings. Check internet and try Refresh.'
       );

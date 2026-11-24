@@ -85,7 +85,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, priority = false 
             width={400}
             height={300}
             priority={priority}
-            className="w-full h-full group-hover:scale-105 transition-transform duration-700 ease-out"
+            fit="contain"
+            className="w-full h-full bg-slate-100"
           />
 
           <div className="absolute top-4 left-4 flex gap-2">
@@ -110,31 +111,19 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, priority = false 
             </div>
           </div>
 
-          {nearest && (
-            <div className="absolute bottom-3 left-3 right-3">
-              <div className="bg-slate-900/60 backdrop-blur-xl rounded-2xl p-3 border border-white/15 flex items-center justify-between text-white shadow-xl min-w-0">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-lg flex-shrink-0">🚶</span>
-                  <p className="text-xs font-bold leading-tight truncate">
-                    {minsWalk} mins walk <br />
-                    <span className="text-white/75 font-medium truncate block">
-                      to {nearest.name}
-                    </span>
-                  </p>
-                </div>
-                <div className="h-8 w-px bg-white/20 flex-shrink-0 mx-2" />
-                <div className="text-right flex-shrink-0">
-                  <p className="text-[9px] uppercase font-black tracking-widest text-white/60">
-                    Area
-                  </p>
-                  <p className="text-xs font-bold truncate max-w-[90px]">
-                    {property.Area.split(' (')[0]}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
+
+        {nearest && (
+          <div className="mx-4 mt-3 bg-slate-50 rounded-2xl px-3 py-2.5 border border-slate-100 flex items-center text-slate-700 min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-base flex-shrink-0">🚶</span>
+              <p className="text-xs font-bold leading-tight min-w-0">
+                {minsWalk} mins walk
+                <span className="text-slate-500 font-medium truncate block">to {nearest.name}</span>
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="p-5 pb-3">
           <div className="flex justify-between items-start mb-2">

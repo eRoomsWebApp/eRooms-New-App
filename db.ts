@@ -195,9 +195,9 @@ function logFirestoreError(error: unknown, operationType: OperationType, path: s
 // --- APP CONFIG (24H CACHE) ---
 export const DEFAULT_CONFIG: AppConfig = {
   siteName: 'eRooms.in',
-  tagline: 'Verified Hostels, PG & Flats in Kota',
+  tagline: 'Verified Hostels & PG in Kota',
   heroDescription:
-    'Explore verified student hostels, PGs, and flats across Kota near top coaching institutes. Direct visits with zero brokerage.',
+    'Compare verified student hostels and PGs across Kota near top coaching institutes — real photos, rent and facilities. Free visit, zero brokerage.',
   heroImages: [],
   announcements: [],
   footerText:

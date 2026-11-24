@@ -9,6 +9,8 @@ interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> 
   priority?: boolean;
   width?: number | string;
   height?: number | string;
+  /** 'contain' shows the whole photo (no cropping) over a soft blurred copy of itself. */
+  fit?: 'cover' | 'contain';
 }
 
 const OptimizedImage: React.FC<OptimizedImageProps> = ({
@@ -18,6 +20,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   priority = false,
   width,
   height,
+  fit = 'cover',
   ...props
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -45,6 +48,18 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
           </span>
         </div>
       ) : (
+        <>
+        {fit === 'contain' && (
+          <img
+            src={src}
+            alt=""
+            aria-hidden="true"
+            loading={priority ? 'eager' : 'lazy'}
+            decoding="async"
+            referrerPolicy="no-referrer"
+            className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60 pointer-events-none"
+          />
+        )}
         <img
           src={src}
           alt={alt}
@@ -56,11 +71,12 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
           fetchPriority={priority ? 'high' : 'auto'}
           decoding={priority ? 'sync' : 'async'}
           referrerPolicy="no-referrer"
-          className={`w-full h-full object-cover transition-all duration-700 ${
+          className={`relative w-full h-full ${fit === 'contain' ? 'object-contain' : 'object-cover'} transition-all duration-700 ${
             isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
           }`}
           {...props}
         />
+        </>
       )}
     </div>
   );

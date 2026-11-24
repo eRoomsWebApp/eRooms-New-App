@@ -18,6 +18,12 @@ const MobileNav: React.FC = () => {
   const staffDashboardPath =
     user?.role === UserRole.Owner ? '/owner/dashboard' : '/admin/dashboard';
 
+  // Hostel pages have their own sticky WhatsApp / Visit / Call bar — don't stack two bars.
+  const segs = location.pathname.split('/').filter(Boolean);
+  const isPropertyPage =
+    segs.length === 2 && !['area', 'near', 'admin', 'owner', 'student', 'property'].includes(segs[0]);
+  if (isPropertyPage) return null;
+
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-slate-100 px-6 py-2.5 z-[70] flex justify-around items-center shadow-[0_-8px_30px_rgba(0,0,0,0.06)]">
       <Link

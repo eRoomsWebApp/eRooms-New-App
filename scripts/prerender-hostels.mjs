@@ -112,7 +112,7 @@ ${near.length ? `<h2>Nearby coaching</h2><ul>${near.map((n) => `<li>${esc(n.name
 
 // List page: /hostels/
 {
-  const title = 'Verified Hostels, PG & Flats in Kota | eRooms.in';
+  const title = 'Verified Hostels & PG in Kota | eRooms.in';
   const description = `Compare ${hostels.length}+ verified hostels & PGs in Kota near Allen, Motion & PW. Rent, photos & facilities. Zero brokerage, free visits with eRooms.in.`;
   const canonical = `${SITE}${BASE}/`;
   const items = hostels
@@ -127,7 +127,7 @@ ${near.length ? `<h2>Nearby coaching</h2><ul>${near.map((n) => `<li>${esc(n.name
     name: 'Verified hostels and PGs in Kota',
     itemListElement: hostels.map((h, i) => ({ '@type': 'ListItem', position: i + 1, url: `${SITE}${BASE}${pathOf(h)}`, name: h.ListingName }))
   };
-  const body = `<main ${box}><h1 style="font-size:32px">Verified Hostels, PG &amp; Flats in Kota</h1><p>Zero brokerage · Transparent rent · Free visit with the eRooms team.</p><ul>${items}</ul></main>`;
+  const body = `<main ${box}><h1 style="font-size:32px">Verified Hostels &amp; PG in Kota</h1><p>Zero brokerage · Transparent rent · Free visit with the eRooms team.</p><ul>${items}</ul></main>`;
   fs.mkdirSync(path.join(DIST, 'hostels'), { recursive: true });
   fs.writeFileSync(path.join(DIST, 'hostels', 'index.html'), render({ title, description, canonical, image: '', jsonLd, body }));
 }

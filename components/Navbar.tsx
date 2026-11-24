@@ -17,8 +17,8 @@ const Navbar: React.FC = () => {
   const navItems = [
     { label: 'Hostels', path: '/' },
     { label: 'PG', path: '/?type=PG' },
-    { label: 'Flats', path: '/?type=Flat' },
-    { label: 'Mess', path: '/?type=Mess' }
+    { label: 'Boys', path: '/?gender=Boys' },
+    { label: 'Girls', path: '/?gender=Girls' }
   ];
 
   const getDashboardPath = () => {
