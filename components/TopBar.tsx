@@ -1,8 +1,10 @@
 import React from 'react';
 import { Phone, MessageCircle } from 'lucide-react';
 import { EROOMS_WHATSAPP_NUMBER, EROOMS_CALL_TEL } from '../utils/tracking';
+import { useLeadKnown } from '../utils/useLeadKnown';
 
 const TopBar: React.FC = () => {
+  const leadKnown = useLeadKnown();
   const waText = encodeURIComponent(
     'Namaste eRooms, mujhe Kota mein Hostel / PG chahiye.'
   );
@@ -16,7 +18,7 @@ const TopBar: React.FC = () => {
             className="flex items-center gap-2 hover:text-blue-400 transition-colors"
           >
             <Phone size={12} className="text-blue-400" />
-            <span>+91 93510 99947</span>
+            <span>{leadKnown ? '+91 93510 99947' : 'Call eRooms'}</span>
           </a>
           <a
             href={`https://wa.me/${EROOMS_WHATSAPP_NUMBER}?text=${waText}`}

@@ -53,6 +53,7 @@ import {
   truncateMeta
 } from '../utils/slug';
 import { useLeadCapture } from '../components/LeadCaptureSheet';
+import LockedLocation from '../components/LockedLocation';
 import { useVisitTracker } from '../utils/useVisitTracker';
 
 const facilityIconMap: Record<string, React.ElementType> = {
@@ -355,14 +356,13 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
   const mainPhoto800 = transformDriveUrl(property.PhotoMain, 800);
   // Static catalogue photos are site-relative (/hostels/media/...); OG + JSON-LD need absolute URLs.
   const mainPhotoAbs = mainPhoto800.startsWith('/') ? `${SITE_ORIGIN}${mainPhoto800}` : mainPhoto800;
-  const staticAddress = (property as Property & { Address?: string }).Address;
 
   const pageTitle = truncateMeta(
     `${property.ListingName}, ${cleanArea} | eRooms.in`,
     59
   );
   const pageDescription = truncateMeta(
-    `${property.ListingType} for ${property.Gender} in ${cleanArea}, Kota starting ₹${minRent.toLocaleString('en-IN')}/mo. View photos, amenities & book a free visit on eRooms.in.`,
+    `${property.ListingType} for ${property.Gender} in ${cleanArea}, Kota from ₹${minRent.toLocaleString('en-IN')}/mo${property.Facilities?.length ? `: ${property.Facilities.slice(0, 4).join(', ')}` : ''}. Photos & free visit on eRooms.in.`,
     154
   );
 
@@ -374,9 +374,15 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
         name: property.ListingName,
         url: canonicalUrl,
         image: mainPhotoAbs,
-        telephone: '+91-9351099947',
-        ...(property.lat && property.lng
-          ? { geo: { '@type': 'GeoCoordinates', latitude: property.lat, longitude: property.lng } }
+        description: pageDescription,
+        ...(property.Facilities?.length
+          ? {
+              amenityFeature: property.Facilities.map((f) => ({
+                '@type': 'LocationFeatureSpecification',
+                name: f,
+                value: true
+              }))
+            }
           : {}),
         priceRange:
           minRent === maxRent
@@ -384,7 +390,7 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
             : `₹${minRent.toLocaleString('en-IN')} - ₹${maxRent.toLocaleString('en-IN')}/month`,
         address: {
           '@type': 'PostalAddress',
-          streetAddress: staticAddress || `${property.Area}, Kota, Rajasthan`,
+          streetAddress: `${cleanArea}, Kota`,
           addressLocality: cleanArea,
           addressRegion: 'Rajasthan',
           addressCountry: 'IN'
@@ -439,9 +445,6 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
     }
   };
 
-  const mapQuery = encodeURIComponent(
-    property.GoogleMapsPlusCode || `${property.ListingName}, ${property.Area}, Kota, Rajasthan`
-  );
 
   return (
     <motion.div
@@ -986,20 +989,7 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
                         </div>
                       </div>
                     ))}
-                    <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${mapQuery}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-5 bg-slate-900 rounded-[28px] text-white flex items-center justify-between shadow-lg hover:bg-blue-600 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Navigation size={18} className="text-blue-400" />
-                        <p className="text-xs font-black uppercase tracking-widest">
-                          View Area on Google Maps
-                        </p>
-                      </div>
-                      <ExternalLink size={16} className="opacity-60" />
-                    </a>
+                    <LockedLocation property={property} />
                   </div>
                 </div>
               </div>
@@ -1089,7 +1079,7 @@ const PropertyProfile: React.FC<PropertyProfileProps> = ({ previewId }) => {
 
                 <div className="mt-6 pt-5 border-t border-slate-100 text-center">
                   <p className="text-[11px] font-bold text-slate-400 leading-relaxed">
-                    All visits and room availability are coordinated directly by the eRooms.in Kota team (+91 93510 99947).
+                    All visits and room availability are coordinated directly by the eRooms.in Kota team.
                   </p>
                 </div>
               </div>

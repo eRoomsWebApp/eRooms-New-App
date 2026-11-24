@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, MessageCircle, Phone, Calendar, CheckCircle2, ArrowRight } from 'lucide-react';
+import { X, MessageCircle, Phone, Calendar, CheckCircle2, ArrowRight, MapPin } from 'lucide-react';
 import { Property } from '../types';
 import {
   LeadActionType,
@@ -52,6 +52,10 @@ export const LeadCaptureProvider: React.FC<{ children: ReactNode }> = ({ childre
       }
 
       executeLeadChannelAction(req.action, req.property);
+      // Also record the student in the admin Lead CRM (Firestore). Never blocks the visitor.
+      import('../utils/crm')
+        .then((m) => m.createGateLead(name, phone, `${req.action}: ${req.property.ListingName}`))
+        .catch(() => undefined);
     },
     []
   );
@@ -136,6 +140,7 @@ export const LeadCaptureProvider: React.FC<{ children: ReactNode }> = ({ childre
                     {pendingRequest.action === 'Get Details on WhatsApp' && <MessageCircle size={22} />}
                     {pendingRequest.action === 'Call eRooms' && <Phone size={22} />}
                     {pendingRequest.action === 'Book Free Visit' && <Calendar size={22} />}
+                    {pendingRequest.action === 'Unlock Address' && <MapPin size={22} />}
                   </div>
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-blue-600">

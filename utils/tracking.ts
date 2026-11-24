@@ -12,7 +12,10 @@ const SESSION_ID_KEY = 'erooms_session_id';
 const VISITOR_ID_KEY = 'erooms_visitor_id';
 const CLICK_PATH_KEY = 'erooms_click_path';
 
-export type LeadActionType = 'Get Details on WhatsApp' | 'Call eRooms' | 'Book Free Visit';
+export type LeadActionType = 'Get Details on WhatsApp' | 'Call eRooms' | 'Book Free Visit' | 'Unlock Address';
+
+/** Fired on window whenever the visitor's name + mobile are saved (used to reveal address / phone). */
+export const LEAD_KNOWN_EVENT = 'erooms:lead-known';
 
 declare global {
   interface Window {
@@ -64,6 +67,7 @@ export const saveKnownLeadInfo = (name: string, phone: string) => {
     if (/^[6-9]\d{9}$/.test(normalizedPhone)) {
       localStorage.setItem(EROOMS_KNOWN_PHONE_KEY, normalizedPhone);
     }
+    window.dispatchEvent(new Event(LEAD_KNOWN_EVENT));
   } catch {
     // ignore storage errors
   }

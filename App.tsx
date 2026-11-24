@@ -9,10 +9,10 @@ import { LeadCaptureProvider } from './components/LeadCaptureSheet';
 import Navbar from './components/Navbar';
 import MobileNav from './components/MobileNav';
 import TopBar from './components/TopBar';
+import { useLeadKnown } from './utils/useLeadKnown';
 import Home from './pages/Home';
 import ProtectedRoute from './components/ProtectedRoute';
 import FriendlyErrorBoundary from './components/FriendlyErrorBoundary';
-import LeadGate from './components/LeadGate';
 import { UserRole } from './types';
 import { Instagram, Youtube, Phone, MessageCircle } from 'lucide-react';
 import { SAMPLE_PREVIEW_PROPERTY } from './data/sampleProperty';
@@ -91,6 +91,7 @@ const AnimatedRoutes: React.FC = () => {
 };
 
 const AppContent: React.FC = () => {
+  const leadKnown = useLeadKnown();
   const { config, loading: configLoading } = useConfig();
   const { isAuthReady } = useAuth();
 
@@ -127,7 +128,7 @@ const AppContent: React.FC = () => {
               href="tel:+919351099947"
               className="text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors inline-flex items-center justify-center md:justify-start gap-2"
             >
-              <Phone size={15} /> +91 93510 99947
+              <Phone size={15} /> {leadKnown ? '+91 93510 99947' : 'Call eRooms'}
             </a>
             <a
               href="https://wa.me/919351099947"
@@ -182,9 +183,7 @@ const App: React.FC = () => {
             <AuthProvider>
               <PropertyProvider>
                 <LeadCaptureProvider>
-                  <LeadGate>
-                    <AppContent />
-                  </LeadGate>
+                  <AppContent />
                 </LeadCaptureProvider>
               </PropertyProvider>
             </AuthProvider>
