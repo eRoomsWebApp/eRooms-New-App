@@ -248,6 +248,9 @@ const setCachedConfig = (config: AppConfig) => {
   }
 };
 
+// Instant config for first paint (cache or defaults) — never wait on Firestore to show the site
+export const getInitialConfig = (): AppConfig => getCachedConfig()?.config || DEFAULT_CONFIG;
+
 export const getAppConfig = async (forceRefresh = false): Promise<AppConfig> => {
   const path = 'config/global';
   const cached = getCachedConfig();

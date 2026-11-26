@@ -3,8 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Link } f
 import { AnimatePresence, motion } from 'framer-motion';
 import { HelmetProvider } from 'react-helmet-async';
 import { PropertyProvider } from './context/PropertyContext';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import { ConfigProvider, useConfig } from './context/ConfigContext';
+import { DEFAULT_CONFIG } from './db';
 import { LeadCaptureProvider } from './components/LeadCaptureSheet';
 import Navbar from './components/Navbar';
 import MobileNav from './components/MobileNav';
@@ -92,16 +93,8 @@ const AnimatedRoutes: React.FC = () => {
 
 const AppContent: React.FC = () => {
   const leadKnown = useLeadKnown();
-  const { config, loading: configLoading } = useConfig();
-  const { isAuthReady } = useAuth();
-
-  if (configLoading || !config || !isAuthReady) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  const { config: liveConfig } = useConfig();
+  const config = liveConfig || DEFAULT_CONFIG;
 
   return (
     <div className="min-h-screen flex flex-col selection:bg-blue-100 selection:text-blue-900">

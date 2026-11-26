@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AppConfig } from '../types';
 import {
   getAppConfig,
+  getInitialConfig,
   DEFAULT_CONFIG,
   CONFIG_UPDATED_EVENT,
   FIRESTORE_QUOTA_EVENT,
@@ -18,8 +19,8 @@ interface ConfigContextType {
 const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
 
 export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [config, setConfig] = useState<AppConfig | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [config, setConfig] = useState<AppConfig | null>(() => getInitialConfig());
+  const [loading, setLoading] = useState(false);
   const [quotaExceeded, setQuotaExceeded] = useState(isFirestoreQuotaExceeded());
 
   const refreshConfig = async () => {
@@ -37,7 +38,7 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const initialConfig = await getAppConfig();
         setConfig(initialConfig);
       } catch {
-        setConfig(DEFAULT_CONFIG);
+        // keep instant (cached/default) config
       } finally {
         setLoading(false);
       }
